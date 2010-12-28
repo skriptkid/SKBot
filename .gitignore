@@ -1,0 +1,13 @@
+.classpath
+.project
+.svn
+/*.diff
+/*.iml
+/*.ipr
+/*.iws
+/*.jar
+/*.patch
+/*.class
+/bin
+/scripts/*.class
+/temp.txt

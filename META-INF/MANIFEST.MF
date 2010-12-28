@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Created-By: 1.6.0_21 (Sun Microsystems Inc.)
+Main-Class: org.rsbot.Boot
+
+Name: org/rsbot
+Implementation-Vendor: "org.rsbot"
+Implementation-Title: "SKBot"
+Implementation-Version: "219" 
+Specification-Vendor:  "org.rsbot"
+Sealed: true
+Specification-Title: "SKBot"
+Specification-Version: "219" 
+
