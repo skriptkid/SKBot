@@ -319,7 +319,7 @@ public class Game extends MethodProvider {
 		if (!isOnLogoutTab()) {
 			int idx = methods.client.getGUIRSInterfaceIndex();
 			//Logout button in the top right hand corner
-			methods.interfaces.getComponent(idx, isFixed() ? 180 : 171).doClick();
+			methods.interfaces.getComponent(idx, isFixed() ? 181 : 172).doClick();
 			int timesToWait = 0;
 			while (!isOnLogoutTab() && timesToWait < 5) {
 				sleep(random(200, 400));
