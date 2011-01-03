@@ -64,6 +64,8 @@ public class Bot {
 	 * Defaults to 'keyboard only' whenever a script is started.
 	 */
 	public volatile int inputMask = Environment.INPUT_KEYBOARD | Environment.INPUT_MOUSE;
+    public int inputm;
+    public int inputFlags;
 
 	public Bot() {
 		im = new InputManager(this);
