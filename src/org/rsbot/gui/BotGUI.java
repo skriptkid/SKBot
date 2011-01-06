@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * @author Jacmob
  */
-public final class BotGUI extends JFrame implements ActionListener, ScriptListener {
+public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 
 	public static final int PANEL_WIDTH = 765, PANEL_HEIGHT = 503, LOG_HEIGHT = 120;
 
@@ -199,7 +199,7 @@ public final class BotGUI extends JFrame implements ActionListener, ScriptListen
 					toolBar.setScriptButton(BotToolBar.RUN_SCRIPT);
 				}
 				toolBar.setOverrideInput(curr.overrideInput);
-				toolBar.setInputState(curr.inputm);
+				toolBar.setInputState(curr.inputFlags);
 			}
 		} else if (menu.equals("Run")) {
 			Bot current = getCurrentBot();

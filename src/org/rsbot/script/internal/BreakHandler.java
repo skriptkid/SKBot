@@ -3,7 +3,7 @@ package org.rsbot.script.internal;
 import java.util.Random;
 
 public class BreakHandler {
-
+//Fixed by me.SkriptKiddy
 	protected final Random random = new Random();
 
 	private long nextBreak;

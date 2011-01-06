@@ -31,12 +31,11 @@ public class Bot {
 	private TextPaintEvent textPaintEvent;
 	private EventManager eventManager;
 	private BufferedImage backBuffer;
-	private BufferedImage frontBuffer;
 	private BufferedImage image;
 	private InputManager im;
 	private RSLoader loader;
 	private ScriptHandler sh;
-	private BreakHandler bh;
+        private BreakHandler bh;
 	private Map<String, EventListener> listeners;
 
 	/**
@@ -63,9 +62,7 @@ public class Bot {
 	 * Defines what types of input are enabled when overrideInput is false.
 	 * Defaults to 'keyboard only' whenever a script is started.
 	 */
-	public volatile int inputMask = Environment.INPUT_KEYBOARD | Environment.INPUT_MOUSE;
-    public int inputm;
-    public int inputFlags;
+	public volatile int inputFlags = Environment.INPUT_KEYBOARD | Environment.INPUT_MOUSE;
 
 	public Bot() {
 		im = new InputManager(this);
@@ -73,45 +70,36 @@ public class Bot {
 		final Dimension size = Application.getPanelSize();
 		loader.setCallback(new Runnable() {
 			public void run() {
-				setClient((Client) loader.getClient());
-				resize(size.width, size.height);
-				methods.menu.setupListener();
+				try {
+					setClient((Client) loader.getClient());
+					resize(size.width, size.height);
+					methods.menu.setupListener();
+				} catch (Exception ignored) {
+				}
 			}
 		});
 		sh = new ScriptHandler(this);
-		bh = new BreakHandler();
-		frontBuffer = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB);
+                bh = new BreakHandler();
 		backBuffer = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB);
 		image = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB);
 		paintEvent = new PaintEvent();
 		textPaintEvent = new TextPaintEvent();
-		paintLoading();
 		eventManager = new EventManager();
 		listeners = new TreeMap<String, EventListener>();
 	}
 
-	private void paintLoading() {
-		Graphics graphics = frontBuffer.getGraphics();
-		Font font = new Font("Helvetica", 1, 13);
-		FontMetrics fontMetrics = loader.getFontMetrics(font);
-		graphics.setColor(Color.black);
-		graphics.fillRect(0, 0, 768, 503);
-		graphics.setColor(Color.RED);
-		graphics.drawRect(232, 232, 303, 33);
-		String s = "Loading...";
-		graphics.setFont(font);
-		graphics.setColor(Color.WHITE);
-		graphics.drawString(s, (768 - fontMetrics.stringWidth(s)) / 2, 255);
-	}
-
 	public void start() {
 		try {
-			loader.loadClasses();
+			loader.paint(image.getGraphics());
+			loader.load();
+			if (loader.getTargetName() == null) {
+				return;
+			}
 			botStub = new BotStub(loader);
 			loader.setStub(botStub);
 			eventManager.start();
 			botStub.setActive(true);
-			ThreadGroup tg = new ThreadGroup("RSClient");
+			ThreadGroup tg = new ThreadGroup("RSClient-" + hashCode());
 			Thread thread = new Thread(tg, loader, "Loader");
 			thread.start();
 		} catch (Exception ignored) {
@@ -127,7 +115,6 @@ public class Bot {
 	}
 
 	public void resize(int width, int height) {
-		frontBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		// client reads size of loader applet for drawing
@@ -188,15 +175,14 @@ public class Bot {
 	}
 
 	public Graphics getBufferGraphics() {
-		Graphics front = frontBuffer.getGraphics();
-		front.drawImage(backBuffer, 0, 0, null);
-		paintEvent.graphics = front;
-		textPaintEvent.graphics = front;
+		Graphics back = backBuffer.getGraphics();
+		paintEvent.graphics = back;
+		textPaintEvent.graphics = back;
 		textPaintEvent.idx = 0;
 		eventManager.processEvent(paintEvent);
 		eventManager.processEvent(textPaintEvent);
-		front.dispose();
-		image.getGraphics().drawImage(frontBuffer, 0, 0, null);
+		back.dispose();
+		image.getGraphics().drawImage(backBuffer, 0, 0, null);
 		if (panel != null) {
 			panel.repaint();
 		}
@@ -256,5 +242,6 @@ public class Bot {
 		}
 		return null;
 	}
+
 
 }
