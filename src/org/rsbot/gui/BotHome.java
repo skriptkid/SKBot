@@ -54,13 +54,13 @@ public class BotHome {
 		} else if (len == 5) {
 			draw(g, 0, 0, 0, width / 3, height / 2);
 			draw(g, 1, width / 3, 0, width / 3, height / 2);
-			draw(g, 1, (width * 2) / 3, 0, width / 3, height / 2);
+			draw(g, 2, (width * 2) / 3, 0, width / 3, height / 2);
 			draw(g, 3, 0, height / 2, width / 2, height / 2);
 			draw(g, 4, width / 2, height / 2, width / 2, height / 2);
 		} else if (len == 6) {
 			draw(g, 0, 0, 0, width / 3, height / 2);
 			draw(g, 1, width / 3, 0, width / 3, height / 2);
-			draw(g, 1, (width * 2) / 3, 0, width / 3, height / 2);
+			draw(g, 2, (width * 2) / 3, 0, width / 3, height / 2);
 			draw(g, 3, 0, height / 2, width / 3, height / 2);
 			draw(g, 4, width / 3, height / 2, width / 3, height / 2);
 			draw(g, 5, (width * 2) / 3, height / 2, width / 3, height / 2);
@@ -71,7 +71,7 @@ public class BotHome {
 		g.setColor(new Color(0, 0, 0, 170));
 		g.fillRect(0, height - 30, width, 30);
 		g.setColor(Color.white);
-		g.drawString("Running: " + (bots.length == 1 ? "1 bot." : bots.length + " bots."), 5, height + metrics.getDescent() - 14);
+		g.drawString("Spectating " + (bots.length == 1 ? "1 bot." : bots.length + " bots."), 5, height + metrics.getDescent() - 14);
 	}
 
 	public void draw(Graphics g, int idx, int x, int y, int width, int height) {

@@ -62,7 +62,7 @@ public class GlobalConfiguration {
 		}
 
 		public static class URLs {
-			public static final String UPDATER = "http://skbot-client.googlecode.com/svn/updater/v2.2x/";
+			public static final String UPDATER = "http://updater.powerbot.org/";
 			public static final String DOWNLOAD = UPDATER + "SKBot.jar";
 			public static final String UPDATE = UPDATER + "mod.dat";
 			public static final String VERSION = UPDATER + "version.dat";
@@ -137,6 +137,10 @@ public class GlobalConfiguration {
 
 		public static String getBootCache() {
 			return Paths.getSettingsDirectory() + File.separator + "boot.txt";
+		}
+		
+		public static String getUIDsFile() {
+			return Paths.getSettingsDirectory() + File.separator + "uid.txt";
 		}
 
 		public static String getScreenshotsDirectory() {
