@@ -63,7 +63,7 @@ public class GlobalConfiguration {
 
 		public static class URLs {
 			public static final String UPDATER = "http://skbot-client.googlecode.com/svn/updater/v2.2x/";
-			public static final String DOWNLOAD = UPDATER + "SKBot.jar";
+			public static final String DOWNLOAD = UPDATER + "SKBotPro.jar";
 			public static final String UPDATE = UPDATER + "mod.dat";
 			public static final String VERSION = UPDATER + "version.dat";
 			public static final String PROJECT = "http://code.google.com/p/skbot-client";
