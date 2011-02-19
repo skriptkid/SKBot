@@ -181,11 +181,29 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				openURL(GlobalConfiguration.Paths.URLs.SITE);
 			} else if (option.equals("Project")) {
 				openURL(GlobalConfiguration.Paths.URLs.PROJECT);
-			} else if (option.equals("About")) {
+			} else if (option.equals("About")) {    
 				JOptionPane.showMessageDialog(this, new String[]{"An open source bot.",
 						"Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
 						"About", JOptionPane.INFORMATION_MESSAGE);
-			}
+                        }
+                } else if (menu.equals("RS Guides")) {
+                        if (option.equals("RS ItemDB")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.RS_ItemDB);
+                                } else if (option.equals("GE Price Checker")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.GE_Price_Checker);
+                                } else if (option.equals("QuestF2p")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.QuestF2p);
+                                } else if (option.equals("QuestP2p")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.QuestP2p);
+                        }
+                        } else if (menu.equals("Extra's")) {
+
+               if (option.equals("Comeing Soon!")) {
+                                        JOptionPane.showMessageDialog(this, new String[]{"Will be adding few more addons soon.", "                  &",
+                    "more script updates to come",
+				"Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
+				"About", JOptionPane.INFORMATION_MESSAGE);
+                        }
 		} else if (menu.equals("Tab")) {
 			Bot curr = getCurrentBot();
 			menuBar.setBot(curr);
@@ -262,22 +280,27 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 		}).start();
 	}
 
-	public void removeBot(final Bot bot) {
-		int idx = bots.indexOf(bot);
-		if (idx >= 0) {
-			toolBar.removeTab(idx + 1);
-		}
-		bots.remove(idx);
-		bot.getScriptHandler().stopAllScripts();
-		bot.getScriptHandler().removeScriptListener(this);
-		home.setBots(bots);
-		new Thread(new Runnable() {
-			public void run() {
-				bot.stop();
-				System.gc();
-			}
-		}).start();
-	}
+     /*
+     * @RemoveBot Fix by: Paulpkyou
+      * Re check this
+     */
+
+        public void removeBot(final Bot bot) {
+                int idx = bots.indexOf(bot);
+                if (idx >= 0) {
+                        toolBar.removeTab(idx + 1);
+                }
+        bot.getScriptHandler().stopAllScripts();
+                bot.getScriptHandler().removeScriptListener(this);
+                bots.remove(idx);
+                home.setBots(bots);
+                new Thread(new Runnable() {
+                        public void run() {
+                                bot.stop();
+                                System.gc();
+                        }
+                }).start();
+        }
 
 	void pauseScript(Bot bot) {
 		ScriptHandler sh = bot.getScriptHandler();
