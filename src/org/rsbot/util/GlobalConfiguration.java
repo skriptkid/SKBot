@@ -65,7 +65,7 @@ public class GlobalConfiguration {
 			public static final String UPDATER = "http://skbot-client.googlecode.com/svn/updater/v2.2x/";
 			public static final String DOWNLOAD = UPDATER + "SKBot.jar";
 			public static final String UPDATE = UPDATER + "ms637.dat";
-			public static final String VERSION = UPDATER + "v225.dat";
+			public static final String VERSION = UPDATER + "version.dat";
 			public static final String PROJECT = "http://code.google.com/p/skbot-client";
 			public static final String SITE = "http://skproductions.tk";
 			public static final String STATS = "http://stats.powerbot.org/sync/";
