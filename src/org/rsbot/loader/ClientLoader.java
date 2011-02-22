@@ -197,7 +197,7 @@ public class ClientLoader {
 					"Our developers are currently ensuring that the bot can understand any new game content.\n" +
 					"This process also ensures that the bot client remains undetectable.\n" +
 					"This application will update itself when opened after the update is complete.\n" +
-					"Try again in a few minutes or check the powerbot.org announcements for more information.\n" +
+					"Try again in a few minutes or check the skprodcutions.tk announcements for more information.\n" +
 					"If this does not give you an exact time, refrain from asking as no one else will be able to.",
 					"Outdated (" + script.getName() + ")",
 					JOptionPane.INFORMATION_MESSAGE);
