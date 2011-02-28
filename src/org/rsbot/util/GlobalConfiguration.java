@@ -33,8 +33,8 @@ public class GlobalConfiguration {
 	public static class Paths {
 		public static class Resources {
 			public static final String ROOT = "resources";
+                        public static final String THEME = "theme.pb";
 			public static final String SCRIPTS = Paths.SCRIPTS_NAME_SRC + "/";
-
 			public static final String ROOT_IMG = "/" + Resources.ROOT + "/images";
 			public static final String ICON = Resources.ROOT_IMG + "/icon.png";
 			public static final String ICON_DELETE = Resources.ROOT_IMG + "/delete.png";
@@ -64,7 +64,7 @@ public class GlobalConfiguration {
 		public static class URLs {
 			public static final String UPDATER = "http://skbot-client.googlecode.com/svn/updater/v2.2x/";
 			public static final String DOWNLOAD = UPDATER + "SKBot.jar";
-			public static final String UPDATE = UPDATER + "ms639.dat";
+			public static final String UPDATE = UPDATER + "ms639.dat.gz";
 			public static final String VERSION = UPDATER + "version.dat";
 			public static final String PROJECT = "http://code.google.com/p/skbot-client";
 			public static final String SITE = "http://skproductions.tk";
