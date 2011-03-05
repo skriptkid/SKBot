@@ -16,7 +16,7 @@ import java.awt.*;
 import java.util.HashMap;
 
 @ScriptManifest(authors = {"LastCoder"}, keywords = "Cooker, Auto", name = "ArbiTannerLite", version = 2.0, description = "Start, all options are in GUI.")
-public class ArbiTannerLite extends Script implements MessageListener,
+public class AutoTanner extends Script implements MessageListener,
 		PaintListener {
 
 	private static final Hide[] HIDE_ARRAY = new Hide[]{

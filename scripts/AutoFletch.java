@@ -22,8 +22,8 @@ import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.script.wrappers.RSTilePath;
 
-@ScriptManifest(authors = { "LastCoder" }, keywords = " Auto", name = "ArbiFletchLite", version = 1.0, description = "Start, all options are in GUI.")
-public class ArbiFletchLite extends Script implements MessageListener, PaintListener {
+@ScriptManifest(authors = { "LastCoder" }, keywords = " Auto", name = "AutoFletch", version = 1.0, description = "Start, all options are in GUI.")
+public class AutoFletch extends Script implements MessageListener, PaintListener {
 
 	private static final Log[] LOGS = new Log[] {
 			new Log("Normal Log", 0, 1511), 

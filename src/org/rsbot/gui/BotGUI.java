@@ -71,12 +71,11 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
         Object o = Serializer.deserialize(new File(GlobalConfiguration.Paths.Resources.THEME));
         theme_name = o == null ? "SubstanceTwilightLookAndFeel" : (String) o;
         SwingUtilities.invokeLater(new Runnable() {
-
+ 
             public void run() {
-
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
                 ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-                FrameUtil.setTheme(frame, theme_name);
+              //  FrameUtil.setTheme(frame, theme_name);TODO:fix bug
                 if (GlobalConfiguration.RUNNING_FROM_JAR) {
                     UpdateUtil updater = new UpdateUtil(BotGUI.this);
                     updater.checkUpdate(false);
@@ -215,16 +214,34 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
                             "Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
                         "About", JOptionPane.INFORMATION_MESSAGE);
             }
+                } else if (menu.equals("RS Guides")) {
+                        if (option.equals("RS ItemDB")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.RS_ItemDB);
+                                } else if (option.equals("GE Price Checker")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.GE_Price_Checker);
+                                } else if (option.equals("QuestF2p")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.QuestF2p);
+                                } else if (option.equals("QuestP2p")) {
+                                    openURL(GlobalConfiguration.Paths.URLs.QuestP2p);
+                        }
+                        } else if (menu.equals("Extra's")) {
 
+               if (option.equals("Comeing Soon!")) {
+                                        JOptionPane.showMessageDialog(this, new String[]{"Will be adding few more addons soon.", "                  &",
+                    "more script updates to come",
+				"Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
+				"About", JOptionPane.INFORMATION_MESSAGE);
+                        }
         } else if (menu.equals("Layout")) {
             if (option.equals("Themes")) {
-
+//Change JOptionPanel
                 if (ThemesGui.isUpdated()) {
                     log.info("The bot just updated dependancies, please restart the bot before you select themes.");
                 } else if (ThemesGui.isProcessing()) {
                     log.info("its currently downloading dependancies, please wait ...");
                 } else {
-                    new ThemesGui(this).setVisible(true);
+                   log.info("Wait for next release for a better implementation");
+                   // new ThemesGui(this).setVisible(true);
                 }
             }
 
@@ -305,7 +322,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
         }).start();
     }
 
-         /*
+     /*
      * @RemoveBot Fix by: Paulpkyou
       * Re check this
      */
@@ -457,20 +474,26 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
         }
     }
 
-    public void scriptStarted(ScriptHandler handler, Script script) {
-        Bot bot = handler.getBot();
-        if (bot == getCurrentBot()) {
-            bot.inputFlags = Environment.INPUT_KEYBOARD;
-            bot.overrideInput = false;
-            toolBar.setScriptButton(BotToolBar.PAUSE_SCRIPT);
-            toolBar.setInputState(bot.inputFlags);
-            toolBar.setOverrideInput(false);
-            menuBar.setOverrideInput(false);
-            String acct = bot.getAccountName();
-            toolBar.setTabLabel(bots.indexOf(bot) + 1, acct == null ? "RuneScape" : acct);
-            toolBar.updateInputButton();
-            setTitle(acct);
-        }
+    public void scriptStarted(final ScriptHandler handler, Script script) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+
+                Bot bot = handler.getBot();
+                if (bot == getCurrentBot()) {
+                    bot.inputFlags = Environment.INPUT_KEYBOARD;
+                    bot.overrideInput = false;
+                    toolBar.setScriptButton(BotToolBar.PAUSE_SCRIPT);
+                    toolBar.setInputState(bot.inputFlags);
+                    toolBar.setOverrideInput(false);
+                    menuBar.setOverrideInput(false);
+                    String acct = bot.getAccountName();
+                    toolBar.setTabLabel(bots.indexOf(bot) + 1, acct == null ? "RuneScape" : acct);
+                    toolBar.updateInputButton();
+                    setTitle(acct);
+                }
+            }
+        });
     }
 
     public void scriptStopped(ScriptHandler handler, Script script) {

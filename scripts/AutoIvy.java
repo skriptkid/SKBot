@@ -12,8 +12,8 @@ import org.rsbot.script.wrappers.RSObject;
 
 import java.awt.*;
 
-@ScriptManifest(authors = {"LastCoder"}, keywords = "Auto", name = "ArbiIvy", version = 2.0, description = "Start next to ivy!")
-public class ArbiIvy extends Script implements MessageListener, PaintListener {
+@ScriptManifest(authors = {"LastCoder"}, keywords = "Auto", name = "AutoIvy", version = 2.0, description = "Start next to ivy!")
+public class AutoIvy extends Script implements MessageListener, PaintListener {
 
 	private static final int[] IVY_ID = new int[]{46318, 46320, 46322, 46324};
 	private static final int[] IVY_NEST_ID = new int[]{5070, 5071, 5072, 5073, 5074, 5075, 5076, 7413, 11966};

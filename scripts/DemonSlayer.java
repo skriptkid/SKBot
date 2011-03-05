@@ -1,3 +1,5 @@
+package scripts;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -27,47 +29,13 @@ public class DemonSlayer extends Script implements PaintListener {
     public long counteR = System.currentTimeMillis();
     public long timeRunning = 0, hours = 0, minutes = 0, seconds = 0,
             startTime = System.currentTimeMillis();;
-    int[] teleIDs = {554, 560, 562, 1181, 1109, 1195, 1313, 1147, 1619, 1617};
+    int[] teleIDs = {560, 562, 1181, 1109, 1195, 1313, 1147, 1619, 1617};
     int[] alchIDs = {1181, 1109, 1195, 1313, 1147};
     public boolean activeTeleGrab = true;
     public boolean activeHighAlch = true;
 
-    private boolean antiBan() {
-    if ((interfaces.get(335).isValid()) || (interfaces.get(334).isValid())) {return false;}
-        if (counteR <= System.currentTimeMillis())     {
-    switch(random(1, 6)) {
-    case 2:
-    game.openTab(game.TAB_STATS);
-    counteR = System.currentTimeMillis() + 25000;
-    sleep(1000, 2000);
-    break;
-    case 3: 
-    mouse.moveRandomly(700);
-    counteR = System.currentTimeMillis() + 20000;
-    sleep(1000, 2000);
-    break;
-    case 4:
-    camera.moveRandomly(random(2300, 4150));
-    counteR = System.currentTimeMillis() + 30000;
-    sleep(1000, 2000);
-    break;
-    case 5:
-    game.openTab(game.TAB_INVENTORY);
-    counteR = System.currentTimeMillis() + 15000;
-    sleep(1000, 2000);
-    break;
-    case 6:
-    game.openTab(game.TAB_FRIENDS);
-    counteR = System.currentTimeMillis() + 18000;
-    sleep(1000, 2000);
-    break;
-    default: break;
-    }
-}
-    return true;
-}
-
     private boolean attackenemy() {
+        int i = random(1,10);
         if (!hasChecked) {
             startXP = skills.getCurrentExp(Skills.MAGIC);
             hasChecked = true;
@@ -78,14 +46,30 @@ public class DemonSlayer extends Script implements PaintListener {
             if (enemy.getInteracting() == null) {
                 if (enemy.doAction("Attack")) {
                 statuS = "Attacking";
+                sleep(1700, 1850);
                 return true;
                         }
         }
         }
-if (enemy == null) {
-statuS = "Awaiting"; }
-return false;
+if (enemy == null) statuS = "Awaiting/Antiban";
+{
+    if (i==3){
+    game.openTab(game.TAB_STATS);
+    skills.doHover(skills.INTERFACE_MAGIC);
+    sleep(1000, 2000);
+    game.openTab(game.TAB_INVENTORY);
 }
+    if (i==4){
+        camera.setAngle(random(1,360));
+    }
+    if (i>=8) {
+        mouse.moveSlightly();
+    }
+sleep (random(7500, 10000));
+
+}
+ return false;
+    }
 
         private boolean teleGrab() {
             RSGroundItem item = groundItems.getNearest(teleIDs);
@@ -123,7 +107,6 @@ return false;
     attackenemy();
     teleGrab();
     highAlch();
-    antiBan();
         return 10;
     }
 
