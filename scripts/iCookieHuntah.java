@@ -1,5 +1,3 @@
-package scripts;
-
 import java.util.Map;
 import org.rsbot.script.wrappers.*;
 import java.awt.event.KeyEvent;

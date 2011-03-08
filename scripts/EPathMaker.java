@@ -1,5 +1,3 @@
-package scripts;
-
 import org.rsbot.script.*;
 import org.rsbot.script.wrappers.*;
 import org.rsbot.event.listeners.PaintListener;

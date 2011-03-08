@@ -1,5 +1,3 @@
-package scripts;
-
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;

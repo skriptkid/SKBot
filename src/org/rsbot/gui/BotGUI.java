@@ -225,8 +225,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
                                     openURL(GlobalConfiguration.Paths.URLs.QuestP2p);
                         }
                         } else if (menu.equals("Extra's")) {
-
-               if (option.equals("Comeing Soon!")) {
+                            if (option.equals("Comeing Soon!")) {
                                         JOptionPane.showMessageDialog(this, new String[]{"Will be adding few more addons soon.", "                  &",
                     "more script updates to come",
 				"Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
@@ -234,14 +233,14 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
                         }
         } else if (menu.equals("Layout")) {
             if (option.equals("Themes")) {
-//Change JOptionPanel
+
                 if (ThemesGui.isUpdated()) {
                     log.info("The bot just updated dependancies, please restart the bot before you select themes.");
                 } else if (ThemesGui.isProcessing()) {
                     log.info("its currently downloading dependancies, please wait ...");
                 } else {
                    log.info("Wait for next release for a better implementation");
-                   // new ThemesGui(this).setVisible(true);
+                // new ThemesGui(this).setVisible(true);
                 }
             }
 

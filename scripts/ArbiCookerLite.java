@@ -1,5 +1,3 @@
-package scripts;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;

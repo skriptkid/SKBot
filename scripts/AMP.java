@@ -1,5 +1,3 @@
-package scripts;
-
 import java.util.*;
 import java.util.List;
 import java.awt.*;

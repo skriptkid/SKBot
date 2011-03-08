@@ -1,5 +1,3 @@
-package scripts;
-
 /*
  * @(#)VoluntaryThieve.java	1.13 10/12/17
  * Copyright 2010 vilon@powerbot.org. All rights reserved.
