@@ -50,14 +50,18 @@ public class BotMenuBar extends JMenuBar {
         // Other
         DEBUG_MAP.put("Log Messages", MessageLogger.class);
 
-        TITLES = new String[]{"File", "Edit", "View", "Help", "RS Guides", "Extra's", "Layout"};
+        TITLES = new String[]{"File", "Edit", "View", "Help", "RS Guides", 
+                               // <editor-fold defaultstate="collapsed" desc="later Use">
+                              //"Extra's",// </editor-fold>
+                                "Layout"};
 		ELEMENTS = new String[][]{
 				{"New Bot", "Close Bot", "-", "Run Script", "Stop Script", "Pause Script", "-", "Save Screenshot", "-", "Exit"},
 				{"Accounts", "-", "ToggleF Force Input", "ToggleF Less CPU", "-", "ToggleF Disable Anti-Randoms", "ToggleF Disable Auto Login"},
 				constructDebugs(),
 				{"Site", "Project", "About"},
                                 {"RS ItemDB", "GE Price Checker", "QuestF2p", "QuestP2p"}, // maps,
-                                {"Comeing Soon!"},
+                                // <editor-fold defaultstate="collapsed" desc="Same as ^above^">
+                               //{"Comeing Soon!"},// </editor-fold>
                                 {"Themes"}};
 	}
 
