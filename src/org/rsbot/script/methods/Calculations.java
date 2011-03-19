@@ -46,7 +46,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Checks whether or not a given tile is on the minimap.
-	 * 
+	 *
 	 * @param t
 	 *            The RSTile to check.
 	 * @return <tt>true</tt> if the RSTile is on the minimap; otherwise
@@ -61,7 +61,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Checks whether or not the centroid of a given tile is on the screen.
-	 * 
+	 *
 	 * @param t
 	 *            The RSTile to check.
 	 * @return <tt>true</tt> if the RSTile is on the screen; otherwise
@@ -73,7 +73,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the Point on screen where a given tile is shown on the minimap.
-	 * 
+	 *
 	 * @param t
 	 *            The RSTile to check.
 	 * @return <tt>Point</tt> within minimap; otherwise
@@ -89,7 +89,7 @@ public class Calculations extends MethodProvider {
 	 * it will exclude any points that are less than 253 pixels from the right
 	 * of the screen or less than 169 pixels from the bottom of the screen,
 	 * giving a rough area.
-	 * 
+	 *
 	 * @param check
 	 *            The point to check.
 	 * @return <tt>true</tt> if the point is within the rectangle; otherwise
@@ -108,7 +108,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Calculates the distance between two points.
-	 * 
+	 *
 	 * @param curr
 	 *            The first point.
 	 * @param dest
@@ -123,7 +123,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns a random double in a specified range
-	 * 
+	 *
 	 * @param min
 	 *            Minimum value (inclusive).
 	 * @param max
@@ -138,7 +138,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Will return the closest tile that is on screen to the given tile.
-	 * 
+	 *
 	 * @param tile
 	 *            Tile you want to get to.
 	 * @return <code>RSTile</code> that is onScreen.
@@ -164,7 +164,7 @@ public class Calculations extends MethodProvider {
 	/**
 	 * Returns the angle to a given tile in degrees anti-clockwise from the
 	 * positive x axis (where the x-axis is from west to east).
-	 * 
+	 *
 	 * @param t
 	 *            The target tile
 	 * @return The angle in degrees
@@ -179,7 +179,7 @@ public class Calculations extends MethodProvider {
 	/**
 	 * Returns the screen location of a Tile with given 3D x, y and height
 	 * offset values.
-	 * 
+	 *
 	 * @param tile
 	 *            RSTile for which the screen location should be calculated.
 	 * @param dX
@@ -204,7 +204,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the screen location of a Tile with a given 3D height offset.
-	 * 
+	 *
 	 * @param tile
 	 *            RSTile for which the screen location should be calculated.
 	 * @param height
@@ -220,7 +220,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the screen location of the south-west corner of the given tile.
-	 * 
+	 *
 	 * @param tile
 	 *            RSTile for which the screen location should be calculated.
 	 * @return Center <code>Point</code> of the RSTile at a height of 0; if null
@@ -233,7 +233,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the diagonal distance to a given RSCharacter.
-	 * 
+	 *
 	 * @param c
 	 *            The destination character.
 	 * @return Distance to <code>RSCharacter</code>.
@@ -245,7 +245,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the diagonal distance to a given RSObject.
-	 * 
+	 *
 	 * @param o
 	 *            The destination object.
 	 * @return Distance to <code>RSObject</code>.
@@ -257,7 +257,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the diagonal distance to a given RSTile.
-	 * 
+	 *
 	 * @param t
 	 *            The destination tile.
 	 * @return Distance to <code>RSTile</code>.
@@ -269,7 +269,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the diagonal distance (hypot) between two RSTiles.
-	 * 
+	 *
 	 * @param curr
 	 *            The starting tile.
 	 * @param dest
@@ -285,7 +285,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the length of the path generated to a given RSTile.
-	 * 
+	 *
 	 * @param dest
 	 *            The destination tile.
 	 * @param isObject
@@ -301,7 +301,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the length of the path generates between two RSTiles.
-	 * 
+	 *
 	 * @param start
 	 *            The starting tile.
 	 * @param dest
@@ -322,7 +322,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * checks whether or not a given RSTile is reachable.
-	 * 
+	 *
 	 * @param dest
 	 *            The <code>RSTile</code> to check.
 	 * @param isObject
@@ -337,7 +337,7 @@ public class Calculations extends MethodProvider {
 	/**
 	 * Returns the screen Point of given absolute x and y values in the game's
 	 * 3D plane.
-	 * 
+	 *
 	 * @param x
 	 *            x value based on the game plane.
 	 * @param y
@@ -410,7 +410,7 @@ public class Calculations extends MethodProvider {
 	/**
 	 * Returns the screen location of a given point on the ground. This accounts
 	 * for the height of the ground at the given location.
-	 * 
+	 *
 	 * @param x
 	 *            x value based on the game plane.
 	 * @param y
@@ -434,7 +434,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the height of the ground at the given location in the game world.
-	 * 
+	 *
 	 * @param x
 	 *            x value based on the game plane.
 	 * @param y
@@ -476,7 +476,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Returns the screen location of a given 3D point in the game world.
-	 * 
+	 *
 	 * @param x
 	 *            x value on the game plane.
 	 * @param y
@@ -520,7 +520,7 @@ public class Calculations extends MethodProvider {
 
 	/**
 	 * Updates the rendering data. For internal use only.
-	 * 
+	 *
 	 * @param r
 	 *            The client graphics toolkit.
 	 * @param rd
@@ -610,6 +610,10 @@ public class Calculations extends MethodProvider {
 					foundPath = true;
 					break;
 				}
+				/*
+				 * ^This can be simplified to: if (Math.abs(curr_x - destX) +
+				 * Math.abs(curr_y - destY) == 1) { foundPath = true; break; }
+				 */
 			} else if ((curr_x == destX) && (curr_y == destY)) {
 				foundPath = true;
 			}
@@ -619,7 +623,7 @@ public class Calculations extends MethodProvider {
 
 			// south
 			if ((curr_y > 0) && (prev[curr_x][curr_y - 1] == 0)
-					&& ((blocks[curr_x][curr_y - 1] & 0x1280102) == 0)) {
+					&& ((blocks[curr_x + 1][curr_y] & 0x1280102) == 0)) {
 				path_x[path_ptr] = curr_x;
 				path_y[path_ptr] = curr_y - 1;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -628,7 +632,7 @@ public class Calculations extends MethodProvider {
 			}
 			// west
 			if ((curr_x > 0) && (prev[curr_x - 1][curr_y] == 0)
-					&& ((blocks[curr_x - 1][curr_y] & 0x1280108) == 0)) {
+					&& ((blocks[curr_x][curr_y + 1] & 0x1280108) == 0)) {
 				path_x[path_ptr] = curr_x - 1;
 				path_y[path_ptr] = curr_y;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -637,7 +641,7 @@ public class Calculations extends MethodProvider {
 			}
 			// north
 			if ((curr_y < 104 - 1) && (prev[curr_x][curr_y + 1] == 0)
-					&& ((blocks[curr_x][curr_y + 1] & 0x1280120) == 0)) {
+					&& ((blocks[curr_x + 1][curr_y + 2] & 0x1280120) == 0)) {
 				path_x[path_ptr] = curr_x;
 				path_y[path_ptr] = curr_y + 1;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -646,7 +650,7 @@ public class Calculations extends MethodProvider {
 			}
 			// east
 			if ((curr_x < 104 - 1) && (prev[curr_x + 1][curr_y] == 0)
-					&& ((blocks[curr_x + 1][curr_y] & 0x1280180) == 0)) {
+					&& ((blocks[curr_x + 2][curr_y + 1] & 0x1280180) == 0)) {
 				path_x[path_ptr] = curr_x + 1;
 				path_y[path_ptr] = curr_y;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -656,9 +660,9 @@ public class Calculations extends MethodProvider {
 			// south west
 			if ((curr_x > 0) && (curr_y > 0)
 					&& (prev[curr_x - 1][curr_y - 1] == 0)
-					&& ((blocks[curr_x - 1][curr_y - 1] & 0x128010e) == 0)
-					&& ((blocks[curr_x - 1][curr_y] & 0x1280108) == 0)
-					&& ((blocks[curr_x][curr_y - 1] & 0x1280102) == 0)) {
+					&& ((blocks[curr_x][curr_y] & 0x128010e) == 0)
+					&& ((blocks[curr_x][curr_y + 1] & 0x1280108) == 0)
+					&& ((blocks[curr_x + 1][curr_y] & 0x1280102) == 0)) {
 				path_x[path_ptr] = curr_x - 1;
 				path_y[path_ptr] = curr_y - 1;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -668,9 +672,9 @@ public class Calculations extends MethodProvider {
 			// north west
 			if ((curr_x > 0) && (curr_y < 104 - 1)
 					&& (prev[curr_x - 1][curr_y + 1] == 0)
-					&& ((blocks[curr_x - 1][curr_y + 1] & 0x1280138) == 0)
-					&& ((blocks[curr_x - 1][curr_y] & 0x1280108) == 0)
-					&& ((blocks[curr_x][curr_y + 1] & 0x1280120) == 0)) {
+					&& ((blocks[curr_x][curr_y + 2] & 0x1280138) == 0)
+					&& ((blocks[curr_x][curr_y + 1] & 0x1280108) == 0)
+					&& ((blocks[curr_x + 1][curr_y + 2] & 0x1280120) == 0)) {
 				path_x[path_ptr] = curr_x - 1;
 				path_y[path_ptr] = curr_y + 1;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -680,9 +684,9 @@ public class Calculations extends MethodProvider {
 			// south east
 			if ((curr_x < 104 - 1) && (curr_y > 0)
 					&& (prev[curr_x + 1][curr_y - 1] == 0)
-					&& ((blocks[curr_x + 1][curr_y - 1] & 0x1280183) == 0)
-					&& ((blocks[curr_x + 1][curr_y] & 0x1280180) == 0)
-					&& ((blocks[curr_x][curr_y - 1] & 0x1280102) == 0)) {
+					&& ((blocks[curr_x + 2][curr_y] & 0x1280183) == 0)
+					&& ((blocks[curr_x + 2][curr_y + 1] & 0x1280180) == 0)
+					&& ((blocks[curr_x + 1][curr_y] & 0x1280102) == 0)) {
 				path_x[path_ptr] = curr_x + 1;
 				path_y[path_ptr] = curr_y - 1;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -692,9 +696,9 @@ public class Calculations extends MethodProvider {
 			// north east
 			if ((curr_x < 104 - 1) && (curr_y < 104 - 1)
 					&& (prev[curr_x + 1][curr_y + 1] == 0)
-					&& ((blocks[curr_x + 1][curr_y + 1] & 0x12801e0) == 0)
-					&& ((blocks[curr_x + 1][curr_y] & 0x1280180) == 0)
-					&& ((blocks[curr_x][curr_y + 1] & 0x1280120) == 0)) {
+					&& ((blocks[curr_x + 2][curr_y + 2] & 0x12801e0) == 0)
+					&& ((blocks[curr_x + 2][curr_y + 1] & 0x1280180) == 0)
+					&& ((blocks[curr_x + 1][curr_y + 2] & 0x1280120) == 0)) {
 				path_x[path_ptr] = curr_x + 1;
 				path_y[path_ptr] = curr_y + 1;
 				path_ptr = (path_ptr + 1) % pathLength;
@@ -702,9 +706,6 @@ public class Calculations extends MethodProvider {
 				dist[curr_x + 1][curr_y + 1] = cost;
 			}
 		}
-		if (foundPath) {
-			return dist[curr_x][curr_y];
-		}
-		return -1;
+		return foundPath ? dist[curr_x][curr_y] : -1;
 	}
 }
