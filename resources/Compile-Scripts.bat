@@ -1,6 +1,6 @@
 @ECHO OFF
 
-TITLE RSBot Scripts
+TITLE SKBot Scripts
 
 SET cc=javac
 SET cflags=
