@@ -46,20 +46,18 @@ public class BotMenuBar extends JMenuBar {
         DEBUG_MAP.put("Ground Items", DrawItems.class);
         DEBUG_MAP.put("Calc Test", DrawBoundaries.class);
         DEBUG_MAP.put("Settings", DrawSettings.class);
-
+        DEBUG_MAP.put("JMods", DrawPlayers.class);
         // Other
         DEBUG_MAP.put("Log Messages", MessageLogger.class);
 
-        TITLES = new String[]{"File", "Edit", "View", "Help", "RS Guides", "Extra's", "Layout"};
+        TITLES = new String[]{"File", "Edit", "View", "Help", "RS Guides"};
 		ELEMENTS = new String[][]{
 				{"New Bot", "Close Bot", "-", "Run Script", "Stop Script", "Pause Script", "-", "Save Screenshot", "-", "Exit"},
 				{"Accounts", "-", "ToggleF Force Input", "ToggleF Less CPU", "-", "ToggleF Disable Anti-Randoms", "ToggleF Disable Auto Login"},
 				constructDebugs(),
 				{"Site", "Project", "About"},
-                                {"RS ItemDB", "GE Price Checker", "QuestF2p", "QuestP2p"}, // maps,
-                                {"Comeing Soon!"},
-                                {"Themes"}};
-	}
+                                {"RS ItemDB", "GE Price Checker", "QuestF2p", "QuestP2p"}};
+	}                       //"Maps", "Sig's", "Stat Checker", 
 
     private static String[] constructDebugs() {
         List<String> debugItems = new ArrayList<String>();
@@ -166,7 +164,6 @@ public class BotMenuBar extends JMenuBar {
     }
 
     private void enable(String item, boolean selected) {
-
         commandCheckMap.get(item).setSelected(selected);
         commandCheckMap.get(item).setEnabled(true);
     }

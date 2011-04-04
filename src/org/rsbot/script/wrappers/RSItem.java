@@ -2,6 +2,7 @@ package org.rsbot.script.wrappers;
 
 import org.rsbot.client.HardReference;
 import org.rsbot.client.SoftReference;
+import org.rsbot.script.wrappers.RSItemDef;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.MethodProvider;
 
@@ -9,7 +10,7 @@ import org.rsbot.script.methods.MethodProvider;
  * Represents an item (with an id and stack size). May or may not
  * wrap a component.
  */
-public class RSItem extends MethodProvider implements RSVerifiable{
+public class RSItem extends MethodProvider{
 
 	private int id;
 	private int stack;

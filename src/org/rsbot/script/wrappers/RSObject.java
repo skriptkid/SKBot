@@ -2,13 +2,14 @@ package org.rsbot.script.wrappers;
 
 import org.rsbot.client.Model;
 import org.rsbot.client.RSAnimable;
+import org.rsbot.script.wrappers.RSObjectDef;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.MethodProvider;
 
 import java.awt.*;
 
 
-public class RSObject extends MethodProvider implements RSVerifiable{
+public class RSObject extends MethodProvider {
 
 	public static enum Type {
 		INTERACTABLE, FLOOR_DECORATION, BOUNDARY, WALL_DECORATION
@@ -30,7 +31,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 	/**
 	 * Gets the RSTile on which this object is centered. An RSObject may cover
 	 * multiple tiles, in which case this will return the floored central tile.
-	 * 
+	 *
 	 * @return The central RSTile.
 	 * @see #getArea()
 	 */
@@ -41,7 +42,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Gets the area of tiles covered by this object.
-	 * 
+	 *
 	 * @return The RSArea containing all the tiles on which this object can be
 	 *         found.
 	 */
@@ -60,7 +61,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Gets the object definition of this object.
-	 * 
+	 *
 	 * @return The RSObjectDef if available, otherwise <code>null</code>.
 	 */
 	public RSObjectDef getDef() {
@@ -84,7 +85,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Gets the ID of this object.
-	 * 
+	 *
 	 * @return The ID.
 	 */
 	public int getID() {
@@ -92,8 +93,21 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 	}
 
 	/**
+	 * Returns the name of the object.
+	 *
+	 * @param object
+	 *            The object to look up.
+	 * @return The object name if the definition is available; otherwise "".
+	 * @author Aut0r
+	 */
+	public String getName(final RSObject object) {
+		RSObjectDef objectDef = object.getDef();
+		return objectDef != null ? objectDef.getName() : "";
+	}
+
+	/**
 	 * Gets the Model of this object.
-	 * 
+	 *
 	 * @return The RSModel, or null if unavailable.
 	 */
 	public RSModel getModel() {
@@ -109,7 +123,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Determines whether or not this object is on the game screen.
-	 * 
+	 *
 	 * @return <tt>true</tt> if the object is on screen.
 	 */
 	public boolean isOnScreen() {
@@ -130,7 +144,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Performs the specified action on this object.
-	 * 
+	 *
 	 * @param action
 	 *            the menu item to search and click
 	 * @return returns true if clicked, false if object does not contain the
@@ -146,7 +160,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Left-clicks this object.
-	 * 
+	 *
 	 * @return <tt>true</tt> if clicked.
 	 */
 	public boolean doClick() {
@@ -155,7 +169,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Clicks this object.
-	 * 
+	 *
 	 * @param left
 	 *            <tt>true</tt> to left-click; <tt>false</tt> to right-click.
 	 * @return <tt>true</tt> if clicked.
@@ -186,7 +200,7 @@ public class RSObject extends MethodProvider implements RSVerifiable{
 
 	/**
 	 * Moves the mouse over this object.
-	 * 
+	 *
 	 * @return <tt>true</tt> if the mouse was moved.
 	 */
 	public void doHover() {

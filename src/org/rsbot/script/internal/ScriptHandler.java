@@ -56,6 +56,8 @@ public class ScriptHandler {
 			randoms.add(new FirstTimeDeath());
 			randoms.add(new LeaveSafeArea());
 			randoms.add(new SystemUpdate());
+                        randoms.add(new LevelUp());
+                        randoms.add(new ModeratorCheck());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
