@@ -75,8 +75,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
             public void run() {
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
                 ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-              //  TODO:fix bug
-                FrameUtil.setTheme(frame, theme_name);
+              //  FrameUtil.setTheme(frame, theme_name);TODO:fix bug
                 if (GlobalConfiguration.RUNNING_FROM_JAR) {
                     UpdateUtil updater = new UpdateUtil(BotGUI.this);
                     updater.checkUpdate(false);
@@ -211,11 +210,10 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
             } else if (option.equals("Project")) {
                 openURL(GlobalConfiguration.Paths.URLs.PROJECT);
             } else if (option.equals("About")) {
-    JOptionPane.showMessageDialog(this, new String[]{"As an open source, currently being developed one revison at a time" + '\n' + " The lead developer's and his team of devs and contributers."
-                        + '\n', "Will be adding more features, more scripts, & the most recent game data up-to-date",
+                JOptionPane.showMessageDialog(this, new String[]{"An open source bot,currently developed by Nader Sleiman as " + '\n' + "Lead developer and his team of devs and contributers.",
                             "Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
                         "About", JOptionPane.INFORMATION_MESSAGE);
-                            }
+            }
                 } else if (menu.equals("RS Guides")) {
                         if (option.equals("RS ItemDB")) {
                                     openURL(GlobalConfiguration.Paths.URLs.RS_ItemDB);
@@ -226,16 +224,13 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
                                 } else if (option.equals("QuestP2p")) {
                                     openURL(GlobalConfiguration.Paths.URLs.QuestP2p);
                         }
-        // <editor-fold defaultstate="collapsed" desc="Can Be used later">
-        /*
-         * } else if (menu.equals("Extra's")) {
-            if (option.equals("Comeing Soon!")) {
-                JOptionPane.showMessageDialog(this, new String[]{"Will be adding few more addons soon.", "                  &",
-                            "more script updates to come",
-                            "Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
-                        "About", JOptionPane.INFORMATION_MESSAGE);// </editor-fold>
+                        } else if (menu.equals("Extra's")) {
+                            if (option.equals("Comeing Soon!")) {
+                                        JOptionPane.showMessageDialog(this, new String[]{"Will be adding few more addons soon.", "                  &",
+                    "more script updates to come",
+				"Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
+				"About", JOptionPane.INFORMATION_MESSAGE);
                         }
-         */
         } else if (menu.equals("Layout")) {
             if (option.equals("Themes")) {
 
@@ -244,9 +239,8 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
                 } else if (ThemesGui.isProcessing()) {
                     log.info("its currently downloading dependancies, please wait ...");
                 } else {
-                   // log.info("Wait for next release for a better implementation");
-                //  TODO:Fix implementations
-                   new ThemesGui(this).setVisible(true);
+                   log.info("Wait for next release for a better implementation");
+                // new ThemesGui(this).setVisible(true);
                 }
             }
 
