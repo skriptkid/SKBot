@@ -36,8 +36,9 @@ public class BeehiveSolver extends Random {
 
 	@Override
 	public boolean activateCondition() {
-		if (!game.isLoggedIn())
+		if (!game.isLoggedIn()) {
 			return false;
+		}
 
 		if (npcs.getNearest(BEEHIVE_KEEPER_ID) != null && objects.getNearest(16168) != null) {
 			solved = false;
@@ -45,15 +46,15 @@ public class BeehiveSolver extends Random {
 		}
 
 		/*BeehiveKeeper = npcs.getNearest(BEEHIVE_KEEPER_ID);
-				if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
-					sleep(random(1000, 1500));
-					BeehiveKeeper = npcs.getNearest(BEEHIVE_KEEPER_ID);
-					if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
-						solved = false;
-						sleep(random(1000, 1500));
-						return true;
-					}
-				}*/
+						  if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
+							  sleep(random(1000, 1500));
+							  BeehiveKeeper = npcs.getNearest(BEEHIVE_KEEPER_ID);
+							  if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
+								  solved = false;
+								  sleep(random(1000, 1500));
+								  return true;
+							  }
+						  }*/
 		return false;
 	}
 
@@ -90,7 +91,8 @@ public class BeehiveSolver extends Random {
 			for (int i = 1; i < 5; i++) {
 				log.info("Checking ID: " + i);
 				final int id = returnIdAtSlot(i);
-				dragInterfaces(getBeehiveInterface().getComponent(START_INTERFACE_IDS[i - 1]), getBeehiveInterface().getComponent(returnDragTo(id)));
+				dragInterfaces(getBeehiveInterface().getComponent(START_INTERFACE_IDS[i - 1]),
+				               getBeehiveInterface().getComponent(returnDragTo(id)));
 			}
 			sleep(2000);
 			//Wait is necessary for delay in the change of a setting.
@@ -108,7 +110,7 @@ public class BeehiveSolver extends Random {
 			log.info("Interfaces not valid.");
 		}
 
-		if (getMyPlayer().getInteracting() == null) {
+		if (getMyPlayer().getInteracting() == null && !solved) {
 			final RSNPC npc = npcs.getNearest(BEEHIVE_KEEPER_ID);
 			if (npc != null) {
 				if (!npc.doAction("Talk-to")) {
@@ -122,7 +124,10 @@ public class BeehiveSolver extends Random {
 
 	public boolean myClickContinue() {
 		sleep(random(800, 1000));
-		return interfaces.getComponent(243, 7).doClick() || interfaces.getComponent(241, 5).doClick() || interfaces.getComponent(242, 6).doClick() || interfaces.getComponent(244, 8).doClick() || interfaces.getComponent(64, 5).doClick();
+		return interfaces.getComponent(243, 7).doClick() || interfaces.getComponent(241,
+		                                                                            5).doClick() || interfaces.getComponent(
+				242, 6).doClick() || interfaces.getComponent(244, 8).doClick() || interfaces.getComponent(64,
+		                                                                                                  5).doClick();
 	}
 
 	public int returnDragTo(final int Model) {

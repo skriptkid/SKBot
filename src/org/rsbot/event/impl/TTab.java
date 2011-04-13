@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class TTab implements TextPaintListener {
 
-	private Game game;
+	private final Game game;
 
 	public TTab(Bot bot) {
 		game = bot.getMethodContext().game;
@@ -17,7 +17,8 @@ public class TTab implements TextPaintListener {
 
 	public int drawLine(final Graphics render, int idx) {
 		final int cTab = game.getCurrentTab();
-		StringUtil.drawLine(render, idx++, "Current Tab: " + cTab + (cTab != -1 ? " (" + Game.TAB_NAMES[cTab] + ")" : ""));
+		StringUtil.drawLine(render, idx++,
+		                    "Current Tab: " + cTab + (cTab != -1 ? " (" + Game.TAB_NAMES[cTab] + ")" : ""));
 		return idx;
 	}
 

@@ -11,7 +11,7 @@ public class LogFormatter extends Formatter {
 
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-	public boolean appendNewLine;
+	private final boolean appendNewLine;
 
 	public LogFormatter() {
 		this(true);
@@ -50,7 +50,7 @@ public class LogFormatter extends Formatter {
 
 		return String.format(
 				name.length() > maxLen ? name.substring(0,
-						maxLen - append.length())
+				                                        maxLen - append.length())
 						+ append : name);
 	}
 

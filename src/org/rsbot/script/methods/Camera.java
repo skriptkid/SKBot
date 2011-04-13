@@ -18,16 +18,18 @@ public class Camera extends MethodProvider {
 
 	/**
 	 * Turns to an RSCharacter (RSNPC or RSPlayer).
-	 * @deprecated
+	 *
 	 * @param c The RSCharacter to turn to.
+	 * @deprecated
 	 */
 	public void turnToCharacter(RSCharacter c) {
 		int angle = getCharacterAngle(c);
 		setAngle(angle);
 	}
-	
+
 	/**
 	 * Turns to a RSCharacter (RSNPC or RSPlayer).
+	 *
 	 * @param c The RSCharacter to turn to.
 	 */
 	public void turnTo(final RSCharacter c) {
@@ -37,18 +39,20 @@ public class Camera extends MethodProvider {
 
 	/**
 	 * Turns to within a few degrees of an RSCharacter (RSNPC or RSPlayer).
-	 * @deprecated 
+	 *
 	 * @param c   The RSCharacter to turn to.
 	 * @param dev The maximum difference in the angle.
+	 * @deprecated
 	 */
 	public void turnToCharacter(RSCharacter c, int dev) {
 		int angle = getCharacterAngle(c);
 		angle = random(angle - dev, angle + dev + 1);
 		setAngle(angle);
 	}
-	
+
 	/**
 	 * Turns to within a few degrees of an RSCharacter (RSNPC or RSPlayer).
+	 *
 	 * @param c   The RSCharacter to turn to.
 	 * @param dev The maximum difference in the angle.
 	 */
@@ -60,16 +64,18 @@ public class Camera extends MethodProvider {
 
 	/**
 	 * Turns to an RSObject
-	 * @deprecated
+	 *
 	 * @param o The RSObject to turn to.
+	 * @deprecated
 	 */
 	public void turnToObject(RSObject o) {
 		int angle = getObjectAngle(o);
 		setAngle(angle);
 	}
-	
+
 	/**
 	 * Turns to an RSObject.
+	 *
 	 * @param o The RSObject to turn to.
 	 */
 	public void turnTo(final RSObject o) {
@@ -79,19 +85,21 @@ public class Camera extends MethodProvider {
 
 	/**
 	 * Turns to within a few degrees of an RSObject.
-	 * @deprecated
+	 *
 	 * @param o   The RSObject to turn to.
 	 * @param dev The maximum difference in the turn angle.
+	 * @deprecated
 	 */
 	public void turnToObject(RSObject o, int dev) {
 		int angle = getObjectAngle(o);
 		angle = random(angle - dev, angle + dev + 1);
 		setAngle(angle);
 	}
-	
+
 	/**
 	 * Turns to within a few degrees of an RSObject.
-	 * @param o The RSObject to turn to.
+	 *
+	 * @param o   The RSObject to turn to.
 	 * @param dev The maximum difference in the turn angle.
 	 */
 	public void turnTo(final RSObject o, final int dev) {
@@ -102,17 +110,18 @@ public class Camera extends MethodProvider {
 
 	/**
 	 * Turns to a specific RSTile.
-	 * @deprecated
+	 *
 	 * @param tile Tile to turn to.
+	 * @deprecated
 	 */
 	public void turnToTile(RSTile tile) {
 		int angle = getTileAngle(tile);
 		setAngle(angle);
 	}
-	
+
 	/**
 	 * Turns to a specific RSTile.
-	 * 
+	 *
 	 * @param tile Tile to turn to.
 	 */
 	public void turnTo(final RSTile tile) {
@@ -122,16 +131,17 @@ public class Camera extends MethodProvider {
 
 	/**
 	 * Turns within a few degrees to a specific RSTile.
-	 * @deprecated
+	 *
 	 * @param tile Tile to turn to.
 	 * @param dev  Maximum deviation from the angle to the tile.
+	 * @deprecated
 	 */
 	public void turnToTile(RSTile tile, int dev) {
 		int angle = getTileAngle(tile);
 		angle = random(angle - dev, angle + dev + 1);
 		setAngle(angle);
 	}
-	
+
 	/**
 	 * Turns within a few degrees to a specific RSTile.
 	 *
@@ -182,9 +192,9 @@ public class Camera extends MethodProvider {
 	public boolean setPitch(int percent) {
 		int curAlt = getPitch();
 		int lastAlt = 0;
-		if (curAlt == percent)
+		if (curAlt == percent) {
 			return true;
-		else if (curAlt < percent) {
+		} else if (curAlt < percent) {
 			methods.inputManager.pressKey((char) KeyEvent.VK_UP);
 			long start = System.currentTimeMillis();
 			while (curAlt < percent && System.currentTimeMillis() - start < random(50, 100)) {
@@ -226,10 +236,12 @@ public class Camera extends MethodProvider {
 		int lowestCamAltPossible = random(75, 100);
 		int vertical = random(0, 20) < 15 ? KeyEvent.VK_UP : KeyEvent.VK_DOWN;
 		int horizontal = random(0, 20) < 5 ? KeyEvent.VK_LEFT : KeyEvent.VK_RIGHT;
-		if (random(0, 10) < 8)
+		if (random(0, 10) < 8) {
 			methods.inputManager.pressKey((char) vertical);
-		if (random(0, 10) < 8)
+		}
+		if (random(0, 10) < 8) {
 			methods.inputManager.pressKey((char) horizontal);
+		}
 		while (timeToHold.isRunning() && methods.client.getCamPosZ() >= lowestCamAltPossible) {
 			sleep(10);
 		}

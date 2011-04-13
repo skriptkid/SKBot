@@ -1,5 +1,7 @@
 package org.rsbot.script.methods;
 
+import org.rsbot.script.wrappers.GEItemInfo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,11 +9,9 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rsbot.script.wrappers.GEItemInfo;
-
 /**
  * Obtains information on tradeable items from the Grand Exchange website.
- * 
+ *
  * @author Aion
  */
 @SuppressWarnings("deprecation")
@@ -29,9 +29,8 @@ public class GrandExchange extends MethodProvider {
 
 	/**
 	 * Gets the name of the given item ID. Should not be used.
-	 * 
-	 * @param itemID
-	 *            The item ID to look for.
+	 *
+	 * @param itemID The item ID to look for.
 	 * @return The name of the given item ID or an empty String if unavailable.
 	 * @see GrandExchange#lookup(int)
 	 */
@@ -45,9 +44,8 @@ public class GrandExchange extends MethodProvider {
 
 	/**
 	 * Gets the ID of the given item name. Should not be used.
-	 * 
-	 * @param itemName
-	 *            The name of the item to look for.
+	 *
+	 * @param itemName The name of the item to look for.
 	 * @return The ID of the given item name or -1 if unavailable.
 	 * @see GrandExchange#lookup(java.lang.String)
 	 */
@@ -61,9 +59,8 @@ public class GrandExchange extends MethodProvider {
 
 	/**
 	 * Collects data for a given item ID from the Grand Exchange website.
-	 * 
-	 * @param itemID
-	 *            The item ID.
+	 *
+	 * @param itemID The item ID.
 	 * @return An instance of GrandExchange.GEItem; <code>null</code> if unable
 	 *         to fetch data.
 	 */
@@ -92,8 +89,9 @@ public class GrandExchange extends MethodProvider {
 				} else if (input.matches("(?i).+ (price|days):</b> .+")) {
 					values[i] = parse(input);
 					i++;
-				} else if (input.matches("<div id=\"legend\">"))
+				} else if (input.matches("<div id=\"legend\">")) {
 					break;
+				}
 			}
 			return new GEItem(name, examine, itemID, values);
 		} catch (IOException ignore) {
@@ -103,17 +101,16 @@ public class GrandExchange extends MethodProvider {
 
 	/**
 	 * Collects data for a given item name from the Grand Exchange website.
-	 * 
-	 * @param itemName
-	 *            The name of the item.
+	 *
+	 * @param itemName The name of the item.
 	 * @return An instance of GrandExchange.GEItem; <code>null</code> if unable
 	 *         to fetch data.
 	 */
 	public GEItem lookup(final String itemName) {
 		try {
 			URL url = new URL(GrandExchange.HOST
-					+ "/m=itemdb_rs/results.ws?query=" + itemName
-					+ "&price=all&members=");
+					                  + "/m=itemdb_rs/results.ws?query=" + itemName
+					                  + "&price=all&members=");
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					url.openStream()));
 			String input;
@@ -157,11 +154,17 @@ public class GrandExchange extends MethodProvider {
 	}
 
 	private String stripFormatting(final String str) {
-		if (str != null && !str.isEmpty())
+		if (str != null && !str.isEmpty()) {
 			return str.replaceAll("(^[^<]+>|<[^>]+>|<[^>]+$)", "");
+		}
 		return "";
 	}
 
+	/**
+	 * Provides access to GEItem Information.
+	 *
+	 * @author Jacmob, Aut0r
+	 */
 	public static class GEItem {
 
 		private final String name;
@@ -187,7 +190,7 @@ public class GrandExchange extends MethodProvider {
 
 		/**
 		 * Gets the change in price for the last 30 days of this item.
-		 * 
+		 *
 		 * @return The change in price for the last 30 days of this item.
 		 */
 		public double getChange30Days() {
@@ -196,7 +199,7 @@ public class GrandExchange extends MethodProvider {
 
 		/**
 		 * Gets the change in price for the last 90 days of this item.
-		 * 
+		 *
 		 * @return The change in price for the last 90 days of this item.
 		 */
 		public double getChange90Days() {
@@ -205,7 +208,7 @@ public class GrandExchange extends MethodProvider {
 
 		/**
 		 * Gets the change in price for the last 180 days of this item.
-		 * 
+		 *
 		 * @return The change in price for the last 180 days of this item.
 		 */
 		public double getChange180Days() {
@@ -214,7 +217,7 @@ public class GrandExchange extends MethodProvider {
 
 		/**
 		 * Gets the ID of this item.
-		 * 
+		 *
 		 * @return The ID of this item.
 		 */
 		public int getID() {
@@ -223,7 +226,7 @@ public class GrandExchange extends MethodProvider {
 
 		/**
 		 * Gets the market price of this item.
-		 * 
+		 *
 		 * @return The market price of this item.
 		 */
 		public int getGuidePrice() {
@@ -232,7 +235,7 @@ public class GrandExchange extends MethodProvider {
 
 		/**
 		 * Gets the name of this item.
-		 * 
+		 *
 		 * @return The name of this item.
 		 */
 		public String getName() {
@@ -241,7 +244,7 @@ public class GrandExchange extends MethodProvider {
 
 		/**
 		 * Gets the description of this item.
-		 * 
+		 *
 		 * @return The description of this item.
 		 */
 		public String getDescription() {

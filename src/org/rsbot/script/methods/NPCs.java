@@ -17,6 +17,7 @@ public class NPCs extends MethodProvider {
 	 * A filter that accepts all matches.
 	 */
 	public static final Filter<RSNPC> ALL_FILTER = new Filter<RSNPC>() {
+		@Override
 		public boolean accept(RSNPC npc) {
 			return true;
 		}
@@ -36,8 +37,8 @@ public class NPCs extends MethodProvider {
 	}
 
 	/**
-	 * Returns an array of all loaded RSNPCs that are accepted
-	 * by the provided Filter
+	 * Returns an array of all loaded RSNPCs that are accepted by the provided
+	 * Filter
 	 *
 	 * @param filter Filters out unwanted matches.
 	 * @return An array of the loaded RSNPCs.
@@ -46,7 +47,8 @@ public class NPCs extends MethodProvider {
 		int[] indices = methods.client.getRSNPCIndexArray();
 		Set<RSNPC> npcs = new HashSet<RSNPC>();
 		for (int index : indices) {
-			Node node = methods.nodes.lookup(methods.client.getRSNPCNC(), index);
+			Node node = methods.nodes
+					.lookup(methods.client.getRSNPCNC(), index);
 			if (node instanceof RSNPCNode) {
 				RSNPC npc = new RSNPC(methods, ((RSNPCNode) node).getRSNPC());
 				if (filter.accept(npc)) {
@@ -58,12 +60,13 @@ public class NPCs extends MethodProvider {
 	}
 
 	/**
-	 * Returns the RSNPC that is nearest out of all of loaded RSPNCs accepted
-	 * by the provided Filter.
+	 * Returns the RSNPC that is nearest out of all of loaded RSPNCs accepted by
+	 * the provided Filter.
 	 *
 	 * @param filter Filters out unwanted matches.
 	 * @return An RSNPC object representing the nearest RSNPC accepted by the
-	 *         provided Filter; or null if there are no matching NPCs in the current region.
+	 *         provided Filter; or null if there are no matching NPCs in the
+	 *         current region.
 	 */
 	public RSNPC getNearest(final Filter<RSNPC> filter) {
 		int min = 20;
@@ -71,7 +74,8 @@ public class NPCs extends MethodProvider {
 		int[] indices = methods.client.getRSNPCIndexArray();
 
 		for (int index : indices) {
-			Node node = methods.nodes.lookup(methods.client.getRSNPCNC(), index);
+			Node node = methods.nodes
+					.lookup(methods.client.getRSNPCNC(), index);
 			if (node instanceof RSNPCNode) {
 				RSNPC npc = new RSNPC(methods, ((RSNPCNode) node).getRSNPC());
 				if (filter.accept(npc)) {
@@ -92,10 +96,12 @@ public class NPCs extends MethodProvider {
 	 *
 	 * @param ids Allowed NPC IDs.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
-	 *         provided IDs; or null if there are no matching NPCs in the current region.
+	 *         provided IDs; or null if there are no matching NPCs in the
+	 *         current region.
 	 */
 	public RSNPC getNearest(final int... ids) {
 		return getNearest(new Filter<RSNPC>() {
+			@Override
 			public boolean accept(RSNPC npc) {
 				for (int id : ids) {
 					if (npc.getID() == id) {
@@ -113,10 +119,12 @@ public class NPCs extends MethodProvider {
 	 *
 	 * @param names Allowed NPC names.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
-	 *         provided names; or null if there are no matching NPCs in the current region.
+	 *         provided names; or null if there are no matching NPCs in the
+	 *         current region.
 	 */
 	public RSNPC getNearest(final String... names) {
 		return getNearest(new Filter<RSNPC>() {
+			@Override
 			public boolean accept(RSNPC npc) {
 				for (String name : names) {
 					if (npc.getName().equals(name)) {
@@ -127,5 +135,4 @@ public class NPCs extends MethodProvider {
 			}
 		});
 	}
-
 }

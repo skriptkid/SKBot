@@ -2,7 +2,6 @@ package org.rsbot.script.wrappers;
 
 import org.rsbot.client.Model;
 import org.rsbot.client.RSAnimable;
-import org.rsbot.script.wrappers.RSObjectDef;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.MethodProvider;
 
@@ -20,8 +19,8 @@ public class RSObject extends MethodProvider {
 	private int plane;
 
 	public RSObject(final MethodContext ctx,
-			final org.rsbot.client.RSObject obj, final Type type,
-			final int plane) {
+	                final org.rsbot.client.RSObject obj, final Type type,
+	                final int plane) {
 		super(ctx);
 		this.obj = obj;
 		this.type = type;
@@ -37,7 +36,7 @@ public class RSObject extends MethodProvider {
 	 */
 	public RSTile getLocation() {
 		return new RSTile(methods.client.getBaseX() + obj.getX() / 512,
-				methods.client.getBaseY() + obj.getY() / 512, plane);
+		                  methods.client.getBaseY() + obj.getY() / 512, plane);
 	}
 
 	/**
@@ -50,9 +49,9 @@ public class RSObject extends MethodProvider {
 		if (obj instanceof RSAnimable) {
 			RSAnimable a = (RSAnimable) obj;
 			RSTile sw = new RSTile(methods.client.getBaseX() + a.getX1(),
-					methods.client.getBaseY() + a.getY1());
+			                       methods.client.getBaseY() + a.getY1());
 			RSTile ne = new RSTile(methods.client.getBaseX() + a.getX2(),
-					methods.client.getBaseY() + a.getY2());
+			                       methods.client.getBaseY() + a.getY2());
 			return new RSArea(sw, ne, plane);
 		}
 		RSTile loc = getLocation();
@@ -95,8 +94,7 @@ public class RSObject extends MethodProvider {
 	/**
 	 * Returns the name of the object.
 	 *
-	 * @param object
-	 *            The object to look up.
+	 * @param object The object to look up.
 	 * @return The object name if the definition is available; otherwise "".
 	 * @author Aut0r
 	 */
@@ -145,8 +143,7 @@ public class RSObject extends MethodProvider {
 	/**
 	 * Performs the specified action on this object.
 	 *
-	 * @param action
-	 *            the menu item to search and click
+	 * @param action the menu item to search and click
 	 * @return returns true if clicked, false if object does not contain the
 	 *         desired action
 	 */
@@ -170,8 +167,7 @@ public class RSObject extends MethodProvider {
 	/**
 	 * Clicks this object.
 	 *
-	 * @param left
-	 *            <tt>true</tt> to left-click; <tt>false</tt> to right-click.
+	 * @param left <tt>true</tt> to left-click; <tt>false</tt> to right-click.
 	 * @return <tt>true</tt> if clicked.
 	 */
 	public boolean doClick(boolean leftClick) {

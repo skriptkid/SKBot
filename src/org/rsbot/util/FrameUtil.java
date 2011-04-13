@@ -1,17 +1,17 @@
 package org.rsbot.util;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
  *
- * @author Aut0r
+ * @author Nader Sleiman
  */
 public class FrameUtil {
 
-    @SuppressWarnings("static-access")
-	public static boolean setTheme(JFrame f, String name) {
+    public static boolean setTheme(JFrame f, String name) {
         try {
 
             f.setDefaultLookAndFeelDecorated(true);

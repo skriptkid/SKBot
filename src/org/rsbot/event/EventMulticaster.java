@@ -6,20 +6,8 @@ import org.rsbot.event.listeners.MessageListener;
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.event.listeners.TextPaintListener;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EventListener;
-import java.util.EventObject;
-import java.util.List;
+import java.awt.event.*;
+import java.util.*;
 
 public class EventMulticaster implements EventListener {
 
@@ -144,7 +132,7 @@ public class EventMulticaster implements EventListener {
 	 * Adds the listener to the tree with a default mask.
 	 */
 	public void addListener(EventListener el) {
-		long mask = 0;
+		long mask;
 		if (el instanceof EventMulticaster) {
 			final EventMulticaster em = (EventMulticaster) el;
 			mask = em.enabledMask;
@@ -160,8 +148,9 @@ public class EventMulticaster implements EventListener {
 	 */
 	public void addListener(EventListener el, long mask) {
 		synchronized (EventMulticaster.treeLock) {
-			if (listeners.contains(el))
+			if (listeners.contains(el)) {
 				return;
+			}
 
 			if (el instanceof EventMulticaster) {
 				final EventMulticaster em = (EventMulticaster) el;
@@ -183,11 +172,13 @@ public class EventMulticaster implements EventListener {
 	 * Has to hold tree lock.
 	 */
 	private void addMulticaster(EventMulticaster em) {
-		if (em.parent != null)
+		if (em.parent != null) {
 			throw new IllegalArgumentException("adding multicaster to multiple multicasters");
+		}
 		for (EventMulticaster cur = this; cur != null; cur = cur.parent) {
-			if (cur == em)
+			if (cur == em) {
 				throw new IllegalArgumentException("adding multicaster's parent to itself");
+			}
 		}
 		listeners.add(em);
 		em.parent = this;
@@ -326,8 +317,9 @@ public class EventMulticaster implements EventListener {
 	public void removeListener(EventListener el) {
 		synchronized (EventMulticaster.treeLock) {
 			final int idx = listeners.indexOf(el);
-			if (idx == -1)
+			if (idx == -1) {
 				return;
+			}
 			el = listeners.remove(idx);
 			if (el instanceof EventMulticaster) {
 				final EventMulticaster em = (EventMulticaster) el;

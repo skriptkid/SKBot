@@ -32,18 +32,20 @@ public class RSTilePath extends RSPath {
 			return false;
 		}
 		if (next.equals(getEnd())) {
-			if (methods.calc.distanceTo(next) <= 1 || (end && methods.players.getMyPlayer().isMoving()) || next.equals(methods.walking.getDestination())) {
+			if (methods.calc.distanceTo(next) <= 1 || (end && methods.players.getMyPlayer().isMoving()) || next.equals(
+					methods.walking.getDestination())) {
 				return false;
 			}
 			end = true;
 		} else {
 			end = false;
 		}
-		if (options.contains(TraversalOption.HANDLE_RUN) && !methods.walking.isRunEnabled() && methods.walking.getEnergy() > 50) {
+		if (options != null && options.contains(
+				TraversalOption.HANDLE_RUN) && !methods.walking.isRunEnabled() && methods.walking.getEnergy() > 50) {
 			methods.walking.setRun(true);
 			sleep(300);
 		}
-		if (options.contains(TraversalOption.SPACE_ACTIONS)) {
+		if (options != null && options.contains(TraversalOption.SPACE_ACTIONS)) {
 			RSTile dest = methods.walking.getDestination();
 			if (dest != null && methods.players.getMyPlayer().isMoving() &&
 					methods.calc.distanceTo(dest) > 5 &&

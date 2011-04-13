@@ -1,19 +1,21 @@
 package org.rsbot.script;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.util.logging.Level;
-
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.Methods;
+
+import java.awt.*;
+import java.util.logging.Level;
 
 public abstract class Random extends Methods implements PaintListener {
 
 	protected String name;
 
 	private volatile boolean enabled = true;
+
+	public int i = 50;
+
+	public boolean up = false;
 
 	private Script script;
 
@@ -130,7 +132,13 @@ public abstract class Random extends Methods implements PaintListener {
 	public final void onRepaint(Graphics g) {
 		Point p = mouse.getLocation();
 		int w = game.getWidth(), h = game.getHeight();
-		g.setColor(new Color(0, 0, 0, 100));
+		if (i >= 70 && !up) {
+			i--;
+		} else {
+			i++;
+			up = i < 130;
+		}
+		g.setColor(new Color(255, 0, 0, i));
 		g.fillRect(0, 0, p.x - 1, p.y - 1);
 		g.fillRect(p.x + 1, 0, w - (p.x + 1), p.y - 1);
 		g.fillRect(0, p.y + 1, p.x - 1, h - (p.y - 1));

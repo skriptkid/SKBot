@@ -14,18 +14,14 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class BotStub implements AppletStub, AppletContext {
 
 	private final Map<URL, WeakReference<Image>> IMAGE_CACHE = new HashMap<URL, WeakReference<Image>>();
-	private final Map<String, InputStream> INPUT_CACHE = Collections.synchronizedMap(new HashMap<String, InputStream>(2));
+	private final Map<String, InputStream> INPUT_CACHE = Collections.synchronizedMap(
+			new HashMap<String, InputStream>(2));
 
 	private final Logger log = Logger.getLogger(BotStub.class.getName());
 	private final Applet applet;
@@ -55,8 +51,9 @@ public class BotStub implements AppletStub, AppletContext {
 
 	public Applet getApplet(final String name) {
 		final String thisName = parameters.get("name");
-		if (thisName == null)
+		if (thisName == null) {
 			return null;
+		}
 		return thisName.equals(name) ? applet : null;
 	}
 
@@ -98,8 +95,9 @@ public class BotStub implements AppletStub, AppletContext {
 
 	public String getParameter(final String s) {
 		final String parameter = parameters.get(s);
-		if (s != null)
+		if (s != null) {
 			return parameter;
+		}
 		return "";
 	}
 

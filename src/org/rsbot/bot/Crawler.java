@@ -1,5 +1,7 @@
 package org.rsbot.bot;
 
+import org.rsbot.util.GlobalConfiguration;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -8,9 +10,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rsbot.util.GlobalConfiguration;
-
-public class Crawler {
+class Crawler {
 	private static final Logger log = Logger.getLogger(Crawler.class.getName());
 
 	private static HashMap<String, String> parameters;
@@ -72,8 +72,9 @@ public class Crawler {
 	private String firstMatch(final String regex, final String str) {
 		final Pattern pattern = Pattern.compile(regex);
 		final Matcher matcher = pattern.matcher(str);
-		while (matcher.find())
+		while (matcher.find()) {
 			return matcher.group(1);
+		}
 		return null;
 	}
 
@@ -86,14 +87,16 @@ public class Crawler {
 	}
 
 	private String removeTrailingChar(final String str, final char ch) {
-		if ((str == null) || str.isEmpty())
+		if ((str == null) || str.isEmpty()) {
 			return str;
-		else if (str.length() == 1)
+		} else if (str.length() == 1) {
 			return str.charAt(0) == ch ? "" : str;
+		}
 		try {
 			final int l = str.length() - 1;
-			if (str.charAt(l) == ch)
+			if (str.charAt(l) == ch) {
 				return str.substring(0, l);
+			}
 			return str;
 		} catch (final Exception e) {
 			return str;

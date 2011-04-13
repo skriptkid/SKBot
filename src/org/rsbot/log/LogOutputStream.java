@@ -54,15 +54,17 @@ public class LogOutputStream extends OutputStream {
 	/**
 	 * Creates the LogOutputStream to flush to the given Category.
 	 *
-	 * @param cat	  the Category to write to
+	 * @param cat      the Category to write to
 	 * @param priority the Priority to use when writing to the Category
 	 * @throws IllegalArgumentException if cat == null or priority == null
 	 */
 	public LogOutputStream(final Logger cat, final Level priority) throws IllegalArgumentException {
-		if (cat == null)
+		if (cat == null) {
 			throw new IllegalArgumentException("cat == null");
-		if (priority == null)
+		}
+		if (priority == null) {
 			throw new IllegalArgumentException("priority == null");
+		}
 
 		this.priority = priority;
 		category = cat;
@@ -130,8 +132,9 @@ public class LogOutputStream extends OutputStream {
 	 */
 	@Override
 	public void write(final int b) throws IOException {
-		if (hasBeenClosed)
+		if (hasBeenClosed) {
 			throw new IOException("The stream has been closed.");
+		}
 
 		// don't log nulls
 		if (b == 0) {

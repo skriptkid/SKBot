@@ -1,22 +1,18 @@
 package org.rsbot.bot;
 
-import java.applet.Applet;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.rsbot.Application;
 import org.rsbot.client.Loader;
 import org.rsbot.loader.ClientLoader;
 import org.rsbot.loader.script.ParseException;
 import org.rsbot.util.GlobalConfiguration;
+
+import java.applet.Applet;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Qauters
@@ -41,7 +37,7 @@ public class RSLoader extends Applet implements Runnable, Loader {
 	/**
 	 * The game class loader
 	 */
-	public RSClassLoader classLoader;
+	private RSClassLoader classLoader;
 
 	@Override
 	public final synchronized void destroy() {
@@ -97,7 +93,7 @@ public class RSLoader extends Applet implements Runnable, Loader {
 			if (versionFile.exists() && !versionFile.delete()) {
 				log.warning("Unable to clear cache.");
 			}
-			
+
 			log.log(Level.SEVERE, "Error reason:", e);
 		}
 	}
@@ -107,12 +103,19 @@ public class RSLoader extends Applet implements Runnable, Loader {
 	}
 
 	public void load() {
-		ClientLoader cl = new ClientLoader();
 		try {
-			cl.init(new URL(GlobalConfiguration.Paths.URLs.UPDATE), new File(GlobalConfiguration.Paths.getModScriptCache()));
-			cl.load(new File(GlobalConfiguration.Paths.getClientCache()), new File(GlobalConfiguration.Paths.getVersionCache()));
-			targetName = cl.getTargetName();
-			classLoader = new RSClassLoader(cl.getClasses(), new URL("http://" + targetName + ".com/"));
+			WebLoader webLoader = new WebLoader();
+			if (webLoader.load()) {
+				ClientLoader cl = new ClientLoader();
+				cl.init(new URL(GlobalConfiguration.Paths.URLs.UPDATE),
+				        new File(GlobalConfiguration.Paths.getModScriptCache()));
+				cl.load(new File(GlobalConfiguration.Paths.getClientCache()),
+				        new File(GlobalConfiguration.Paths.getVersionCache()));
+				targetName = cl.getTargetName();
+				classLoader = new RSClassLoader(cl.getClasses(), new URL("http://" + targetName + ".com/"));
+			} else {
+				log.severe("Unable to download web data.");
+			}
 		} catch (IOException ex) {
 			log.severe("Unable to load client - " + ex.getMessage());
 		} catch (ParseException ex) {
@@ -155,8 +158,9 @@ public class RSLoader extends Applet implements Runnable, Loader {
 	public final void update(Graphics graphics) {
 		if (client != null) {
 			client.update(graphics);
-		} else
+		} else {
 			paint(graphics);
+		}
 	}
 
 	public final void setSize(int width, int height) {

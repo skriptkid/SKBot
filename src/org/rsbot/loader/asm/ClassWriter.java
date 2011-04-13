@@ -480,7 +480,7 @@ public class ClassWriter implements ClassVisitor {
 	 *                    class. It will be used to copy the entire constant pool from the
 	 *                    original class and also to copy other fragments of original
 	 *                    bytecode where applicable.
-	 * @param flags	   option flags that can be used to modify the default behavior
+	 * @param flags       option flags that can be used to modify the default behavior
 	 *                    of this class. <i>These option flags do not affect methods that
 	 *                    are copied as is in the new class. This means that the maximum
 	 *                    stack size nor the stack frames will be computed for these
@@ -595,13 +595,13 @@ public class ClassWriter implements ClassVisitor {
 			final String signature,
 			final String[] exceptions) {
 		return new MethodWriter(this,
-				access,
-				name,
-				desc,
-				signature,
-				exceptions,
-				computeMaxs,
-				computeFrames);
+		                        access,
+		                        name,
+		                        desc,
+		                        signature,
+		                        exceptions,
+		                        computeMaxs,
+		                        computeFrames);
 	}
 
 	public void visitEnd() {
@@ -801,8 +801,8 @@ public class ClassWriter implements ClassVisitor {
 		} else if (cst instanceof Type) {
 			Type t = (Type) cst;
 			return newClassItem(t.getSort() == Type.OBJECT
-					? t.getInternalName()
-					: t.getDescriptor());
+			                    ? t.getInternalName()
+			                    : t.getDescriptor());
 		} else {
 			throw new IllegalArgumentException("value " + cst);
 		}

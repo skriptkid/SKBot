@@ -2,6 +2,7 @@ package org.rsbot.script.randoms;
 
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
+import org.rsbot.script.util.Timer;
 
 /**
  * Advanced System Update script that will logout at a random time during a
@@ -9,15 +10,19 @@ import org.rsbot.script.ScriptManifest;
  *
  * @author Gnarly
  */
-@ScriptManifest(authors = {"Gnarly"}, name = "SystemUpdate", version = 1.4)
+@ScriptManifest(authors = {"Gnarly", "Pervy Shuya"}, name = "SystemUpdate", version = 1.5)
 public class SystemUpdate extends Random {
 
-	private int logoutMinutes;
+	@SuppressWarnings("unused")
 	private int logoutSeconds;
+	private final Timer systemTime = new Timer(0L);
 
 	@Override
 	public boolean activateCondition() {
-		if (game.isLoggedIn() && interfaces.getComponent(754, 5).getText().startsWith("<col=ffff00>System update in") && !getMyPlayer().isInCombat()) {
+		if (game.isLoggedIn()
+				&& interfaces.getComponent(754, 5).getText()
+				             .startsWith("<col=ffff00>System update in")
+				&& !getMyPlayer().isInCombat()) {
 			check();
 		}
 		return false;
@@ -29,8 +34,9 @@ public class SystemUpdate extends Random {
 	}
 
 	private void check() {
-		logoutMinutes = random(1, getMinutes());
-		logoutSeconds = random(10, getSeconds());
+		int logoutMinutes = random(1, getMinutes());
+		// logoutSeconds = random(10, getSeconds());
+		systemTime.setEndIn(logoutMinutes);
 		while (!checkForLogout()) {
 			sleep(1000);
 		}
@@ -38,19 +44,25 @@ public class SystemUpdate extends Random {
 	}
 
 	private boolean checkForLogout() {
-		if ((getMinutes() < logoutMinutes) && (getSeconds() < logoutSeconds)) {
+		// if ((getMinutes() < logoutMinutes) && (getSeconds() < logoutSeconds))
+		// {
+		if (!systemTime.isRunning()) {
 			stopScript(false);
 			return true;
-		} else
+		} else {
 			return false;
+		}
 	}
 
 	private int getMinutes() {
-		return Integer.parseInt(interfaces.getComponent(754, 5).getText().substring(29).trim().split(":")[0]);
+		return Integer.parseInt(interfaces.getComponent(754, 5).getText()
+		                                  .substring(29).trim().split(":")[0]);
 	}
 
+	@SuppressWarnings("unused")
 	private int getSeconds() {
-		return Integer.parseInt(interfaces.getComponent(754, 5).getText().substring(29).trim().split(":")[1]);
+		return Integer.parseInt(interfaces.getComponent(754, 5).getText()
+		                                  .substring(29).trim().split(":")[1]);
 	}
 
 }

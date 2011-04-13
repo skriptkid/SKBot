@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class TUserInputAllowed implements TextPaintListener {
 
-	private Bot bot;
+	private final Bot bot;
 
 	public TUserInputAllowed(Bot bot) {
 		this.bot = bot;
@@ -17,7 +17,7 @@ public class TUserInputAllowed implements TextPaintListener {
 	public int drawLine(final Graphics render, int idx) {
 		StringUtil.drawLine(render, idx++, "User Input: " +
 				(bot.inputFlags == 0 && !bot.overrideInput ?
-						"[red]Disabled (" + bot.inputFlags + ")" : "[green]Enabled"));
+				 "[red]Disabled (" + bot.inputFlags + ")" : "[green]Enabled"));
 		return idx;
 	}
 }

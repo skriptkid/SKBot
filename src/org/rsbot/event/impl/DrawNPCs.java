@@ -11,15 +11,16 @@ import java.awt.*;
 
 public class DrawNPCs implements PaintListener {
 
-	private MethodContext ctx;
+	private final MethodContext ctx;
 
 	public DrawNPCs(Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
 	public void onRepaint(final Graphics render) {
-		if (!ctx.game.isLoggedIn())
+		if (!ctx.game.isLoggedIn()) {
 			return;
+		}
 
 		final FontMetrics metrics = render.getFontMetrics();
 		for (int element : ctx.client.getRSNPCIndexArray()) {

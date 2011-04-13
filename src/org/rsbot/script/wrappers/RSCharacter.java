@@ -1,12 +1,12 @@
 package org.rsbot.script.wrappers;
 
-import java.awt.Point;
-
 import org.rsbot.client.Model;
 import org.rsbot.client.Node;
 import org.rsbot.client.RSNPCNode;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.MethodProvider;
+
+import java.awt.*;
 
 public abstract class RSCharacter extends MethodProvider {
 
@@ -18,24 +18,20 @@ public abstract class RSCharacter extends MethodProvider {
 	 * Retrieves a reference to the client accessor. For internal use. The
 	 * reference should be stored in a SoftReference by subclasses to allow for
 	 * garbage collection when appropriate.
-	 * 
+	 *
 	 * @return The client accessor.
 	 */
 	protected abstract org.rsbot.client.RSCharacter getAccessor();
 
 	/**
 	 * Clicks a humanoid character (tall and skinny).
-	 * 
-	 * @param action
-	 *            The option to be clicked (if available).
+	 *
+	 * @param action The option to be clicked (if available).
 	 * @return <tt>true</tt> if the option was found; otherwise <tt>false</tt>.
 	 */
 	public boolean doAction(final String action) {
 		RSModel model = this.getModel();
-		if (model != null && this.isValid())
-			return this.getModel().doAction(action);
-		else
-			return false;
+		return model != null && this.isValid() && this.getModel().doAction(action);
 	}
 
 	public RSModel getModel() {
@@ -75,7 +71,7 @@ public abstract class RSCharacter extends MethodProvider {
 		}
 		if (interact < 32768) {
 			Node node = methods.nodes.lookup(methods.client.getRSNPCNC(),
-					interact);
+			                                 interact);
 			if (node == null || !(node instanceof RSNPCNode)) {
 				return null;
 			}
@@ -86,7 +82,7 @@ public abstract class RSCharacter extends MethodProvider {
 				index = 2047;
 			}
 			return new RSPlayer(methods,
-					methods.client.getRSPlayerArray()[index]);
+			                    methods.client.getRSPlayerArray()[index]);
 		}
 	}
 
@@ -107,7 +103,7 @@ public abstract class RSCharacter extends MethodProvider {
 	/**
 	 * Gets the minimap location, of the character. Note: This does work when
 	 * it's walking!
-	 * 
+	 *
 	 * @return The location of the character on the minimap.
 	 */
 	public Point getMinimapLocation() {
@@ -134,7 +130,7 @@ public abstract class RSCharacter extends MethodProvider {
 		RSModel model = getModel();
 		if (model == null) {
 			return methods.calc.groundToScreen(c.getX(), c.getY(),
-					c.getHeight() / 2);
+			                                   c.getHeight() / 2);
 		} else {
 			return model.getPoint();
 		}
@@ -150,7 +146,7 @@ public abstract class RSCharacter extends MethodProvider {
 	public boolean isInCombat() {
 		return methods.game.isLoggedIn()
 				&& methods.client.getLoopCycle() < getAccessor()
-						.getLoopCycleStatus();
+				.getLoopCycleStatus();
 	}
 
 	public boolean isInteractingWithLocalPlayer() {
@@ -198,7 +194,7 @@ public abstract class RSCharacter extends MethodProvider {
 				+ getMessage()
 				+ ",interact="
 				+ (inter == null ? "null" : inter.isValid() ? inter
-						.getMessage() : "Invalid") + "]";
+				.getMessage() : "Invalid") + "]";
 	}
 
 }

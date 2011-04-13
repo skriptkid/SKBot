@@ -14,20 +14,23 @@ public class FirstTimeDeath extends Random {
 
 	@Override
 	public boolean activateCondition() {
-		return ((reaper = npcs.getNearest(8869)) != null) || ((reaper = npcs.getNearest(8870)) != null);
+		return ((reaper = npcs.getNearest(8869)) != null)
+				|| ((reaper = npcs.getNearest(8870)) != null);
 	}
 
 	@Override
 	public int loop() {
-		if (!activateCondition())
+		if (!activateCondition()) {
 			return -1;
+		}
 		camera.setPitch(true);
 		if (interfaces.canContinue() && !exit) {
 			if (interfaces.getComponent(241, 4).getText().contains("Yes?")) {
 				step++;
 				exit = true;
 				return random(200, 400);
-			} else if (interfaces.getComponent(242, 5).getText().contains("Enjoy!")) {
+			} else if (interfaces.getComponent(242, 5).getText()
+			                     .contains("Enjoy!")) {
 				step++;
 				exit = true;
 			}
@@ -40,8 +43,10 @@ public class FirstTimeDeath extends Random {
 				reaperChair.doAction("Talk-to");
 				sleep(random(1000, 1200));
 				if (!interfaces.canContinue()) {
-					walking.walkTileOnScreen(new RSTile(reaper.getLocation().getX() + 2, reaper.getLocation().getY() + 1));
-					camera.turnToObject(reaperChair);
+					walking.walkTileOnScreen(new RSTile(
+							reaper.getLocation().getX() + 2, reaper.getLocation()
+							                                       .getY() + 1));
+					camera.turnTo(reaperChair);
 				}
 				break;
 
@@ -52,7 +57,7 @@ public class FirstTimeDeath extends Random {
 				portal.doAction("Enter");
 				sleep(random(1000, 1200));
 				if (calc.distanceTo(loc) < 10) {
-					camera.turnToObject(portal);
+					camera.turnTo(portal);
 					if (!calc.tileOnScreen(portal.getLocation())) {
 						walking.walkTileOnScreen(portal.getLocation());
 					}

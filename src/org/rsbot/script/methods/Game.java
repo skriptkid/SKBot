@@ -1,42 +1,49 @@
 package org.rsbot.script.methods;
 
-import java.awt.event.KeyEvent;
-
+import org.rsbot.script.Random;
+import org.rsbot.script.randoms.*;
 import org.rsbot.script.wrappers.RSComponent;
 import org.rsbot.script.wrappers.RSInterface;
 import org.rsbot.script.wrappers.RSTile;
+
+import java.awt.event.KeyEvent;
 
 /**
  * Game state and GUI operations.
  */
 public class Game extends MethodProvider {
-	
-	public enum CHAT_MODE {
+
+	/**
+	 * Different Types of Chat Modes
+	 *
+	 * @author Aut0r
+	 */
+	public enum ChatMode {
 		VIEW, ON, FRIENDS, OFF, HIDE
 	}
 
 	public static final int INDEX_LOGIN_SCREEN = 3;
 	public static final int INDEX_LOBBY_SCREEN = 7;
-	public static final int[] INDEX_LOGGED_IN = { 10, 11 };
+	public static final int[] INDEX_LOGGED_IN = {10, 11};
 	public static final int INDEX_FIXED = 746;
 
-	public static final int[] TAB_FUNCTION_KEYS = { KeyEvent.VK_F5, // Attack
-			0, // Achievements
-			0, // Stats
-			0, // Quests
-			KeyEvent.VK_F1, // Inventory
-			KeyEvent.VK_F2, // Equipment
-			KeyEvent.VK_F3, // Prayer
-			KeyEvent.VK_F4, // Magic
-			0, // Summoning
-			0, // Friends
-			0, // Ignore
-			0, // Clan
-			0, // Options
-			0, // Controls
-			0, // Music
-			0, // Notes
-			0, // Logout
+	public static final int[] TAB_FUNCTION_KEYS = {KeyEvent.VK_F5, // Attack
+	                                               0, // Achievements
+	                                               0, // Stats
+	                                               0, // Quests
+	                                               KeyEvent.VK_F1, // Inventory
+	                                               KeyEvent.VK_F2, // Equipment
+	                                               KeyEvent.VK_F3, // Prayer
+	                                               KeyEvent.VK_F4, // Magic
+	                                               0, // Summoning
+	                                               0, // Friends
+	                                               0, // Ignore
+	                                               0, // Clan
+	                                               0, // Options
+	                                               0, // Controls
+	                                               0, // Music
+	                                               0, // Notes
+	                                               0, // Logout
 	};
 	public static final int TAB_ATTACK = 0;
 	public static final int TAB_ACHIEVEMENTS = 1;
@@ -80,15 +87,18 @@ public class Game extends MethodProvider {
 	public static final int INTERFACE_HP_ORB = 748;
 	public static final int INTERFACE_PRAYER_ORB = 749;
 
-	public static final int[] INTERFACE_TALKS = new int[] { 211, 241, 251, 101,
-			242, 102, 161, 249, 243, 64, 65, 244, 255, 249, 230, 372, 421 };
-	public static final int[] INTERFACE_OPTIONS = new int[] { 230, 228 };
+	public static final int[] INTERFACE_TALKS = new int[]{211, 241, 251, 101,
+	                                                      242, 102, 161, 249, 243, 64, 65, 244, 255, 249, 230, 372,
+	                                                      421};
+	public static final int[] INTERFACE_OPTIONS = new int[]{230, 228};
 
-	public static final String[] TAB_NAMES = new String[] { "Combat Styles",
-			"Stats", "Quest List", "Achievements", "Inventory",
-			"Worn Equipment", "Prayer List", "Magic Spellbook", "Objectives",
-			"Friends List", "Ignore List", "Clan Chat", "Options", "Emotes",
-			"Music Player", "Notes", "Exit" };
+	public static final String[] TAB_NAMES = new String[]{"Combat Styles",
+	                                                      "Stats", "Quest List", "Achievements", "Inventory",
+	                                                      "Worn Equipment", "Prayer List", "Magic Spellbook",
+	                                                      "Objectives",
+	                                                      "Friends List", "Ignore List", "Clan Chat", "Options",
+	                                                      "Emotes",
+	                                                      "Music Player", "Notes", "Exit"};
 
 	Game(final MethodContext ctx) {
 		super(ctx);
@@ -96,17 +106,17 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Sets the trade accept mode
-	 * 
-	 * @param mode
-	 *            The <tt>CHAT_MODE</tt> to set the trade button to.
+	 *
+	 * @param mode The <tt>ChatMode</tt> to set the trade button to.
 	 * @return <tt>true</tt> if item in menu was clicked; otherwise
 	 *         <tt>false</tt>.
-	 * @see #setChatOption(int, CHAT_MODE)
+	 * @see #setChatOption(int, ChatMode)
 	 */
 	@Deprecated
-	public boolean setTradeMode(Game.CHAT_MODE mode) {
-		if (mode.equals(Game.CHAT_MODE.HIDE))
+	public boolean setTradeMode(Game.ChatMode mode) {
+		if (mode.equals(Game.ChatMode.HIDE)) {
 			throw new IllegalArgumentException("Bad mode: HIDE");
+		}
 		mouseChatButton(CHAT_OPTION_TRADE, false);
 		return methods.menu.doAction(mode.toString());
 	}
@@ -114,8 +124,8 @@ public class Game extends MethodProvider {
 	/**
 	 * Left clicks the first chat button at the bottom of the screen to turn on
 	 * the showing of all chat messages.
-	 * 
-	 * @see #setChatOption(int, CHAT_MODE)
+	 *
+	 * @see #setChatOption(int, ChatMode)
 	 */
 	@Deprecated
 	public void showAllChatMessages() {
@@ -125,8 +135,8 @@ public class Game extends MethodProvider {
 	/**
 	 * Left clicks the game chat messages button at the bottom of the screen to
 	 * enable the showing of all game messages.
-	 * 
-	 * @see #setChatOption(int, CHAT_MODE)
+	 *
+	 * @see #setChatOption(int, ChatMode)
 	 */
 	@Deprecated
 	public void showGameChatMessages() {
@@ -135,106 +145,103 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Set private chat mode.
-	 * 
-	 * @param mode
-	 *            The <tt>CHAT_MODE</tt> to set the private chat button to.
+	 *
+	 * @param mode The <tt>ChatMode</tt> to set the private chat button to.
 	 * @return <tt>true</tt> if item in menu was clicked; otherwise
 	 *         <tt>false</tt>.
-	 * @see #setChatOption(int, CHAT_MODE)
+	 * @see #setChatOption(int, ChatMode)
 	 */
 	@Deprecated
-	public boolean setPrivateChat(Game.CHAT_MODE mode) {
-		if (mode.equals(Game.CHAT_MODE.HIDE))
+	public boolean setPrivateChat(Game.ChatMode mode) {
+		if (mode.equals(Game.ChatMode.HIDE)) {
 			throw new IllegalArgumentException("Bad mode: HIDE");
+		}
 		mouseChatButton(CHAT_OPTION_PRIVATE, false);
 		return methods.menu.doAction(mode.toString());
 	}
 
 	/**
 	 * Sets the public chat mode.
-	 * 
-	 * @param mode
-	 *            The <tt>CHAT_MODE</tt> to set the public chat button to.
+	 *
+	 * @param mode The <tt>ChatMode</tt> to set the public chat button to.
 	 * @return <tt>true</tt> if item in menu was clicked; otherwise
 	 *         <tt>false</tt>.
-	 * @see #setChatOption(int, CHAT_MODE)
+	 * @see #setChatOption(int, ChatMode)
 	 */
 	@Deprecated
-	public boolean setPublicChat(Game.CHAT_MODE mode) {
+	public boolean setPublicChat(Game.ChatMode mode) {
 		mouseChatButton(CHAT_OPTION_PUBLIC, false);
 		return methods.menu.doAction(mode.toString());
 	}
 
 	/**
 	 * Sets the request assistance mode.
-	 * 
-	 * @param mode
-	 *            The <tt>CHAT_MODE</tt> to set the assist button to.
+	 *
+	 * @param mode The <tt>ChatMode</tt> to set the assist button to.
 	 * @return <tt>true</tt> if item in menu was clicked; otherwise
 	 *         <tt>false</tt>.
-	 * @see #setChatOption(int, CHAT_MODE)
+	 * @see #setChatOption(int, ChatMode)
 	 */
 	@Deprecated
-	public boolean setAssistMode(Game.CHAT_MODE mode) {
-		if (mode.equals(Game.CHAT_MODE.HIDE))
+	public boolean setAssistMode(Game.ChatMode mode) {
+		if (mode.equals(Game.ChatMode.HIDE)) {
 			throw new IllegalArgumentException("Bad mode: HIDE");
+		}
 		mouseChatButton(CHAT_OPTION_ASSIST, false);
 		return methods.menu.doAction(mode.toString());
 	}
 
 	/**
 	 * Sets the clan chat mode
-	 * 
-	 * @param mode
-	 *            The <tt>CHAT_MODE</tt> to set the clan button to.
+	 *
+	 * @param mode The <tt>ChatMode</tt> to set the clan button to.
 	 * @return <tt>true</tt> if item in menu was clicked; otherwise
 	 *         <tt>false</tt>.
-	 * @see #setChatOption(int, CHAT_MODE)
+	 * @see #setChatOption(int, ChatMode)
 	 */
 	@Deprecated
-	public boolean setClanMode(Game.CHAT_MODE mode) {
-		if (mode.equals(Game.CHAT_MODE.HIDE))
+	public boolean setClanMode(Game.ChatMode mode) {
+		if (mode.equals(Game.ChatMode.HIDE)) {
 			throw new IllegalArgumentException("Bad mode: HIDE");
+		}
 		mouseChatButton(CHAT_OPTION_CLAN, false);
 		return methods.menu.doAction(mode.toString());
 	}
 
 	/**
 	 * Set the specified chat mode
-	 * 
-	 * @param chatOption
-	 *            one of CHAT_OPTION_
-	 * @param mode
-	 *            one of CHAT_MODE
+	 *
+	 * @param chatOption one of CHAT_OPTION_
+	 * @param mode       one of ChatMode
 	 * @return <tt>true</tt> if item was clicked correctly; otherwise
 	 *         <tt>false</tt>
 	 */
-	public boolean setChatOption(int chatOption, CHAT_MODE mode) {
+	public boolean setChatOption(int chatOption, ChatMode mode) {
 		mouseChatButton(chatOption, false);
 		return methods.menu.doAction(mode.toString());
 	}
 
 	/**
 	 * Access the last message spoken by a player.
-	 * 
+	 *
 	 * @return The last message spoken by a player or "" if none
 	 */
 	public String getLastMessage() {
 		RSInterface chatBox = methods.interfaces.get(INTERFACE_CHAT_BOX);
 		for (int i = 279; i >= 180; i--) {// Valid text is from 180 to 279, was
-											// 58-157
+			// 58-157
 			String text = chatBox.getComponent(i).getText();
-			if (!text.isEmpty() && text.contains("<"))
+			if (!text.isEmpty() && text.contains("<")) {
 				return text;
+			}
 		}
 		return "";
 	}
 
 	/**
 	 * Opens the specified tab at the specified index.
-	 * 
-	 * @param tab
-	 *            The tab to open.
+	 *
+	 * @param tab The tab to open.
 	 * @return <tt>true</tt> if tab successfully selected; otherwise
 	 *         <tt>false</tt>.
 	 * @see #openTab(int tab, boolean functionKey)
@@ -245,21 +252,59 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Opens the specified tab at the specified index.
-	 * 
-	 * @param tab
-	 *            The tab to open, functionKey if wanting to use function keys
+	 *
+	 * @param tab The tab to open, functionKey if wanting to use function keys
+	 *            to switch.
+	 * @return <tt>true</tt> if tab successfully selected; otherwise
+	 *         <tt>false</tt>.
+	 */
+	public boolean open(final int tab, final boolean functionKey) {
+		/*
+				   * Only attempts by fn key if there is a valid hotkey available Returns
+				   * faster when the new tab has been selected
+				   */
+		if (tab == getCurrentTab()) {
+			return true;
+		}
+		if (functionKey && tab < TAB_FUNCTION_KEYS.length
+				&& TAB_FUNCTION_KEYS[tab] != 0) {
+			methods.keyboard.pressKey((char) TAB_FUNCTION_KEYS[tab]);
+			sleep(random(80, 200));
+			methods.keyboard.releaseKey((char) TAB_FUNCTION_KEYS[tab]);
+		} else {
+			org.rsbot.client.RSInterface iTab = methods.gui.getTab(tab);
+			if (iTab == null) {
+				return false;
+			}
+			methods.interfaces.getComponent(iTab.getID()).doClick();
+		}
+		for (int i = 0; i < 4; i++) {
+			if (tab == getCurrentTab()) {
+				break;
+			}
+			sleep(random(100, 150));
+		}
+		return tab == getCurrentTab();
+	}
+
+	/**
+	 * Opens the specified tab at the specified index.
+	 *
+	 * @param tab The tab to open, functionKey if wanting to use function keys
 	 *            to switch.
 	 * @return <tt>true</tt> if tab successfully selected; otherwise
 	 *         <tt>false</tt>.
 	 */
 	public boolean openTab(int tab, boolean functionKey) {
 		// Check current tab
-		if (tab == getCurrentTab())
+		if (tab == getCurrentTab()) {
 			return true;
+		}
 
 		if (functionKey) {
-			if (tab >= TAB_FUNCTION_KEYS.length || TAB_FUNCTION_KEYS[tab] == 0)
+			if (tab >= TAB_FUNCTION_KEYS.length || TAB_FUNCTION_KEYS[tab] == 0) {
 				return false;// no function key for specified tab
+			}
 
 			methods.keyboard.pressKey((char) TAB_FUNCTION_KEYS[tab]);
 			sleep(random(80, 200));
@@ -275,6 +320,7 @@ public class Game extends MethodProvider {
 		sleep(random(400, 600));
 		return tab == getCurrentTab();
 	}
+
 
 	/**
 	 * Closes the currently open tab if in resizable mode.
@@ -292,24 +338,19 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Click chat button.
-	 * 
-	 * @param button
-	 *            Which button? One of CHAT_OPTION
-	 * @param left
-	 *            Left or right button? Left = true. Right = false.
+	 *
+	 * @param button Which button? One of CHAT_OPTION
+	 * @param left   Left or right button? Left = true. Right = false.
 	 */
 	public boolean mouseChatButton(int button, boolean left) {
 		RSComponent chatButton = methods.interfaces.get(CHAT_OPTION)
-				.getComponent(button);
-		if (!chatButton.isValid()) {
-			return false;
-		}
-		return chatButton.doClick(left);
+		                                           .getComponent(button);
+		return chatButton.isValid() && chatButton.doClick(left);
 	}
 
 	/**
 	 * Gets the currently open tab.
-	 * 
+	 *
 	 * @return The currently open tab or the logout tab by default.
 	 */
 	public int getCurrentTab() {
@@ -322,19 +363,20 @@ public class Game extends MethodProvider {
 			}
 
 			// Check if tab is selected
-			if (tab.getTextureID() != -1)
+			if (tab.getTextureID() != -1) {
 				return i;
+			}
 		}
 
 		return -1; // no selected ones. (never happens, always return
-					// TAB_LOGOUT)
+		// TAB_LOGOUT)
 	}
 
 	/**
 	 * Gets the current run energy.
 	 * <p/>
 	 * Deprecated : use walking.getEnergy()
-	 * 
+	 *
 	 * @return An <tt>int</tt> representation of the players current energy.
 	 */
 	@Deprecated
@@ -342,9 +384,31 @@ public class Game extends MethodProvider {
 		return methods.walking.getEnergy();
 	}
 
+
+	/**
+	 * Excludes Loginbot, BankPin, TeleotherCloser, CloseAllInterface, ImprovedRewardsBox
+	 *
+	 * @return True if player is in a random
+	 */
+	public Boolean inRandom() {
+		for (Random random : methods.bot.getScriptHandler().getRandoms()) {
+			if (random.getClass().equals(new LoginBot()) || random.getClass().equals(new BankPins())
+					|| random.getClass().equals(new TeleotherCloser()) || random.getClass().equals(
+					new CloseAllInterface()) ||
+					random.getClass().equals(new ImprovedRewardsBox())) {
+				continue;
+			} else {
+				if (random.activateCondition()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Returns the valid chat component.
-	 * 
+	 *
 	 * @return <tt>RSInterfaceChild</tt> of the current valid talk interface;
 	 *         otherwise null.
 	 * @see #INTERFACE_TALKS
@@ -352,31 +416,34 @@ public class Game extends MethodProvider {
 	public RSComponent getTalkInterface() {
 		for (int talk : INTERFACE_TALKS) {
 			RSComponent child = methods.interfaces.getComponent(talk, 0);
-			if (child.isValid())
+			if (child.isValid()) {
 				return child;
+			}
 		}
 		return null;
 	}
 
 	/**
 	 * Switches to a given world.
-	 * 
-	 * @param world
-	 *            the world to switch to, must be valid.
+	 *
+	 * @param world the world to switch to, must be valid.
 	 */
 	public boolean switchWorld(int world) {
-		if (isLoggedIn())
+		if (isLoggedIn()) {
 			logout(true);
+		}
 
-		if (getClientState() != INDEX_LOBBY_SCREEN)
+		if (getClientState() != INDEX_LOBBY_SCREEN) {
 			return false;
+		}
 
 		RSComponent worldSelect = methods.interfaces.getComponent(906, 196);
 		if (worldSelect.getBackgroundColor() != 2630) {
 			if (worldSelect.doClick()) {
 				for (int i = 0; worldSelect.getBackgroundColor() != 2630; i++) {
-					if (i == 10)
+					if (i == 10) {
 						return false;
+					}
 
 					sleep(random(100, 200));
 				}
@@ -385,34 +452,38 @@ public class Game extends MethodProvider {
 
 		RSComponent worldComp = null;
 		for (RSComponent comp : methods.interfaces.getComponent(910, 68)
-				.getComponents()) {
+		                                          .getComponents()) {
 			if (Integer.parseInt(comp.getText()) == world) {
 				worldComp = comp;
 				break;
 			}
 		}
 
-		if (worldComp == null)
+		if (worldComp == null) {
 			return false;
+		}
 
 		for (int i = 0; !methods.interfaces.scrollTo(worldComp,
-				(910 << 16) + 85); i++) {
-			if (i == 3)
+		                                             (910 << 16) + 85); i++) {
+			if (i == 3) {
 				return false;
+			}
 
 			sleep(random(200, 400));
 		}
 
 		String players = methods.interfaces.getComponent(910, 70)
-				.getComponents()[worldComp.getComponentIndex()].getText();
+		                                   .getComponents()[worldComp.getComponentIndex()].getText();
 		if (players.equals("0") || players.equals("OFFLINE")
-				|| players.equals("FULL"))
+				|| players.equals("FULL")) {
 			return false;
+		}
 
 		if (methods.interfaces.getComponent(910, 76).getComponents()[worldComp
 				.getComponentIndex()].doClick()) {
-			if (methods.interfaces.getComponent(906, 154).doClick())
+			if (methods.interfaces.getComponent(906, 154).doClick()) {
 				return true;
+			}
 		}
 
 		return false;
@@ -420,26 +491,27 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Checks whether or not the logout tab is selected.
-	 * 
+	 *
 	 * @return <tt>true</tt> if on the logout tab.
 	 */
 	public boolean isOnLogoutTab() {
 		for (int i = 0; i < Game.TAB_NAMES.length; i++) {
 			org.rsbot.client.RSInterface tab = methods.gui.getTab(i);
-			if (tab == null)
+			if (tab == null) {
 				continue;
+			}
 			int id = tab.getTextureID();
-			if (id > -1 && id < 2201)
+			if (id > -1 && id < 2201) {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	/**
 	 * Closes the bank if it is open and logs out.
-	 * 
-	 * @param lobby
-	 *            <tt>true</tt> if player should be logged out to the lobby
+	 *
+	 * @param lobby <tt>true</tt> if player should be logged out to the lobby
 	 * @return <tt>true</tt> if the player was logged out.
 	 */
 	public boolean logout(boolean lobby) {
@@ -468,7 +540,7 @@ public class Game extends MethodProvider {
 			int idx = methods.client.getGUIRSInterfaceIndex();
 			// Logout button in the top right hand corner
 			methods.interfaces.getComponent(idx, isFixed() ? 181 : 172)
-					.doClick();
+			                  .doClick();
 			int timesToWait = 0;
 			while (!isOnLogoutTab() && timesToWait < 5) {
 				sleep(random(200, 400));
@@ -483,7 +555,7 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Runs the LoginBot random.
-	 * 
+	 *
 	 * @return <tt>true</tt> if random was run; otherwise <tt>false</tt>.
 	 */
 	public boolean login() {
@@ -493,7 +565,7 @@ public class Game extends MethodProvider {
 	/**
 	 * Determines whether or no the client is currently in the fixed display
 	 * mode.
-	 * 
+	 *
 	 * @return <tt>true</tt> if in fixed mode; otherwise <tt>false</tt>.
 	 */
 	public boolean isFixed() {
@@ -503,7 +575,7 @@ public class Game extends MethodProvider {
 	/**
 	 * Determines whether or not the client is currently logged in to an
 	 * account.
-	 * 
+	 *
 	 * @return <tt>true</tt> if logged in; otherwise <tt>false</tt>.
 	 */
 	public boolean isLoggedIn() {
@@ -519,7 +591,7 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Determines whether or not the client is showing the login screen.
-	 * 
+	 *
 	 * @return <tt>true</tt> if the client is showing the login screen;
 	 *         otherwise <tt>false</tt>.
 	 */
@@ -529,18 +601,18 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Determines whether or not the welcome screen is open.
-	 * 
+	 *
 	 * @return <tt>true</tt> if the client is showing the welcome screen;
 	 *         otherwise <tt>false</tt>.
 	 */
 	public boolean isWelcomeScreen() {
 		return methods.interfaces.get(INTERFACE_WELCOME_SCREEN)
-				.getComponent(INTERFACE_WELCOME_SCREEN_CHILD).getAbsoluteY() > 2;
+		                         .getComponent(INTERFACE_WELCOME_SCREEN_CHILD).getAbsoluteY() > 2;
 	}
 
 	/**
 	 * Gets the game state.
-	 * 
+	 *
 	 * @return The game state.
 	 */
 	public int getClientState() {
@@ -551,7 +623,7 @@ public class Game extends MethodProvider {
 	 * Gets the plane we are currently on. Typically 0 (ground level), but will
 	 * increase when going up ladders. You cannot be on a negative plane. Most
 	 * dungeons/basements are on plane 0 elsewhere on the world map.
-	 * 
+	 *
 	 * @return The current plane.
 	 */
 	public int getPlane() {
@@ -560,7 +632,7 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Gets the x coordinate of the loaded map area (far west).
-	 * 
+	 *
 	 * @return The region base x.
 	 */
 	public int getBaseX() {
@@ -569,7 +641,7 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Gets the y coordinate of the loaded map area (far south).
-	 * 
+	 *
 	 * @return The region base y.
 	 */
 	public int getBaseY() {
@@ -579,7 +651,7 @@ public class Game extends MethodProvider {
 	/**
 	 * Gets the (x, y) coordinate pair of the south-western tile at the base of
 	 * the loaded map area.
-	 * 
+	 *
 	 * @return The region base tile.
 	 */
 	public RSTile getMapBase() {
@@ -588,7 +660,7 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Gets the canvas height.
-	 * 
+	 *
 	 * @return The canvas' width.
 	 */
 	public int getWidth() {
@@ -597,7 +669,7 @@ public class Game extends MethodProvider {
 
 	/**
 	 * Gets the canvas height.
-	 * 
+	 *
 	 * @return The canvas' height.
 	 */
 	public int getHeight() {

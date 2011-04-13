@@ -12,18 +12,20 @@ import java.awt.*;
 
 public class DrawItems implements PaintListener {
 
-	private MethodContext ctx;
+	private final MethodContext ctx;
 
 	public DrawItems(Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
 	public void onRepaint(final Graphics render) {
-		if (!ctx.game.isLoggedIn())
+		if (!ctx.game.isLoggedIn()) {
 			return;
+		}
 		final RSPlayer player = ctx.players.getMyPlayer();
-		if (player == null)
+		if (player == null) {
 			return;
+		}
 		final FontMetrics metrics = render.getFontMetrics();
 		final RSTile location = player.getLocation();
 		final int locX = location.getX();
