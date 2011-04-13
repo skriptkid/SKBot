@@ -75,17 +75,13 @@ public class GlobalConfiguration {
 
 		public static class URLs {
 			public static final String UPDATER = "http://skbot-client.googlecode.com/svn/updater/v2.3x/";
-			public static final String DOWNLOAD = UPDATER + "SKBot.jar";
+			public static final String DOWNLOAD = UPDATER + "update";
 			public static final String UPDATE = UPDATER + "643.ms.gz";
-			public static final String VERSION = UPDATER + "version.dat";
 			public static final String WEB = UPDATER + "webwalker.dat";
-                        public static final String PROJECT = "http://code.google.com/p/skbot-client";
+			public static final String VERSION = UPDATER + "version.dat";
+			public static final String PROJECT = "http://code.google.com/p/skbot-client";
 			public static final String SITE = "http://skproductions.tk";
 			public static final String STATS = "http://stats.powerbot.org/sync/";
-                        public static final String QuestF2p = "http://runehq.com/guidelist.php?type=freequest";
-                        public static final String QuestP2p = "http://runehq.com/guidelist.php?type=memberquest";
-                        public static final String RS_ItemDB = "http://itemdb.biz/";
-                        public static final String GE_Price_Checker = "http://itemdb-rs.runescape.com/frontpage.ws/";
 			public static final String AD_LINK = UPDATER + "botad";
 			public static final String AD_IMG = UPDATER + "botad-img";
 		}
@@ -249,7 +245,7 @@ public class GlobalConfiguration {
 
 	public static final String NAME_LOWERCASE = NAME.toLowerCase();
 
-	public static final String SITE_NAME = "skproductions";
+	public static final String SITE_NAME = "SKproductions";
 
 	private static final OperatingSystem CURRENT_OS;
 
