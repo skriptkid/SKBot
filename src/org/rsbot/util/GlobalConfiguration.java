@@ -236,11 +236,11 @@ public class GlobalConfiguration {
 		}
 	}
 
-	public static final String NAME = "RSBot";
+	public static final String NAME = "SKBot";
 
 	public static final String NAME_LOWERCASE = NAME.toLowerCase();
 
-	public static final String SITE_NAME = "powerbot";
+	public static final String SITE_NAME = "SKproductions";
 
 	private static final OperatingSystem CURRENT_OS;
 

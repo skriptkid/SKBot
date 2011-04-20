@@ -238,7 +238,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				openURL(GlobalConfiguration.Paths.URLs.PROJECT);
 			} else if (option.equals("About")) {
 				JOptionPane.showMessageDialog(this, new String[]{
-						"As an open source bot developed by the community.",
+						"An open source bot developed by the community.",
 						"Visit " + GlobalConfiguration.Paths.URLs.SITE
 								+ "/ for more information."}, "About",
 				                              JOptionPane.INFORMATION_MESSAGE);
