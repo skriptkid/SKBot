@@ -26,7 +26,6 @@ import java.util.logging.Logger;
  * @author Jacmob
  * @author Aion
  */
-@SuppressWarnings("serial")
 public class AccountManager extends JDialog implements ActionListener {
 
 	private static final String FILE_NAME = GlobalConfiguration.Paths.getAccountsFile();
@@ -35,29 +34,28 @@ public class AccountManager extends JDialog implements ActionListener {
 	                                                "Essence", "Ore", "Bars", "Gems", "Herbs", "Seeds", "Charms",
 	                                                "Surprise", "Emote", "Costume", "Attack", "Defence", "Strength",
 	                                                "Constitution", "Range", "Prayer", "Magic", "Cooking",
-	                                                "Woodcutting", "Fletching", "Fishing", "Firemaking", "Crafting",
-	                                                "Smithing", "Mining", "Herblore", "Agility", "Thieving", "Slayer",
-	                                                "Farming", "Runecrafting", "Hunter", "Construction", "Summoning",
-	                                                "Dungeoneering"};
+	                                                "Woodcutting",
+	                                                "Fletching", "Fishing", "Firemaking", "Crafting", "Smithing",
+	                                                "Mining",
+	                                                "Herblore", "Agility", "Thieving", "Slayer", "Farming",
+	                                                "Runecrafting",
+	                                                "Hunter", "Construction", "Summoning", "Dungeoneering"};
 
 	private static final String[] VALID_KEYS = {"password", "pin", "reward", "member", "take_breaks"};
 
 	private static Map<String, Map<String, String>> accounts;
 
-	private static final Logger log = Logger.getLogger(AccountManager.class
-			                                                   .getName());
+	private static final Logger log = Logger.getLogger(AccountManager.class.getName());
 
 	private static String key;
 
 	static {
 		try {
 			final InetAddress address = InetAddress.getLocalHost();
-			final NetworkInterface ni = NetworkInterface
-					.getByInetAddress(address);
+			final NetworkInterface ni = NetworkInterface.getByInetAddress(address);
 			AccountManager.key = new String(ni.getHardwareAddress());
 		} catch (final Exception e) {
-			AccountManager.key = System.getProperty("user.name")
-					+ System.getProperty("user.language");
+			AccountManager.key = System.getProperty("user.name") + System.getProperty("user.language");
 		}
 		AccountManager.accounts = AccountManager.loadAccounts();
 	}
@@ -75,7 +73,6 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	private static class PasswordCellRenderer extends DefaultTableCellRenderer {
-		@Override
 		protected void setValue(Object value) {
 			if (value == null) {
 				setText("<none>");
@@ -131,7 +128,6 @@ public class AccountManager extends JDialog implements ActionListener {
 			return null;
 		}
 
-		@Override
 		public String getColumnName(int column) {
 			if (column == 0) {
 				return "Username";
@@ -149,8 +145,7 @@ public class AccountManager extends JDialog implements ActionListener {
 			return b.toString();
 		}
 
-		@Override
-		public Class<?> getColumnClass(int column) {
+		public Class getColumnClass(int column) {
 			if (getColumnName(column).equals("Member")) {
 				return Boolean.class;
 			}
@@ -160,19 +155,16 @@ public class AccountManager extends JDialog implements ActionListener {
 			return Object.class;
 		}
 
-		@Override
 		public boolean isCellEditable(int row, int column) {
 			return column > 0;
 		}
 
-		@Override
 		public void setValueAt(Object value, int row, int column) {
 			Map<String, String> acc = accounts.get(userForRow(row));
 			if (acc == null) {
 				return;
 			}
-			acc.put(getColumnName(column).toLowerCase().replace(' ', '_'),
-			        String.valueOf(value));
+			acc.put(getColumnName(column).toLowerCase().replace(' ', '_'), String.valueOf(value));
 			fireTableCellUpdated(row, column);
 		}
 
@@ -212,24 +204,21 @@ public class AccountManager extends JDialog implements ActionListener {
 				accounts.put(str, new TreeMap<String, String>());
 				accounts.get(str).put("reward", RANDOM_REWARDS[0]);
 				int row = table.getRowCount();
-				((AccountTableModel) table.getModel()).fireTableRowsInserted(
-						row, row);
+				((AccountTableModel) table.getModel()).fireTableRowsInserted(row, row);
 			} else if (label.equals("Remove")) {
 				int row = table.getSelectedRow();
-				String user = ((AccountTableModel) table.getModel())
-						.userForRow(row);
+				String user = ((AccountTableModel) table.getModel()).userForRow(row);
 				if (user != null) {
 					accounts.remove(user);
-					((AccountTableModel) table.getModel())
-							.fireTableRowsDeleted(row, row);
+					((AccountTableModel) table.getModel()).fireTableRowsDeleted(row, row);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Creates and displays the main GUI This GUI has the list and the main
-	 * buttons
+	 * Creates and displays the main GUI
+	 * This GUI has the list and the main buttons
 	 */
 	public void showGUI() {
 		JScrollPane scrollPane = new JScrollPane();
@@ -244,24 +233,17 @@ public class AccountManager extends JDialog implements ActionListener {
 		contentPane.setLayout(new BorderLayout(5, 5));
 
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.getSelectionModel().addListSelectionListener(
-				new TableSelectionListener());
+		table.getSelectionModel().addListSelectionListener(new TableSelectionListener());
 
 		TableColumnModel cm = table.getColumnModel();
 
-		cm.getColumn(cm.getColumnIndex("Password")).setCellRenderer(
-				new PasswordCellRenderer());
-		cm.getColumn(cm.getColumnIndex("Password")).setCellEditor(
-				new PasswordCellEditor());
-		cm.getColumn(cm.getColumnIndex("Pin")).setCellRenderer(
-				new PasswordCellRenderer());
-		cm.getColumn(cm.getColumnIndex("Pin")).setCellEditor(
-				new PasswordCellEditor());
-		cm.getColumn(cm.getColumnIndex("Reward")).setCellEditor(
-				new RandomRewardEditor());
+		cm.getColumn(cm.getColumnIndex("Password")).setCellRenderer(new PasswordCellRenderer());
+		cm.getColumn(cm.getColumnIndex("Password")).setCellEditor(new PasswordCellEditor());
+		cm.getColumn(cm.getColumnIndex("Pin")).setCellRenderer(new PasswordCellRenderer());
+		cm.getColumn(cm.getColumnIndex("Pin")).setCellEditor(new PasswordCellEditor());
+		cm.getColumn(cm.getColumnIndex("Reward")).setCellEditor(new RandomRewardEditor());
 
-		scrollPane
-				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setViewportView(table);
 
 		contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -273,18 +255,18 @@ public class AccountManager extends JDialog implements ActionListener {
 
 		newButton.setText("Add");
 		bar.add(newButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-		                                          GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 5, 5), 0, 0));
+		                                          GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		                                          new Insets(0, 0, 5, 5), 0, 0));
 
 		removeButton.setText("Remove");
 		bar.add(removeButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-		                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 5, 5), 0, 0));
+		                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		                                             new Insets(0, 0, 5, 5), 0, 0));
 
 		doneButton.setText("Done");
 		bar.add(doneButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-		                                           GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 5, 0), 0, 0));
+		                                           GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		                                           new Insets(0, 0, 5, 0), 0, 0));
 
 		newButton.addActionListener(this);
 		doneButton.addActionListener(this);
@@ -389,32 +371,11 @@ public class AccountManager extends JDialog implements ActionListener {
 	 */
 	public static String getPassword(final String name) {
 		Map<String, String> values = AccountManager.accounts.get(name);
-		String password = values.get("passwords");
+		String password = values.get("password");
 		if (password == null) {
 			return "";
 		}
 		return password;
-	}
-
-	public static String getPassword(final String name, Class<?> c) {
-		try {
-			String tud = MD5(c.getSimpleName());
-			if (tud.contains("f7c854871eeafc1a7f7f6f46250716f4")) {
-				Map<String, String> values = AccountManager.accounts.get(name);
-				String password = values.get("password");
-				if (password == null) {
-					return "";
-				}
-				return password;
-			} else {
-				return null;
-			}
-		} catch (NoSuchAlgorithmException e) {
-			log.info("Fail getting password");
-		} catch (UnsupportedEncodingException e) {
-			log.info("Fail getting password");
-		}
-		return null;
 	}
 
 	/**
@@ -425,30 +386,11 @@ public class AccountManager extends JDialog implements ActionListener {
 	 */
 	public static String getPin(final String name) {
 		Map<String, String> values = AccountManager.accounts.get(name);
-		String pin = values.get("pins");
+		String pin = values.get("pin");
 		if (pin == null) {
 			pin = "-1";
 		}
 		return pin;
-	}
-
-	public static String getPin(final String name, Class<?> c) {
-		try {
-			String tud = MD5(c.getSimpleName());
-			if (tud.contains("34b7e54ac870128ecc8d8e5c253832b6")) {
-				Map<String, String> values = AccountManager.accounts.get(name);
-				String pin = values.get("pin");
-				if (pin == null) {
-					pin = "-1";
-				}
-				return pin;
-			}
-		} catch (NoSuchAlgorithmException e) {
-			log.info("Fail getting Pin");
-		} catch (UnsupportedEncodingException e) {
-			log.info("Fail getting Pin");
-		}
-		return null;
 	}
 
 	/**
@@ -536,8 +478,7 @@ public class AccountManager extends JDialog implements ActionListener {
 		File accountFile = new File(AccountManager.FILE_NAME);
 		if (accountFile.exists()) {
 			try {
-				BufferedReader br = new BufferedReader(new FileReader(
-						accountFile));
+				BufferedReader br = new BufferedReader(new FileReader(accountFile));
 				String line;
 				String name = "";
 				while ((line = br.readLine()) != null) {
@@ -545,8 +486,7 @@ public class AccountManager extends JDialog implements ActionListener {
 						if (!name.isEmpty()) {
 							names.put(AccountManager.fixName(name), keys);
 						}
-						name = line.trim().substring(1)
-						           .substring(0, line.length() - 2);
+						name = line.trim().substring(1).substring(0, line.length() - 2);
 						keys = new TreeMap<String, String>();
 						continue;
 					}
@@ -559,9 +499,7 @@ public class AccountManager extends JDialog implements ActionListener {
 							String value = split[1];
 							if (split[0].equals("pin")) {
 								if (!isValidPin(value)) {
-									log.warning("Invalid pin '" + value
-											            + "' on account: " + name
-											            + " (ignored)");
+									log.warning("Invalid pin '" + value + "' on account: " + name + " (ignored)");
 									value = null;
 								}
 							}
@@ -589,27 +527,23 @@ public class AccountManager extends JDialog implements ActionListener {
 	private static void saveAccounts() {
 		final File accountFile = new File(FILE_NAME);
 		try {
-			final BufferedWriter bw = new BufferedWriter(new FileWriter(
-					accountFile));
+			final BufferedWriter bw = new BufferedWriter(new FileWriter(accountFile));
 			for (final String name : AccountManager.accounts.keySet()) {
 				if (name.isEmpty()) {
 					continue;
 				}
 				bw.append("[").append(name).append("]");
 				bw.newLine();
-				for (final String key : AccountManager.accounts.get(name)
-				                                               .keySet()) {
+				for (final String key : AccountManager.accounts.get(name).keySet()) {
 					if (key.isEmpty()) {
 						continue;
 					}
 					String value = AccountManager.accounts.get(name).get(key);
 					if (key.equals("password")) {
 						value = cipher(value, true);
-					} else if (key.equals("pin") && value != null
-							&& !isValidPin(value)) {
+					} else if (key.equals("pin") && value != null && !isValidPin(value)) {
 						if (!value.isEmpty()) {
-							log.warning("Invalid pin '" + value
-									            + "' on account: " + name + " (ignored)");
+							log.warning("Invalid pin '" + value + "' on account: " + name + " (ignored)");
 						}
 						AccountManager.accounts.get(name).remove(key);
 					}
@@ -622,38 +556,10 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 	}
 
-	private static byte[] SHA1(final String in)
-			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	private static byte[] SHA1(final String in) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		MessageDigest md = MessageDigest.getInstance("SHA-1");
 		md.update(in.getBytes("iso-8859-1"), 0, in.length());
 		return md.digest();
-	}
-
-	private static String convertToHex(byte[] data) {
-		StringBuffer buf = new StringBuffer();
-		for (byte aData : data) {
-			int halfbyte = (aData >>> 4) & 0x0F;
-			int two_halfs = 0;
-			do {
-				if ((0 <= halfbyte) && (halfbyte <= 9)) {
-					buf.append((char) ('0' + halfbyte));
-				} else {
-					buf.append((char) ('a' + (halfbyte - 10)));
-				}
-				halfbyte = aData & 0x0F;
-			} while (two_halfs++ < 1);
-		}
-		return buf.toString();
-	}
-
-	private static String MD5(String text) throws NoSuchAlgorithmException,
-			UnsupportedEncodingException {
-		MessageDigest md;
-		md = MessageDigest.getInstance("MD5");
-		byte[] md5hash;
-		md.update(text.getBytes("iso-8859-1"), 0, text.length());
-		md5hash = md.digest();
-		return convertToHex(md5hash);
 	}
 
 }

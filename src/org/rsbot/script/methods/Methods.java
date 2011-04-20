@@ -132,6 +132,15 @@ public class Methods {
 	 * The singleton of Prayer
 	 */
 	protected Prayer prayer;
+	/**
+	 * The singleton of FriendsChat
+	 */
+	protected FriendChat friendChat;
+	/**
+	 * The singleton of Trade
+	 */
+	protected Trade trade;
+
 
 	/**
 	 * For internal use only: initializes the method providers.
@@ -167,6 +176,8 @@ public class Methods {
 		this.summoning = ctx.summoning;
 		this.env = ctx.env;
 		this.prayer = ctx.prayer;
+		this.friendChat = ctx.friendChat;
+		this.trade = ctx.trade;
 	}
 
 	/**

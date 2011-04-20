@@ -1,0 +1,347 @@
+Index: Compile.bat
+===================================================================
+--- Compile.bat	(revision 139)
++++ Compile.bat	(working copy)
+@@ -6,7 +6,7 @@
+ SET lib=lib
+ SET res=resources
+ SET out=bin
+-SET dist=RSBot.jar
++SET dist=SKBot.jar
+ 
+ CALL :clean 2>NUL
+ CALL "%res%\FindJDK.bat"
+Index: Disclaimer-Please Read.txt
+===================================================================
+--- Disclaimer-Please Read.txt	(revision 0)
++++ Disclaimer-Please Read.txt	(revision 0)
+@@ -0,0 +1,17 @@
++SKBot is an immensely popular and successful bot for a Java MMORPG. The program source code is completely open and free - whether you're a Java expert or just keen to explore, the bot is a valuable learning resource.
++
++Legal note: the entire source code is freely available under the GPLv3 terms. Contrary to bogus and automated DMCA claims, no content is under the copyright of Jagex Ltd. The code is provided purely for educational purposes by the authors as freedom of expression.
++
++Terms and Conditions of Use
++
++By accessing this web site, you are agreeing to be bound by these web site Terms and Conditions of Use, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. Furthermore, if you meet the following criteria you are prohibited from proceeding to our main site:
++
++Employee of Jagex
++
++Employee of Adlex Solicitors
++
++Employee of Van Mens & Wisselink N.V.
++
++Employee of Com Laude
++
++any family members, friends or acquaintance's of or related to the aforementioned.
+\ No newline at end of file
+Index: Makefile
+===================================================================
+--- Makefile	(revision 139)
++++ Makefile	(working copy)
+@@ -10,7 +10,7 @@
+ VERSIONFILE=version.txt
+ VERSION=`cat $(VERSIONFILE)`
+ SCRIPTS=scripts
+-DIST=RSBot.jar
++DIST=SKBot.jar
+ 
+ .PHONY: all Bot Scripts mostlyclean clean
+ 
+Index: Remove.bat
+===================================================================
+--- Remove.bat	(revision 139)
++++ Remove.bat	(working copy)
+@@ -1,7 +1,7 @@
+ @ECHO OFF
+ 
+ SETLOCAL
+-SET name=RSBot
++SET name=SKBot
+ TITLE %name% Remover
+ ECHO.
+ ECHO Please close all instances of %name% before continuing.
+@@ -22,7 +22,7 @@
+ IF EXIST "%APPDATA%\%name% Accounts.ini" DEL "%APPDATA%\%name% Accounts.ini"
+ 
+ ECHO Removing program directory...
+-IF EXIST "%RSBOT_HOME%" RMDIR /S /Q "%RSBOT_HOME%"
++IF EXIST "%SKBot_HOME%" RMDIR /S /Q "%SKBot_HOME%"
+ FOR /F "tokens=3" %%G IN ('REG QUERY "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal"') DO (SET docs=%%G)
+ IF EXIST "%docs%\%name%" RMDIR /S /Q "%docs%\%name%"
+ 
+Index: resources/Compile-Scripts.bat
+===================================================================
+--- resources/Compile-Scripts.bat	(revision 139)
++++ resources/Compile-Scripts.bat	(working copy)
+@@ -1,6 +1,6 @@
+ @ECHO OFF
+ 
+-TITLE RSBot Scripts
++TITLE SKBot Scripts
+ 
+ SET cc=javac
+ SET cflags=
+@@ -9,7 +9,7 @@
+ SET jarpathfile=Settings\path.txt
+ 
+ IF NOT EXIST "%jarpathfile%" (
+-	ECHO Path file does not exist. Please run RSBot and try again.
++	ECHO Path file does not exist. Please run SKBot and try again.
+ 	GOTO end
+ )
+ 
+Index: resources/compile-scripts.sh
+===================================================================
+--- resources/compile-scripts.sh	(revision 139)
++++ resources/compile-scripts.sh	(working copy)
+@@ -7,7 +7,7 @@
+ jarpathfile=Settings/path.txt
+ 
+ if [ ! -e "$jarpathfile" ]; then
+-	echo "Path file does not exist. Please run RSBot and try again."
++	echo "Path file does not exist. Please run SKBot and try again."
+ 	exit
+ fi
+ 
+Index: resources/Manifest.txt
+===================================================================
+--- resources/Manifest.txt	(revision 139)
++++ resources/Manifest.txt	(working copy)
+@@ -2,7 +2,7 @@
+ 
+ Name: org/rsbot
+ Sealed: true
+-Specification-Title: "RSBot"
++Specification-Title: "SKBot"
+ Specification-Vendor:  "org.rsbot"
+-Implementation-Title: "RSBot"
++Implementation-Title: "SKBot"
+ Implementation-Vendor: "org.rsbot"
+Index: src/org/rsbot/gui/BotGUI.java
+===================================================================
+--- src/org/rsbot/gui/BotGUI.java	(revision 139)
++++ src/org/rsbot/gui/BotGUI.java	(working copy)
+@@ -212,7 +212,7 @@
+ 				openURL(GlobalConfiguration.Paths.URLs.PROJECT);
+ 			} else if (option.equals("About")) {
+ 				JOptionPane.showMessageDialog(this, new String[]{
+-						"An open source bot,currently developed by Aut0r as " + '\n' + "Lead Developer and by his Team of Contributers.",
++						"As an open source bot,currently developed by Aut0r as " + '\n' + "Lead Developer and by his Team of Contributers.",
+ 						"Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
+ 				                              "About", JOptionPane.INFORMATION_MESSAGE);
+ 			}
+Index: src/org/rsbot/script/internal/ScriptHandler.java
+===================================================================
+--- src/org/rsbot/script/internal/ScriptHandler.java	(revision 139)
++++ src/org/rsbot/script/internal/ScriptHandler.java	(working copy)
+@@ -50,6 +50,8 @@
+ 			randoms.add(new FirstTimeDeath());
+ 			randoms.add(new LeaveSafeArea());
+ 			randoms.add(new SystemUpdate());
++                randoms.add(new LevelUp());
++
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}
+Index: src/org/rsbot/script/randoms/LevelUp.java
+===================================================================
+--- src/org/rsbot/script/randoms/LevelUp.java	(revision 0)
++++ src/org/rsbot/script/randoms/LevelUp.java	(revision 0)
+@@ -0,0 +1,104 @@
++package org.rsbot.script.randoms;
++
++/**
++ *
++ * @author debauchery & Danielhatzor
++ */
++
++import org.rsbot.script.Random;
++import org.rsbot.script.ScriptManifest;
++import org.rsbot.script.methods.Game;
++import org.rsbot.script.wrappers.RSComponent;
++
++
++@ScriptManifest(authors={"Debauchery & Danielhatzor"}, name="Level Up", version=1.0)
++public class LevelUp extends Random {
++
++    private final static int CONGRATS_INDEX_ID = 741;
++    private final static int CONGRATS_CLOSE_ID = 9;
++
++    private enum Skills{
++        ATTACK("Attack", org.rsbot.script.methods.Skills.INTERFACE_ATTACK),
++	DEFENSE("Defence", org.rsbot.script.methods.Skills.INTERFACE_DEFENSE),
++	STRENGTH("Strength", org.rsbot.script.methods.Skills.INTERFACE_STRENGTH),
++	CONSTITUTION("Constitution", org.rsbot.script.methods.Skills.INTERFACE_CONSTITUTION),
++	RANGE("Range", org.rsbot.script.methods.Skills.INTERFACE_RANGE),
++	PRAYER("Prayer", org.rsbot.script.methods.Skills.INTERFACE_PRAYER),
++	MAGIC("Magic", org.rsbot.script.methods.Skills.INTERFACE_MAGIC),
++	COOKING("Cooking", org.rsbot.script.methods.Skills.INTERFACE_COOKING),
++	WOODCUTTING("Woodcutting", org.rsbot.script.methods.Skills.INTERFACE_WOODCUTTING),
++	FLETCHING("Fletching", org.rsbot.script.methods.Skills.INTERFACE_FLETCHING),
++	FISHING("Fishing", org.rsbot.script.methods.Skills.INTERFACE_FISHING),
++	FIREMAKING("Firemaking", org.rsbot.script.methods.Skills.INTERFACE_FIREMAKING),
++	CRAFTING("Crafting", org.rsbot.script.methods.Skills.INTERFACE_CRAFTING),
++	SMITHING("Smithing", org.rsbot.script.methods.Skills.INTERFACE_SMITHING),
++	MINING("Mining", org.rsbot.script.methods.Skills.INTERFACE_MINING),
++	HERBLORE("Herblore", org.rsbot.script.methods.Skills.INTERFACE_HERBLORE),
++	AGILITY("Agility", org.rsbot.script.methods.Skills.INTERFACE_AGILITY),
++	THIEVING("Thieving", org.rsbot.script.methods.Skills.INTERFACE_THIEVING),
++	SLAYER("Slayer", org.rsbot.script.methods.Skills.INTERFACE_SLAYER),
++	FARMING("Farming", org.rsbot.script.methods.Skills.INTERFACE_FARMING),
++	RUNECRAFTING("Runecrafting", org.rsbot.script.methods.Skills.INTERFACE_RUNECRAFTING),
++	HUNTER("Hunter", org.rsbot.script.methods.Skills.INTERFACE_HUNTER),
++        CONSTRUCTION("Construction", org.rsbot.script.methods.Skills.INTERFACE_CONSTRUCTION),
++	SUMMONING("Summoning", org.rsbot.script.methods.Skills.INTERFACE_SUMMONING),
++	DUNGEONEERING("Dungeoneering", org.rsbot.script.methods.Skills.INTERFACE_DUNGEONEERING);
++        private String name;
++        private int id;
++
++        Skills(String name, int id) {
++            this.name = name;
++            this.id = id;
++        }
++
++        String getName(){
++            return name;
++        }
++
++        int getInterfaceID(){
++            return id;
++        }
++    }
++
++    public boolean activateCondition() {
++        return (interfaces.get(Game.INTERFACE_LEVEL_UP).isValid());
++    }
++
++    private Skills getLeveledSkill(){
++        for (Skills skill : Skills.values()) {
++            if (interfaces.get(Game.INTERFACE_LEVEL_UP).containsText(skill.getName())) {
++                return skill;
++            }
++        }
++        return null;
++    }
++
++    @Override
++    public int loop() {
++		if (getMyPlayer().isInCombat()) {
++			return -1;
++		}
++        if(game.getCurrentTab() != Game.TAB_STATS){
++            game.openTab(Game.TAB_STATS);
++        }
++        Skills current = getLeveledSkill();
++        if(current != null){
++            RSComponent skillComp = interfaces.getComponent(320,current.getInterfaceID());
++            if(skillComp != null){
++                mouse.click(skillComp.getAbsoluteX(),skillComp.getAbsoluteY(), skillComp.getWidth(), skillComp.getHeight(), true);
++                sleep(5000,7000);
++            }
++            if(interfaces.get(CONGRATS_INDEX_ID) != null){
++                RSComponent close = interfaces.get(CONGRATS_INDEX_ID).getComponent(CONGRATS_CLOSE_ID);
++                if(close != null){
++                    close.doClick();
++                }
++            }
++        }
++        if(interfaces.get(Game.INTERFACE_LEVEL_UP).isValid()){
++            interfaces.clickContinue();
++        }
++        log("Random level up Complete: " + current.getName());
++        return -1;
++    }
++}
+Index: src/org/rsbot/script/randoms/ModeratorCheck.java
+===================================================================
+--- src/org/rsbot/script/randoms/ModeratorCheck.java	(revision 0)
++++ src/org/rsbot/script/randoms/ModeratorCheck.java	(revision 0)
+@@ -0,0 +1,39 @@
++package org.rsbot.script.randoms;
++
++import org.rsbot.script.Random;
++import org.rsbot.script.util.Filter;
++import org.rsbot.script.wrappers.RSPlayer;
++
++public class ModeratorCheck extends Random {
++    private int MAX_DISTANCE = 18;
++    private String[] MOD_NAMES = {"Paul", "Ian", "Andrew", "Zezima", "Uffins", "Nexus Origin", "Nercychlidae", "Pure kq pax", "Newtinboots", "Egyptian 56", "Milkweedpod", "King Runite1", "Keugademon", "Princesseuss", "Aja Wyndward", "Mystress", "Roflsnarf", "Amypond", "Resoun", "K o R c A t", "Nats", "Sub-Zero", "Joe Jones000", "Ic Lb", "Gohan 16", "Cmdr Chaos", "Meal", "Gavindade", "A Wh1te Wolf", "Kaze", "Badger binlord", "Zarfot", "Evilchoob", "Avidspark", "Hrick90", "Altus Invita", "Ele Cambria", "Pup", "S diamant y", "Makin Pyro", "Thee Ace", "Miz Ace", "Light Arcana", "Samanthanz", "TuskanSlayer", "Lilyuffie88"};
++
++    Filter<RSPlayer> MOD_FILTER = new Filter<RSPlayer>() { // This is the Filter I talked about.
++        @Override
++        public boolean accept(RSPlayer p) {
++            if (calc.distanceTo(p) <= MAX_DISTANCE) {
++                for (String mod : MOD_NAMES) {
++                    mod = getRealName(mod);
++                    if (mod.toLowerCase().equals(p.getName().toLowerCase()) ||p.getName().toLowerCase().contains("mod")) return true;
++                }
++            }
++            return false;
++        }
++    };
++
++    @Override
++    public boolean activateCondition() {
++        // TODO Auto-generated method stub
++        return false;
++    }
++
++    @Override
++    public int loop() {
++        // TODO Auto-generated method stub
++        return 0;
++    }
++
++    private String getRealName(String name) {
++        return name.replace(' ', '\u00A0');
++    }
++}
+\ No newline at end of file
+Index: src/org/rsbot/util/GlobalConfiguration.java
+===================================================================
+--- src/org/rsbot/util/GlobalConfiguration.java	(revision 139)
++++ src/org/rsbot/util/GlobalConfiguration.java	(working copy)
+@@ -74,13 +74,13 @@
+ 		}
+ 
+ 		public static class URLs {
+-			public static final String UPDATER = "http://links.powerbot.org/";
++			public static final String UPDATER = "http://skbot-client.googlecode.com/svn/updater/v2.3x/";
+ 			public static final String DOWNLOAD = UPDATER + "update";
+-			public static final String UPDATE = UPDATER + "modscript";
+-			public static final String WEB = UPDATER + "webwalker";
+-			public static final String VERSION = UPDATER + "version";
+-			public static final String PROJECT = "http://code.google.com/p/rsbot-client";
+-			public static final String SITE = "http://www.powerbot.org";
++			public static final String UPDATE = UPDATER + "643.ms.gz";
++			public static final String WEB = UPDATER + "webwalker.dat";
++			public static final String VERSION = UPDATER + "version.dat";
++			public static final String PROJECT = "http://code.google.com/p/skbot-client";
++			public static final String SITE = "http://skproductions.tk";
+ 			public static final String STATS = "http://stats.powerbot.org/sync/";
+ 			public static final String AD_LINK = UPDATER + "botad";
+ 			public static final String AD_IMG = UPDATER + "botad-img";
+@@ -241,11 +241,11 @@
+ 		}
+ 	}
+ 
+-	public static final String NAME = "RSBot";
++	public static final String NAME = "SKBot";
+ 
+ 	public static final String NAME_LOWERCASE = NAME.toLowerCase();
+ 
+-	public static final String SITE_NAME = "Powerbot";
++	public static final String SITE_NAME = "SKproductions";
+ 
+ 	private static final OperatingSystem CURRENT_OS;
+ 
+Index: Warning.wav
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+
+Property changes on: Warning.wav
+___________________________________________________________________
+Added: svn:mime-type
+   + application/octet-stream
+

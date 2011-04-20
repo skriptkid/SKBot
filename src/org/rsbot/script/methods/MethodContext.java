@@ -167,6 +167,16 @@ public class MethodContext {
 	public final Prayer prayer = new Prayer(this);
 
 	/**
+	 * The singleton of Prayer
+	 */
+	public final FriendChat friendChat = new FriendChat(this);
+
+	/**
+	 * The singleton of Trade
+	 */
+	public final Trade trade = new Trade(this);
+
+	/**
 	 * The Bot's input manager
 	 */
 	public final InputManager inputManager;

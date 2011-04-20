@@ -14,7 +14,6 @@ import org.rsbot.util.ScreenshotUtil;
 import org.rsbot.util.UpdateUtil;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,12 +38,15 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 	private static final Logger log = Logger.getLogger(BotGUI.class.getName());
 
 	private BotPanel panel;
+	private JScrollPane scrollableBotPanel;
 	private BotToolBar toolBar;
 	private BotMenuBar menuBar;
 	private JScrollPane textScroll;
 	private BotHome home;
 	private List<Bot> bots = new ArrayList<Bot>();
 	private boolean showAds = true;
+	private boolean disableConfirmationMessages = false;
+	private String serviceKey;
 
 	public BotGUI() {
 		init();
@@ -57,12 +59,16 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 		if (!menuBar.showAds) {
 			showAds = false;
 		}
+		if (!menuBar.disableConfirmationMessages) {
+			disableConfirmationMessages = false;
+		}
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-				ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+				ToolTipManager.sharedInstance().setLightWeightPopupEnabled(
+						false);
 
-				if (GlobalConfiguration.AD_LOAD && showAds) {
+				if (showAds) {
 					new SplashAd(BotGUI.this).display();
 				}
 
@@ -97,17 +103,32 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 			option = action.substring(z + 1);
 		}
 		if (menu.equals("Close")) {
-			int idx = Integer.parseInt(option);
-			removeBot(bots.get(idx - 1));
+			if (confirmRemoveBot()) {
+				int idx = Integer.parseInt(option);
+				removeBot(bots.get(idx - 1));
+			}
 		} else if (menu.equals("File")) {
 			if (option.equals("New Bot")) {
 				addBot();
 			} else if (option.equals("Close Bot")) {
-				removeBot(getCurrentBot());
+				if (confirmRemoveBot()) {
+					removeBot(getCurrentBot());
+				}
 			} else if (option.equals("Run Script")) {
 				Bot current = getCurrentBot();
 				if (current != null) {
 					showScriptSelector(current);
+				}
+			} else if (option.equals("Service Key")) {
+				serviceKey = (String) JOptionPane.showInputDialog(this, null,
+				                                                  option, JOptionPane.QUESTION_MESSAGE, null, null,
+				                                                  serviceKey);
+				if (serviceKey == null || serviceKey.length() == 0) {
+					log.info("Services have been disabled");
+				} else if (serviceKey.length() != 40) {
+					log.warning("Invalid service key");
+				} else {
+					log.info("Services have been linked to {0}");
 				}
 			} else if (option.equals("Stop Script")) {
 				Bot current = getCurrentBot();
@@ -124,8 +145,11 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				if (current != null) {
 					try {
 						if (!SystemTray.isSupported()) {
-							JOptionPane.showMessageDialog(this, "System-Tray feature is not supported by your OS.",
-							                              "Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane
+									.showMessageDialog(
+											this,
+											"System-Tray feature is not supported by your OS.",
+											"Error", JOptionPane.ERROR_MESSAGE);
 							return;
 						}
 						this.setVisible(false);
@@ -137,18 +161,20 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 			} else if (option.equals("Save Screenshot")) {
 				Bot current = getCurrentBot();
 				if (current != null) {
-					ScreenshotUtil.saveScreenshot(current,
-							current.getMethodContext().game.isLoggedIn());
+					ScreenshotUtil.saveScreenshot(current, current
+							.getMethodContext().game.isLoggedIn());
 				}
 			} else if (option.equals("Exit")) {
-				System.exit(0);
+				cleanExit();
 			}
 		} else if (menu.equals("Edit")) {
 			menuBar.saveProps();
 			if (option.equals("Accounts")) {
 				AccountManager.getInstance().showGUI();
-			} else if (option.equals("Disable Advertisments")) {
+			} else if (option.equals("Disable Advertisements")) {
 				showAds = ((JCheckBoxMenuItem) evt.getSource()).isSelected();
+			} else if (option.equals("Disable Exit Confirmation")) {
+				disableConfirmationMessages = ((JCheckBoxMenuItem) evt.getSource()).isSelected();
 			} else {
 				Bot current = getCurrentBot();
 				if (current != null) {
@@ -182,7 +208,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 					for (String key : BotMenuBar.DEBUG_MAP.keySet()) {
 						Class<?> el = BotMenuBar.DEBUG_MAP.get(key);
 						boolean wasSelected = menuBar.getCheckBox(key)
-								.isSelected();
+						                             .isSelected();
 						menuBar.getCheckBox(key).setSelected(selected);
 						if (selected) {
 							if (!wasSelected) {
@@ -211,10 +237,11 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 			} else if (option.equals("Project")) {
 				openURL(GlobalConfiguration.Paths.URLs.PROJECT);
 			} else if (option.equals("About")) {
-				JOptionPane.showMessageDialog(this, new String[]{"As an open source, currently being developed one revison at a time" + '\n' + " The lead developer's and his team of devs and contributers."
-                        + '\n', "Will be adding more features, more scripts, & the most recent game data up-to-date",
-                            "Visit " + GlobalConfiguration.Paths.URLs.SITE + "/ for more information."},
-				                              "About", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(this, new String[]{
+						"As an open source bot developed by the community.",
+						"Visit " + GlobalConfiguration.Paths.URLs.SITE
+								+ "/ for more information."}, "About",
+				                              JOptionPane.INFORMATION_MESSAGE);
 			}
 		} else if (menu.equals("Tab")) {
 			Bot curr = getCurrentBot();
@@ -227,11 +254,11 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				toolBar.setScriptButton(BotToolBar.RUN_SCRIPT);
 				toolBar.setOverrideInput(false);
 				toolBar.setInputState(Environment.INPUT_KEYBOARD
-						| Environment.INPUT_MOUSE);
+						                      | Environment.INPUT_MOUSE);
 			} else {
 				setTitle(curr.getAccountName());
 				Map<Integer, Script> scriptMap = curr.getScriptHandler()
-						.getRunningScripts();
+				                                     .getRunningScripts();
 				if (scriptMap.size() > 0) {
 					if (scriptMap.values().iterator().next().isPaused()) {
 						toolBar.setScriptButton(BotToolBar.RESUME_SCRIPT);
@@ -264,6 +291,10 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				toolBar.updateInputButton();
 			}
 		}
+	}
+
+	public String getServiceKey() {
+		return serviceKey;
 	}
 
 	public BotPanel getPanel() {
@@ -334,11 +365,11 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 		if (AccountManager.getAccountNames().length == 0) {
 			JOptionPane
 					.showMessageDialog(this,
-							"No accounts found! Please create one before using the bot.");
+					                   "No accounts found! Please create one before using the bot.");
 			AccountManager.getInstance().showGUI();
 		} else if (bot.getMethodContext() == null) {
 			JOptionPane.showMessageDialog(this,
-					"The client is not currently loaded!");
+			                              "The client is not currently loaded!");
 		} else {
 			new ScriptSelector(this, bot).showGUI();
 		}
@@ -380,8 +411,9 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 		addWindowListener(new WindowAdapter() {
 
 			public void windowClosing(WindowEvent e) {
-				dispose();
-				System.exit(0);
+				if (cleanExit()) {
+					dispose();
+				}
 			}
 		});
 
@@ -407,14 +439,15 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 		menuBar.setBot(null);
 		setJMenuBar(menuBar);
 		textScroll = new JScrollPane(TextAreaLogHandler.TEXT_AREA,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+		                             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		textScroll.setBorder(null);
 		textScroll.setPreferredSize(new Dimension(PANEL_WIDTH, LOG_HEIGHT));
 		textScroll.setVisible(true);
+		scrollableBotPanel = new JScrollPane(panel);
 
 		add(toolBar, BorderLayout.NORTH);
-		add(panel, BorderLayout.CENTER);
+		add(scrollableBotPanel, BorderLayout.CENTER);
 		add(textScroll, BorderLayout.SOUTH);
 	}
 
@@ -431,7 +464,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 					menuBar.setOverrideInput(false);
 					String acct = bot.getAccountName();
 					toolBar.setTabLabel(bots.indexOf(bot) + 1,
-							acct == null ? "RuneScape" : acct);
+					                    acct == null ? "RuneScape" : acct);
 					toolBar.updateInputButton();
 					setTitle(acct);
 				}
@@ -483,31 +516,68 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 			if (os == GlobalConfiguration.OperatingSystem.MAC) {
 				Class<?> fileMgr = Class.forName("com.apple.eio.FileManager");
 				Method openURL = fileMgr.getDeclaredMethod("openURL",
-						new Class[] { String.class });
+				                                           new Class[]{String.class});
 				openURL.invoke(null, url);
 			} else if (os == GlobalConfiguration.OperatingSystem.WINDOWS) {
 				Runtime.getRuntime().exec(
 						"rundll32 url.dll,FileProtocolHandler " + url);
 			} else { // assume Unix or Linux
-				String[] browsers = { "firefox", "opera", "konqueror",
-						"epiphany", "mozilla", "netscape" };
+				String[] browsers = {"firefox", "opera", "konqueror",
+				                     "epiphany", "mozilla", "netscape", "google-chrome",
+				                     "chromium-browser"};
 				String browser = null;
 				for (int count = 0; (count < browsers.length)
 						&& (browser == null); count++) {
-					if (Runtime.getRuntime()
-							.exec(new String[] { "which", browsers[count] })
-							.waitFor() == 0) {
+					if (Runtime.getRuntime().exec(
+							new String[]{"which", browsers[count]})
+					           .waitFor() == 0) {
 						browser = browsers[count];
 					}
 				}
 				if (browser == null) {
 					throw new Exception("Could not find web browser");
 				} else {
-					Runtime.getRuntime().exec(new String[] { browser, url });
+					Runtime.getRuntime().exec(new String[]{browser, url});
 				}
 			}
 		} catch (Exception e) {
 			log.warning("Unable to open " + url);
+		}
+	}
+
+	private boolean confirmRemoveBot() {
+		if (!disableConfirmationMessages) {
+			int result = JOptionPane.showConfirmDialog(this,
+			                                           "Are you sure you want to close this bot?", "Close Bot",
+			                                           JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			return (result == JOptionPane.OK_OPTION);
+		} else {
+			return true;
+		}
+	}
+
+	public boolean cleanExit() {
+		if (!disableConfirmationMessages) {
+			String message = "";
+			if (bots.size() == 1) {
+				message = "You have a bot open. Are you sure you want to exit?";
+			} else if (bots.size() > 1) {
+				message = "You have " + Integer.toString(bots.size())
+						+ " bots open. Are you sure you want to exit?";
+			} else {
+				System.exit(0);
+			}
+			int result = JOptionPane.showConfirmDialog(this, message, "Exit",
+			                                           JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if (result == JOptionPane.OK_OPTION) {
+				System.exit(0);
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			System.exit(0);
+			return true;
 		}
 	}
 

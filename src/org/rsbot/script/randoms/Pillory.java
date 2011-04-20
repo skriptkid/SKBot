@@ -139,7 +139,7 @@ public class Pillory extends Random implements MessageListener {
 			inCage = false;
 			return -1;
 		}
-		if (!interfaces.get(GameInterface).isValid()) {
+		if (!interfaces.get(GameInterface).isValid() && getMyPlayer().getAnimation() == -1) {
 			final Point ObjectPoint = new Point(calc.tileToScreen(myLoc));
 			final Point Lock = new Point((int) ObjectPoint.getX() + 10, (int) ObjectPoint.getY() - 30);
 			mouse.click(Lock.x, Lock.y + random(0, 15), false);

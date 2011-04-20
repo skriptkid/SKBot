@@ -7,6 +7,7 @@ import org.rsbot.script.wrappers.RSComponent;
 import java.util.LinkedList;
 import java.util.List;
 
+
 /**
  * Closes interfaces that scripts may open by mistake.
  */
@@ -47,6 +48,7 @@ public class CloseAllInterface extends Random {
 		addChild(667, 74); // Equipment Bonus
 		addChild(742, 14); // Graphic
 		addChild(917, 69); // Task List
+		addChild(1107, 174); // Clan Vexillum
 	}
 
 	private void addChild(int parent, int idx) {
