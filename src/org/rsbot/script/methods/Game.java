@@ -6,7 +6,9 @@ import org.rsbot.script.wrappers.RSComponent;
 import org.rsbot.script.wrappers.RSInterface;
 import org.rsbot.script.wrappers.RSTile;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 /**
  * Game state and GUI operations.
@@ -28,22 +30,22 @@ public class Game extends MethodProvider {
 	public static final int INDEX_FIXED = 746;
 
 	public static final int[] TAB_FUNCTION_KEYS = {KeyEvent.VK_F5, // Attack
-	                                               0, // Achievements
-	                                               0, // Stats
-	                                               0, // Quests
-	                                               KeyEvent.VK_F1, // Inventory
-	                                               KeyEvent.VK_F2, // Equipment
-	                                               KeyEvent.VK_F3, // Prayer
-	                                               KeyEvent.VK_F4, // Magic
-	                                               0, // Summoning
-	                                               0, // Friends
-	                                               0, // Ignore
-	                                               0, // Clan
-	                                               0, // Options
-	                                               0, // Controls
-	                                               0, // Music
-	                                               0, // Notes
-	                                               0, // Logout
+			0, // Achievements
+			0, // Stats
+			0, // Quests
+			KeyEvent.VK_F1, // Inventory
+			KeyEvent.VK_F2, // Equipment
+			KeyEvent.VK_F3, // Prayer
+			KeyEvent.VK_F4, // Magic
+			0, // Summoning
+			0, // Friends
+			0, // Ignore
+			0, // Clan
+			0, // Options
+			0, // Controls
+			0, // Music
+			0, // Notes
+			0, // Logout
 	};
 	public static final int TAB_ATTACK = 0;
 	public static final int TAB_TASK = 1;
@@ -89,16 +91,16 @@ public class Game extends MethodProvider {
 	public static final int INTERFACE_PRAYER_ORB = 749;
 
 	public static final int[] INTERFACE_TALKS = new int[]{211, 241, 251, 101,
-	                                                      242, 102, 161, 249, 243, 64, 65, 244, 255, 249, 230, 372,
-	                                                      421};
+			242, 102, 161, 249, 243, 64, 65, 244, 255, 249, 230, 372,
+			421};
 	public static final int[] INTERFACE_OPTIONS = new int[]{230, 228};
 
 	public static final String[] TAB_NAMES = new String[]{"Combat Styles",
-	                                                      "Task System", "Stats", "Quest Journals", "Inventory",
-	                                                      "Worn Equipment", "Prayer List", "Magic Spellbook", "",
-	                                                      "Friends List", "Friends Chat", "Clan Chat", "Options",
-	                                                      "Emotes",
-	                                                      "Music Player", "Notes", "Exit"};
+			"Task System", "Stats", "Quest Journals", "Inventory",
+			"Worn Equipment", "Prayer List", "Magic Spellbook", "",
+			"Friends List", "Friends Chat", "Clan Chat", "Options",
+			"Emotes",
+			"Music Player", "Notes", "Exit"};
 
 	Game(final MethodContext ctx) {
 		super(ctx);
@@ -260,9 +262,9 @@ public class Game extends MethodProvider {
 	 */
 	public boolean open(final int tab, final boolean functionKey) {
 		/*
-		 * Only attempts by fn key if there is a valid hotkey available Returns
-		 * faster when the new tab has been selected
-		 */
+				   * Only attempts by fn key if there is a valid hotkey available Returns
+				   * faster when the new tab has been selected
+				   */
 		if (tab == getCurrentTab()) {
 			return true;
 		}
@@ -343,7 +345,7 @@ public class Game extends MethodProvider {
 	 */
 	public boolean mouseChatButton(int button, boolean left) {
 		RSComponent chatButton = methods.interfaces.get(CHAT_OPTION)
-		                                           .getComponent(button);
+				.getComponent(button);
 		return chatButton.isValid() && chatButton.doClick(left);
 	}
 
@@ -451,39 +453,10 @@ public class Game extends MethodProvider {
 				sleep(1000);
 			}
 		}
-
-		RSComponent worldComp = null;
-		for (RSComponent comp : methods.interfaces.getComponent(910, 69)
-		                                          .getComponents()) {
-			if (Integer.parseInt(comp.getText()) == world) {
-				worldComp = comp;
-				break;
-			}
-		}
-
-		if (worldComp == null) {
+		if (methods.lobby.switchWorlds(world)) {
+			sleep(random(1000, 2000));
 			methods.env.enableRandom("Login");
-			return false;
-		}
-		if (worldComp.isValid()) {
-			methods.interfaces.scrollTo(worldComp,
-			                            methods.interfaces.getComponent(910, 86));
-
-			String players = methods.interfaces.getComponent(910, 71)
-			                                   .getComponents()[worldComp.getComponentIndex()].getText();
-			if (players.equals("0") || players.equals("OFFLINE")
-					|| players.equals("FULL")) {
-				methods.env.enableRandom("Login");
-				return false;
-			}
-
-			if (methods.interfaces.getComponent(910, 77).getComponents()[worldComp
-					.getComponentIndex()].doClick()) {
-				if (methods.interfaces.getComponent(906, 160).doClick()) {
-					methods.env.enableRandom("Login");
-					return true;
-				}
-			}
+			return true;
 		}
 		return false;
 	}
@@ -539,7 +512,7 @@ public class Game extends MethodProvider {
 			int idx = methods.client.getGUIRSInterfaceIndex();
 			// Logout button in the top right hand corner
 			methods.interfaces.getComponent(idx, isFixed() ? 181 : 172)
-			                  .doClick();
+					.doClick();
 			int timesToWait = 0;
 			while (!isOnLogoutTab() && timesToWait < 5) {
 				sleep(random(200, 400));
@@ -606,7 +579,7 @@ public class Game extends MethodProvider {
 	 */
 	public boolean isWelcomeScreen() {
 		return methods.interfaces.get(INTERFACE_WELCOME_SCREEN)
-		                         .getComponent(INTERFACE_WELCOME_SCREEN_CHILD).getAbsoluteY() > 2;
+				.getComponent(INTERFACE_WELCOME_SCREEN_CHILD).getAbsoluteY() > 2;
 	}
 
 	/**
@@ -675,4 +648,16 @@ public class Game extends MethodProvider {
 		return methods.bot.getCanvas().getHeight();
 	}
 
+	/**
+	 * Gets a color corresponding to x and y co ordinates from the current game screen.
+	 *
+	 * @param x: The x co ordinate at which to get the color.
+	 * @param y: The y co ordinate at which to get the color.
+	 * @return Color
+	 * @see java.awt.color
+	 */
+	public Color getColorAtPoint(int x, int y) {
+		BufferedImage image = methods.env.takeScreenshot(false);
+		return new Color(image.getRGB(x, y));
+	}
 }

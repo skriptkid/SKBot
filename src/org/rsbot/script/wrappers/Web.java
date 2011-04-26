@@ -5,7 +5,6 @@ import org.rsbot.util.GlobalConfiguration;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * The web generation and wrapper control.
@@ -50,8 +49,6 @@ public class Web extends WebSkeleton {
 	public boolean mapNeedsSet() {
 		return map == null;
 	}
-
-	private final Logger log = Logger.getLogger(Web.class.getName());
 
 	/**
 	 * Sets the map up.

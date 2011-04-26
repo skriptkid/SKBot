@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class DrawMouse implements PaintListener {
-
 	private final Client client;
 	private final List<Cross> clicks = new LinkedList<Cross>();
 	private final Object lock = new Object();
@@ -24,18 +23,17 @@ public class DrawMouse implements PaintListener {
 		return System.currentTimeMillis() % 3600 / 10.0D;
 	}
 
-	public void onRepaint(final Graphics render) {//TODO optimize.
+	public void onRepaint(final Graphics render) {
 		Mouse mouse = client.getMouse();
 		if (mouse != null) {
 			final Point location = new Point(mouse.getX(), mouse.getY());
 			Graphics2D g = (Graphics2D) render.create();
 			Graphics2D gg = (Graphics2D) render.create();
-			g.setColor(Color.green);
+			g.setColor(Color.GREEN);
 			g.rotate(Math.toRadians(getRot()), location.x, location.y);
 			g.drawLine(location.x, location.y - 5, location.x, location.y + 5);
 			g.drawLine(location.x - 5, location.y, location.x + 5, location.y);
-			if (mouse.isPressed() && ((clicks.size() > 0 && clicks.get(clicks.size() - 1).getAge() > 100 && clicks.get(
-					clicks.size() - 1).getStart() != mouse.getPressTime()) || clicks.size() == 0)) {
+			if (mouse.isPressed() && ((clicks.size() > 0 && clicks.get(clicks.size() - 1).getAge() > 100 && clicks.get(clicks.size() - 1).getStart() != mouse.getPressTime()) || clicks.size() == 0)) {
 				Cross newCross = new Cross(1500, mouse.getPressTime(), location, getRot());
 				if (!clicks.contains(newCross)) {
 					clicks.add(newCross);
@@ -64,7 +62,6 @@ public class DrawMouse implements PaintListener {
 	}
 
 	private class Cross {
-
 		private final long time, st;
 		private final Point location;
 		private final double rot;
@@ -108,7 +105,5 @@ public class DrawMouse implements PaintListener {
 			}
 			return false;
 		}
-
 	}
-
 }

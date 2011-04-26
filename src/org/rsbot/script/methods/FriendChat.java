@@ -44,7 +44,7 @@ public class FriendChat extends MethodProvider {
 		sleep(random(500, 800));
 		if (methods.interfaces.get(INTERFACE_JOIN_FRIEND_CHAT).isValid()) {
 			String lastChatCompText = methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
-			                                                          INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getText();
+					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getText();
 			lastCachedChannel = lastChatCompText.substring(lastChatCompText.indexOf(": ") + 2);
 			methods.keyboard.sendText(channel, true);
 			sleep(random(1550, 1800));
@@ -60,7 +60,6 @@ public class FriendChat extends MethodProvider {
 	 * Joins the given channel.
 	 * If we are already in a channel, it will leave it.
 	 *
-	 * @param channel The channel to join
 	 * @return <tt>true</tt> if successful; otherwise <tt>false</tt>
 	 */
 	public boolean joinLastChannel() {
@@ -74,10 +73,10 @@ public class FriendChat extends MethodProvider {
 		sleep(random(500, 800));
 		if (methods.interfaces.get(INTERFACE_JOIN_FRIEND_CHAT).isValid()) {
 			String lastChatCompText = methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
-			                                                          INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getText();
+					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getText();
 			lastCachedChannel = lastChatCompText.substring(lastChatCompText.indexOf(": ") + 2);
 			methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
-			                                INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).doClick();
+					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).doClick();
 			sleep(random(1550, 1800));
 			if (isInChannel()) {
 				return true;
@@ -123,7 +122,6 @@ public class FriendChat extends MethodProvider {
 	 * @return The users in the channel or null if unavailable
 	 */
 	public String[] getChannelUsers() {
-		String[] temp = null;
 		ArrayList<String> tempList = new ArrayList<String>();
 		if (methods.game.getCurrentTab() != Game.TAB_FRIENDS_CHAT) {
 			methods.game.openTab(Game.TAB_FRIENDS_CHAT);
@@ -134,7 +132,7 @@ public class FriendChat extends MethodProvider {
 			}
 			if (methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT, INTERFACE_FRIEND_CHAT_USERS_LIST) != null) {
 				for (RSComponent comp : methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT,
-				                                                        INTERFACE_FRIEND_CHAT_USERS_LIST).getComponents()) {
+						INTERFACE_FRIEND_CHAT_USERS_LIST).getComponents()) {
 					if (comp.getText() != null) {
 						tempList.add(comp.getText().trim());
 					} else {
@@ -143,8 +141,11 @@ public class FriendChat extends MethodProvider {
 				}
 			}
 		}
-		tempList.toArray(temp);
-		return temp;
+		{
+			String[] temp = new String[tempList.size()];
+			tempList.toArray(temp);
+			return temp;
+		}
 	}
 
 	/**

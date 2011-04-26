@@ -1,7 +1,7 @@
 @ECHO OFF
 
 SETLOCAL
-SET name=SKBot
+SET name=SKBOT
 TITLE %name% Remover
 ECHO.
 ECHO Please close all instances of %name% before continuing.
@@ -22,7 +22,7 @@ IF EXIST "%APPDATA%\%name%_Accounts.ini" DEL "%APPDATA%\%name%_Accounts.ini"
 IF EXIST "%APPDATA%\%name% Accounts.ini" DEL "%APPDATA%\%name% Accounts.ini"
 
 ECHO Removing program directory...
-IF EXIST "%SKBot_HOME%" RMDIR /S /Q "%SKBot_HOME%"
+IF EXIST "%SKBOT_HOME%" RMDIR /S /Q "%SKBOT_HOME%"
 FOR /F "tokens=3" %%G IN ('REG QUERY "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal"') DO (SET docs=%%G)
 IF EXIST "%docs%\%name%" RMDIR /S /Q "%docs%\%name%"
 

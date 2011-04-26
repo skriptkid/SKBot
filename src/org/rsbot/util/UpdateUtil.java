@@ -14,6 +14,7 @@ public class UpdateUtil {
 
 	private static final Logger log = Logger.getLogger(UpdateUtil.class.getName());
 	private final Window parent;
+	private static int latest = -1;
 
 	public UpdateUtil(final Window parent) {
 		this.parent = parent;
@@ -26,8 +27,8 @@ public class UpdateUtil {
 		if (getLatestVersion() > GlobalConfiguration.getVersion()) {
 			UpdateUtil.log.info("New version available!");
 			final int update = JOptionPane.showConfirmDialog(parent,
-			                                                 "A newer version is available. Do you wish to update?",
-			                                                 "Update Found", JOptionPane.YES_NO_OPTION);
+					"A newer version is available. Do you wish to update?",
+					"Update Found", JOptionPane.YES_NO_OPTION);
 			if (update != 0) {
 				UpdateUtil.log.info("Cancelled update");
 			}
@@ -80,6 +81,9 @@ public class UpdateUtil {
 	}
 
 	public static int getLatestVersion() {
+		if (latest != -1) {
+			return latest;
+		}
 		InputStream is = null;
 		InputStreamReader isr = null;
 		BufferedReader reader = null;
@@ -88,7 +92,8 @@ public class UpdateUtil {
 			isr = new InputStreamReader(is);
 			reader = new BufferedReader(isr);
 			String s = reader.readLine().trim();
-			return Integer.parseInt(s);
+			latest = Integer.parseInt(s);
+			return latest;
 		} catch (Exception e) {
 		} finally {
 			try {

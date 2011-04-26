@@ -3,6 +3,11 @@ package org.rsbot.script;
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.Methods;
+import org.rsbot.script.wrappers.RSComponent;
+import org.rsbot.script.wrappers.RSInterface;
+import org.rsbot.script.wrappers.RSNPC;
+import org.rsbot.script.wrappers.RSObject;
+import org.rsbot.service.StatisticHandler;
 
 import java.awt.*;
 import java.util.logging.Level;
@@ -20,6 +25,11 @@ public abstract class Random extends Methods implements PaintListener {
 	private Script script;
 
 	private long timeout = random(240, 300);
+
+//	private Color[] fadeArray = {Color.red, Color.white, Color.green, new Color(128, 0, 128), Color.yellow,
+//	                             Color.black, Color.orange, Color.pink};
+//
+//	private int currentIndex = 0;
 
 	/**
 	 * Detects whether or not this anti-random should
@@ -97,6 +107,10 @@ public abstract class Random extends Methods implements PaintListener {
 		}
 		ctx.ctx.bot.getEventManager().addListener(this);
 		log("Random event started: " + name);
+		try {
+			StatisticHandler.ReportRandom(name, "Random has initiated.");
+		} catch (Exception ignored) {
+		}
 		long timeout = getTimeout();
 		if (timeout > 0) {
 			timeout *= 1000;
@@ -109,24 +123,74 @@ public abstract class Random extends Methods implements PaintListener {
 					break;
 				} else if (timeout > 0 && System.currentTimeMillis() >= timeout) {
 					log.warning("Time limit reached for " + name + ".");
+					try {
+						String debug = genDebug();
+						StatisticHandler.ReportRandom(name, "Random has failed, timeout was reached.\n" + debug);
+					} catch (Exception ignored) {
+					}
 					ctx.stopScript();
 				} else {
 					sleep(wait);
 				}
 			} catch (Exception ex) {
-				log.log(Level.SEVERE, "Uncatched exception: ", ex);
+				log.log(Level.SEVERE, "Uncaught exception: ", ex);
 				break;
 			}
 		}
 		script = null;
 		onFinish();
 		log("Random event finished: " + name);
+		try {
+			StatisticHandler.ReportRandom(name, "Random has been completed successfully.");
+		} catch (Exception ignored) {
+		}
 		ctx.ctx.bot.getEventManager().removeListener(this);
 		sleep(1000);
 		ctx.ctx.bot.getEventManager().addListener(ctx);
 		for (Script s : ctx.delegates) {
 			ctx.ctx.bot.getEventManager().addListener(s);
 		}
+	}
+
+	private String genDebug() {
+		String r = "- Interfaces -\n";
+		RSInterface[] interfacez = interfaces.getAll();
+		for (RSInterface getD : interfacez) {
+			r += "      " + getD.getIndex();
+			for (RSComponent c : getD.getComponents()) {
+				r += "           Component Name: " + c.getComponentName();
+				r += "          Text: " + c.getText() + "\n";
+				r += "          Tooltip: " + c.getTooltip() + "\n";
+				r += "          Back Color: " + c.getBackgroundColor() + "\n";
+				r += "          Thickness: " + c.getBorderThickness() + "\n";
+				r += "          Component ID: " + c.getComponentID() + "\n";
+				r += "          Component Index: " + c.getComponentIndex() + "\n";
+				r += "          Model ID: " + c.getModelID() + "\n";
+				r += "          Shadow Color: " + c.getShadowColor() + "\n";
+				r += "          Special Type: " + c.getSpecialType() + "\n";
+				r += "          Type: " + c.getType() + "\n";
+			}
+			r += "\n\n";
+		}
+		r += "- NPCs -\n";
+		for (RSNPC n : npcs.getAll()) {
+			r += n.getName() + "\n";
+			r += " Mess: " + n.getMessage() + "\n";
+			r += " Ani: " + n.getAnimation() + "\n";
+			r += " Height: " + n.getHeight() + "\n";
+			r += " ID: " + n.getID() + "\n";
+			r += " Level: " + n.getLevel() + "\n";
+			r += " Location: " + n.getLocation().getX() + ", " + n.getLocation().getY() + "\n";
+			r += "\n\n";
+		}
+		r += "- Objects -\n";
+		for (RSObject o : objects.getAll()) {
+			r += " ID: " + o.getID() + "\n";
+			r += " Type: " + o.getType() + "\n";
+			r += " Name: " + o.getDef().getName() + "\n";
+			r += "\n\n";
+		}
+		return r;
 	}
 
 	public final void onRepaint(Graphics g) {
@@ -137,12 +201,22 @@ public abstract class Random extends Methods implements PaintListener {
 		} else {
 			i++;
 			up = i < 130;
+//			if (!up) {
+//				currentIndex++;
+//				if (currentIndex >= fadeArray.length) {
+//					currentIndex = 0;
+//				}
+//			}
 		}
-		g.setColor(new Color(255, 0, 0, i));
+		g.setColor(new Color(0, 255, 0, i));
+//		Color cur = fadeArray[currentIndex];
+//		g.setColor(new Color(cur.getRed(), cur.getBlue(), cur.getGreen(), i));
 		g.fillRect(0, 0, p.x - 1, p.y - 1);
 		g.fillRect(p.x + 1, 0, w - (p.x + 1), p.y - 1);
 		g.fillRect(0, p.y + 1, p.x - 1, h - (p.y - 1));
 		g.fillRect(p.x + 1, p.y + 1, w - (p.x + 1), h - (p.y - 1));
+		g.setColor(Color.RED);
+		g.drawString("Random Active: " + name, 540, 20);
 	}
 
 }

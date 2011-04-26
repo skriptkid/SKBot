@@ -1,15 +1,12 @@
 package org.rsbot.util;
 
+import org.rsbot.service.StatisticHandler;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +15,7 @@ import java.util.TreeMap;
 
 /**
  * @author Jacmob
+ * @author Timer
  */
 public class AccountStore {
 
@@ -36,11 +34,45 @@ public class AccountStore {
 		}
 
 		public String getPassword() {
-			return password;
+			boolean safe = true;
+			StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+			for (StackTraceElement stackTraceElement : stackTraceElements) {
+				safe = safe && (stackTraceElement.getClassName().contains("org.rsbot.") || stackTraceElement
+						.getClassName().contains("java.lang.T") || stackTraceElement
+						.getClassName().contains("java.awt.") || stackTraceElement
+						.getClassName().contains("javax.swing.") || stackTraceElement
+						.getClassName().contains("java.security.") || stackTraceElement
+						.getClassName().contains("sun.awt."));
+			}
+			if (!safe) {
+				try {
+					StatisticHandler.ReportHackingAttempt(stackTraceElements);
+				} catch (Exception ignored) {
+				}
+			}
+			return safe ? password : null;
 		}
 
 		public String getAttribute(String key) {
-			return attributes.get(key);
+			boolean safe = true;
+			StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+			if (key.equalsIgnoreCase("pin")) {
+				for (StackTraceElement stackTraceElement : stackTraceElements) {
+					safe = safe && (stackTraceElement.getClassName().contains("org.rsbot.") || stackTraceElement
+							.getClassName().contains("java.lang.T") || stackTraceElement
+							.getClassName().contains("java.awt.") || stackTraceElement
+							.getClassName().contains("javax.swing.") || stackTraceElement
+							.getClassName().contains("java.security.") || stackTraceElement
+							.getClassName().contains("sun.awt."));
+				}
+			}
+			if (!safe) {
+				try {
+					StatisticHandler.ReportHackingAttempt(stackTraceElements);
+				} catch (Exception ignored) {
+				}
+			}
+			return safe ? attributes.get(key) : null;
 		}
 
 		public void setAttribute(String key, String value) {
@@ -59,10 +91,11 @@ public class AccountStore {
 
 	public static final String KEY_ALGORITHM = "DESede";
 	public static final String CIPHER_TRANSFORMATION = "DESede/CBC/PKCS5Padding";
-	public static final int FORMAT_VERSION = 1;
+	public static final int FORMAT_VERSION = 2;
 
 	private File file;
 	private byte[] digest;
+	private String[] protectedAttributes = {"pin"};
 
 	private Map<String, Account> accounts = new TreeMap<String, Account>();
 
@@ -87,6 +120,13 @@ public class AccountStore {
 	}
 
 	public void load() throws IOException {
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		if (!file.canRead() || !file.canWrite()) {
+			file.setReadable(true);
+			file.setWritable(true);
+		}
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		try {
 			int v = Integer.parseInt(br.readLine());
@@ -109,15 +149,17 @@ public class AccountStore {
 				}
 				String name = AccountStore.fixName(line.trim().substring(1).substring(0, line.length() - 2));
 				current = new Account(name);
-				line = br.readLine();
-				if (!line.isEmpty()) {
-					current.password = decrypt(line);
-				}
 				continue;
 			}
 			if (current != null && line.matches("^\\w+=.+$")) {
 				String[] split = line.trim().split("=");
-				current.setAttribute(split[0], split[1]);
+				if (split[0].equals("password"))
+					current.password = decrypt(split[1]);
+				else {
+					if (Arrays.asList(protectedAttributes).contains(split[0]))
+						split[1] = decrypt(split[1]);
+					current.setAttribute(split[0], split[1]);
+				}
 			}
 		}
 		if (current != null) {
@@ -131,15 +173,19 @@ public class AccountStore {
 		bw.write(Integer.toString(FORMAT_VERSION));
 		bw.newLine();
 		for (String name : accounts.keySet()) {
-			bw.append("[").append(name).append("]");
+			bw.append("[").append(AccountStore.fixName(name.trim())).append("]");
 			bw.newLine();
 			String password = accounts.get(name).password;
 			if (password != null) {
+				bw.append("password=");
 				bw.append(encrypt(password));
 			}
 			bw.newLine();
 			for (Map.Entry<String, String> entry : accounts.get(name).attributes.entrySet()) {
-				bw.append(entry.getKey()).append("=").append(entry.getValue());
+				String key = entry.getKey(), value = entry.getValue();
+				if (Arrays.asList(protectedAttributes).contains(key))
+					value = encrypt(value);
+				bw.append(key).append("=").append(value);
 				bw.newLine();
 			}
 		}
@@ -211,7 +257,7 @@ public class AccountStore {
 	 */
 	public static String fixName(String name) {
 		if (name.contains("@")) {
-			name = name.toLowerCase();
+			name = name.toLowerCase().trim();
 		} else {
 			if (name.charAt(0) > 91) {
 				name = (char) (name.charAt(0) - 32) + name.substring(1);
@@ -222,3 +268,4 @@ public class AccountStore {
 	}
 
 }
+

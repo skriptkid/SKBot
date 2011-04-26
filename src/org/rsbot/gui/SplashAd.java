@@ -1,6 +1,7 @@
 package org.rsbot.gui;
 
 import org.rsbot.util.GlobalConfiguration;
+import org.rsbot.util.IniParser;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -8,12 +9,9 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,6 +33,7 @@ public class SplashAd extends JDialog implements MouseListener {
 	private String image;
 	private String text;
 	private boolean popup = false;
+	private int display = 5000;
 	private int refresh = 60 * 60 * 24; // 1 day default
 	private long updated = 0;
 
@@ -91,48 +90,16 @@ public class SplashAd extends JDialog implements MouseListener {
 	}
 
 	private boolean sync() {
-		HashMap<String, String> keys = new HashMap<String, String>(7);
-		InputStreamReader stream = null;
-		BufferedReader reader = null;
+		HashMap<String, String> keys = null;
 
 		try {
-			URLConnection connection = new URL(GlobalConfiguration.Paths.URLs.AD_INFO).openConnection();
-			stream = new InputStreamReader(connection.getInputStream());
-			reader = new BufferedReader(stream);
-			String line;
-			while ((line = reader.readLine()) != null) {
-				line = line.trim();
-				if (line.startsWith("#")) {
-					continue;
-				}
-				int z;
-				z = line.indexOf('#');
-				if (z != -1) {
-					line = line.substring(0, z);
-				}
-				z = line.indexOf('=');
-				if (z == -1) {
-					continue;
-				}
-				String key = line.substring(0, z).trim(), value =
-						z == line.length() ? "" : line.substring(z + 1).trim();
-				keys.put(key, value);
-			}
+			URL source = new URL(GlobalConfiguration.Paths.URLs.AD_INFO);
+			keys = IniParser.deserialise(source).get(IniParser.emptySection);
 		} catch (Exception e) {
 			return false;
-		} finally {
-			try {
-				if (stream != null) {
-					stream.close();
-				}
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-			}
 		}
 
-		if (keys.isEmpty() || !keys.containsKey("enabled") || !parseBool(keys.get("enabled"))) {
+		if (keys == null || keys.isEmpty() || !keys.containsKey("enabled") || !parseBool(keys.get("enabled"))) {
 			return false;
 		}
 		if (!keys.containsKey("link")) {
@@ -147,6 +114,9 @@ public class SplashAd extends JDialog implements MouseListener {
 		}
 		if (keys.containsKey("text")) {
 			text = keys.get("text");
+		}
+		if (keys.containsKey("display")) {
+			display = Integer.parseInt(keys.get("display"));
 		}
 		if (keys.containsKey("popup")) {
 			popup = parseBool(keys.get("popup"));
@@ -179,7 +149,7 @@ public class SplashAd extends JDialog implements MouseListener {
 			public void run() {
 				dispose();
 			}
-		}, 5000);
+		}, display);
 	}
 
 	public void mouseClicked(MouseEvent e) {

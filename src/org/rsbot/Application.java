@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 public class Application {
 
 	private static BotGUI gui;
-	private static long startTime;
 
 	public static void main(final String[] args) throws Exception {
 		bootstrap();
@@ -56,13 +55,13 @@ public class Application {
 
 			public void uncaughtException(final Thread t, final Throwable e) {
 				log.logp(Level.SEVERE, "EXCEPTION", "",
-				         "Unhandled exception in thread " + t.getName() + ": ",
-				         e);
+						"Unhandled exception in thread " + t.getName() + ": ",
+						e);
 			}
 		});
 
 		System.setErr(new PrintStream(new LogOutputStream(Logger
-				                                                  .getLogger("STDERR"), Level.SEVERE), true));
+				.getLogger("STDERR"), Level.SEVERE), true));
 	}
 
 	// private static void stats() {
