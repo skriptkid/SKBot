@@ -1,0 +1,21 @@
+SKBot is an immensely popular and successful bot for a Java MMORPG. The program source code is completely open and free - whether you're a Java expert or just keen to explore, the bot is a valuable learning resource.
+
+Legal note: the entire source code is freely available under the GPLv3 terms. Contrary to bogus and automated DMCA claims, no content is under the copyright of Jagex Ltd. The code is provided purely for educational purposes by the authors as freedom of expression.
+
+Terms and Conditions of Use
+
+By accessing this web site, you are agreeing to be bound by these web site Terms and Conditions of Use, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. Furthermore, if you meet the following criteria you are prohibited from proceeding to our main site:
+
+Employee of Jagex
+
+Employee of Adlex Solicitors
+
+Employee of Van Mens & Wisselink N.V.
+
+Employee of Com Laude
+
+any family members, friends or acquaintance's of or related to the aforementioned.
+
+SKBot is an immensely popular and successful bot for a Java MMORPG. The program source code is completely open and free - whether you're a Java expert or just keen to explore, the bot is a valuable learning resource.
+
+Legal note: the entire source code is freely available under the GPLv3 terms. Contrary to bogus and automated DMCA claims, no content is under the copyright of Jagex Ltd. The code is provided purely for educational purposes by the authors as freedom of expression.
