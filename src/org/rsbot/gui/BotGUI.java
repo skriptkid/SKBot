@@ -10,6 +10,7 @@ import org.rsbot.script.methods.Environment;
 import org.rsbot.script.util.WindowUtil;
 import org.rsbot.service.ScriptDeliveryNetwork;
 import org.rsbot.util.GlobalConfiguration;
+import org.rsbot.util.Minimizer;
 import org.rsbot.util.ScreenshotUtil;
 import org.rsbot.util.UpdateUtil;
 
@@ -125,6 +126,24 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				if (current != null) {
 					pauseScript(current);
 				}
+			} else if (option.equals("Snap to Tray")) {
+				Bot current = getCurrentBot();
+				if (current != null) {
+					try {
+						if (!SystemTray.isSupported()) {
+							JOptionPane
+									.showMessageDialog(
+											this,
+											"System-Tray feature is not supported by your OS.",
+											"Error", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+						this.setVisible(false);
+						Minimizer.snapToTray(this);
+					} catch (Exception ignored) {
+					}
+
+				}
 			} else if (option.equals("Save Screenshot")) {
 				Bot current = getCurrentBot();
 				if (current != null) {
@@ -220,8 +239,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				toolBar.setOverrideInput(false);
 				toolBar.setInputState(Environment.INPUT_KEYBOARD
 						| Environment.INPUT_MOUSE);
-				toolBar.updateInputButton();
-			} else {
+				toolBar.updateInputButton();			} else {
 				setTitle(curr.getAccountName());
 				Map<Integer, Script> scriptMap = curr.getScriptHandler()
 						.getRunningScripts();
@@ -236,8 +254,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				}
 				toolBar.setOverrideInput(curr.overrideInput);
 				toolBar.setInputState(curr.inputFlags);
-				toolBar.updateInputButton();
-			}
+				toolBar.updateInputButton();			}
 		} else if (menu.equals("Run")) {
 			Bot current = getCurrentBot();
 			if (current != null) {
@@ -262,15 +279,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 
 	private void serviceKeyQuery(String option) {
 		String key = (String) JOptionPane.showInputDialog(this, null,
-				option, JOptionPane.QUESTION_MESSAGE, null, null, sdn.getKey());
-		if (key == null || key.length() == 0) {
-			log.info("Services have been disabled");
-		} else if (key.length() != 40) {
-			log.warning("Invalid service key");
-		} else {
-			log.info("Services have been linked to {0}");
-		}
-	}
+				option, JOptionPane.QUESTION_MESSAGE, null, null, sdn.getKey());		if (key == null || key.length() == 0) {			log.info("Services have been disabled");		} else if (key.length() != 40) {			log.warning("Invalid service key");		} else {			log.info("Services have been linked to {0}");		}	}
 
 	public BotPanel getPanel() {
 		return panel;
@@ -527,12 +536,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 					break;
 				}
 			}
-		}
-
-		boolean doExit = true;
-		if (!disableConfirmations) {
-			final String message = "Are you sure you want to exit?";
-			int result = JOptionPane.showConfirmDialog(this, message, "Exit",
+		}		boolean doExit = true;		if (!disableConfirmations) {			final String message = "Are you sure you want to exit?";			int result = JOptionPane.showConfirmDialog(this, message, "Exit",
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (result != JOptionPane.OK_OPTION)
 				doExit = false;
@@ -543,6 +547,4 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 			System.exit(0);
 		}
 
-		return doExit;
-	}
-}
+		return doExit;	}}
