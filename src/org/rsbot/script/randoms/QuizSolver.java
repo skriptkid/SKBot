@@ -14,9 +14,9 @@ import org.rsbot.script.wrappers.RSNPC;
 public class QuizSolver extends Random {
 
 	public class QuizQuestion {
-		int ID_One;
-		int ID_Two;
-		int ID_Three;
+		final int ID_One;
+		final int ID_Two;
+		final int ID_Three;
 		int answer;
 
 		public QuizQuestion(final int One, final int Two, final int Three) {
@@ -51,7 +51,7 @@ public class QuizSolver extends Random {
 		public boolean clickAnswer() {
 			answer = -1;
 			int count = 0;
-
+			sleep(random(1000, 1700));
 			for (int j = 0; j < items.length; j++) {
 				if (arrayContains(items[j], ID_One)) {
 					log.info("Slot 1: " + names[j]);
@@ -101,14 +101,14 @@ public class QuizSolver extends Random {
 		}
 	}
 
-	public int quizInterface = 191;
-	public int[] Fish = {6190, 6189};
-	public int[] Jewelry = {6198, 6197};
-	public int[] Weapons = {6192, 6194};
-	public int[] Farming = {6195, 6196};
-	public int[][] items = {Fish, Jewelry, Weapons, Farming};
+	private final int quizInterface = 191;
+	private final int[] Fish = {6190, 6189};
+	private final int[] Jewelry = {6198, 6197};
+	private final int[] Weapons = {6192, 6194};
+	private final int[] Farming = {6195, 6196};
+	private final int[][] items = {Fish, Jewelry, Weapons, Farming};
 
-	public String[] names = {"Fish", "Jewelry", "Weapons", "Farming"};
+	private final String[] names = {"Fish", "Jewelry", "Weapons", "Farming"};
 
 	@Override
 	public boolean activateCondition() {
@@ -116,11 +116,11 @@ public class QuizSolver extends Random {
 		return quizMaster != null;
 	}
 
-	public void atRandom() {
+	void atRandom() {
 		atSlot(random(1, 3));
 	}
 
-	public boolean atSlot(final int slot) {
+	boolean atSlot(final int slot) {
 		switch (slot) {
 			case 1:
 				return interfaces.getComponent(quizInterface, 3).doClick();
@@ -133,7 +133,7 @@ public class QuizSolver extends Random {
 		}
 	}
 
-	public int ID_to_Slot(final int id) {
+	int ID_to_Slot(final int id) {
 		if (Slot_to_ID(1) == id) {
 			return 1;
 		} else if (Slot_to_ID(2) == id) {
@@ -170,7 +170,7 @@ public class QuizSolver extends Random {
 		return random(1200, 2000);
 	}
 
-	public int Slot_to_ID(final int slot) {
+	int Slot_to_ID(final int slot) {
 		switch (slot) {
 			case 1:
 				//System.out.println(interfaces.get(quizInterface).getComponent(6).getComponentID());

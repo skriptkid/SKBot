@@ -1,8 +1,7 @@
 package org.rsbot.client;
 
 public interface RSCharacter extends RSAnimable {
-
-	int getAnimation();
+	int[] getAnimationQueue();
 
 	Graphic[] getGraphicsData();
 
@@ -20,10 +19,9 @@ public interface RSCharacter extends RSAnimable {
 
 	int getLoopCycleStatus();
 
-	String getMessage();
+	RSMessageData getMessageData();
 
 	int isMoving();
 
 	Model getModel();
-
 }

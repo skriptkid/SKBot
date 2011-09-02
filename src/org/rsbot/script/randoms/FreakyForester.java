@@ -12,26 +12,32 @@ import org.rsbot.script.wrappers.*;
 /**
  * @version 2.5 - 12/31/10 Fix by NoEffex (Models)
  */
-@ScriptManifest(authors = {"Pwnaz0r", "Taha", "zqqou", "Zach"}, name = "FreakyForester", version = 2.5)
+@ScriptManifest(authors = {"Pwnaz0r", "Taha", "zqqou", "Zach"}, name = "FreakyForester", version = 2.6)
 public class FreakyForester extends Random implements MessageListener {
-
 	private RSNPC forester;
 	private static final int FORESTER_ID = 2458;
 	private static final int SEARCH_INTERFACE_ID = 242;
 	private static final int PORTAL_ID = 15645;
 	private static final RSTile WALK_TO_TILE = new RSTile(2610, 4775);
 	private boolean unequip = false;
-	short[] phe = {};
-	Filter<RSNPC> pheasantFilter = new Filter<RSNPC>() {
-		@Override
-		public boolean accept(RSNPC npc) {
+	private short[] phe = {};
+	private final Filter<RSNPC> pheasantFilter = new Filter<RSNPC>() {
+		public boolean accept(final RSNPC npc) {
 			// log("phe.length = " + phe.length);
-			Filter<RSModel> modelFilter = RSModel.newVertexFilter(phe);
+			final Filter<RSModel> modelFilter = RSModel.newVertexFilter(phe);
 			return modelFilter.accept(npc.getModel());
 		}
 	};
 
-	boolean done = false;
+	private boolean done = false;
+
+	@Override
+	public void onFinish() {
+		forester = null;
+		unequip = false;
+		phe = new short[]{};
+		done = false;
+	}
 
 	static class Models {
 		static final short[] oneTail = {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2,
@@ -151,21 +157,21 @@ public class FreakyForester extends Random implements MessageListener {
 		if (forester != null) {
 			sleep(random(2000, 3000));
 			if (npcs.getNearest(FORESTER_ID) != null) {
-				RSObject portal = objects.getNearest(PORTAL_ID);
+				final RSObject portal = objects.getNearest(PORTAL_ID);
 				return portal != null;
 			}
 		}
 		return false;
 	}
 
-	public int getState() {
+	int getState() {
 		if (done) {
 			return 3;
 		} else if (interfaces.canContinue()) {
 			return 1;
 		} else if (phe.length == 0) {
 			return 0;
-		} else if (inventory.contains(6178)) {
+		} else if (inventory.containsOneOf(6178, 6179)) {
 			return 0;
 		} else if (phe.length > 0) {
 			return 2;
@@ -180,16 +186,13 @@ public class FreakyForester extends Random implements MessageListener {
 		if (forester == null) {
 			return -1;
 		}
-
 		if (getMyPlayer().getAnimation() != -1) {
 			return random(3000, 5000);
 		} else if (getMyPlayer().isMoving()) {
 			return random(200, 500);
 		}
-
 		if (!done) {
-			done = searchText(241, "Thank you")
-					|| interfaces.getComponent(242, 4).containsText("leave");
+			done = searchText(241, "Thank you") || interfaces.getComponent(242, 4).containsText("leave");
 		}
 		/*
 		if (inventory.contains(6179)) {
@@ -197,48 +200,45 @@ public class FreakyForester extends Random implements MessageListener {
 			inventory.getItem(6179).doAction("Drop");
 			return random(500, 900);
 		}
-		*/
-		if (unequip && (inventory.getCount(false) != 28)) {
-			if (game.getCurrentTab() != Game.TAB_EQUIPMENT) {
-				game.openTab(Game.TAB_EQUIPMENT);
+		 */
+		if (unequip && inventory.getCount(false) != 28) {
+			if (game.getTab() != Game.Tab.EQUIPMENT) {
+				game.openTab(Game.Tab.EQUIPMENT);
 				sleep(random(1000, 1500));
-				interfaces.get(Equipment.INTERFACE_EQUIPMENT).getComponent(17)
-						.doClick();
-				return (random(1000, 1500));
+				interfaces.get(Equipment.INTERFACE_EQUIPMENT).getComponent(17).doClick();
+				return random(1000, 1500);
 			}
-			return (random(100, 500));
+			return random(100, 500);
 		}
-
-		if (bank.isDepositOpen() || (inventory.getCount(false) == 28)
-				&& !inventory.containsAll(6178)) {
+		if (bank.isDepositOpen() || inventory.getCount(false) == 28 && !inventory.containsAll(6178)) {
+			final int r = random(21, 27);
 			if (bank.isDepositOpen() && bank.getBoxCount() == 28) {
-				interfaces.get(11).getComponent(17)
-						.getComponent(random(21, 27)).doAction("Deposit");
+				if (interfaces.get(11).getComponent(17).getComponent(r).getComponentStackSize() > 1) {
+					interfaces.get(11).getComponent(17).getComponent(r).interact("Deposit-All");
+				} else {
+					interfaces.get(11).getComponent(17).getComponent(r).interact("Deposit");
+				}
 				return random(1000, 1500);
 			} else if (bank.isDepositOpen()) {
 				bank.close();
 				return random(1000, 1500);
 			}
 			final RSObject box = objects.getNearest(32931);
-			if ((!calc.tileOnScreen(box.getLocation()) && ((calc
-					.distanceTo(walking.getDestination())) < 8))
-					|| (calc.distanceTo(walking.getDestination()) > 40)) {
+			if (!calc.tileOnScreen(box.getLocation()) && calc.distanceTo(walking.getDestination()) < 8 || calc.distanceTo(walking.getDestination()) > 40) {
 				if (!walking.walkTileMM(box.getLocation().randomize(3, 3))) {
-					walking.getPath(box.getLocation().randomize(3, 3))
-							.traverse();
+					walking.getPath(box.getLocation().randomize(3, 3)).traverse();
 				}
 				sleep(random(1200, 1400));
 			}
-			if (box.doAction("Deposit")) {
+			if (box.interact("Deposit")) {
 				return random(800, 1200);
 			}
 		}
-
 		switch (getState()) {
 			case 0: // Talk to forester
 				if (calc.tileOnScreen(forester.getLocation())
-						&& (calc.distanceTo(forester.getLocation()) <= 5)) {
-					forester.doAction("Talk");
+						&& calc.distanceTo(forester.getLocation()) <= 5) {
+					forester.interact("Talk");
 				} else if (calc.distanceTo(forester.getLocation()) >= 5) {
 					walking.walkTileMM(walking.getClosestTileOnMap(forester
 							.getLocation().randomize(3, 3)));
@@ -268,17 +268,15 @@ public class FreakyForester extends Random implements MessageListener {
 				final RSNPC pheasant = npcs.getNearest(pheasantFilter);
 				final RSGroundItem tile = groundItems.getNearest(6178);
 				if (tile != null) {
-					tiles.doAction(tile.getLocation(), "Take");
+					tiles.interact(tile.getLocation(), "Take");
 					return random(600, 900);
 				} else if (pheasant != null) {
 					// log("Pheasant ID = " + pheasant.getID());
-					if (calc.tileOnScreen(pheasant.getLocation())
-							&& (calc.distanceTo(pheasant.getLocation()) <= 5)) {
-						pheasant.doAction("Attack");
+					if (calc.tileOnScreen(pheasant.getLocation()) && calc.distanceTo(pheasant.getLocation()) <= 5) {
+						pheasant.interact("Attack");
 						return random(1000, 1500);
 					} else if (calc.distanceTo(pheasant.getLocation()) >= 5) {
-						walking.walkTileMM(walking.getClosestTileOnMap(pheasant
-								.getLocation().randomize(3, 3)));
+						walking.walkTileMM(walking.getClosestTileOnMap(pheasant.getLocation().randomize(3, 3)));
 						camera.turnTo(pheasant.getLocation().randomize(3, 3));
 					}
 				} else {
@@ -290,28 +288,24 @@ public class FreakyForester extends Random implements MessageListener {
 					if (calc.tileOnMap(WALK_TO_TILE)) {
 						walking.walkTileMM(WALK_TO_TILE);
 					} else {
-						walking.getPath(forester.getLocation().randomize(5, 5))
-								.traverse();
+						walking.getPath(forester.getLocation().randomize(5, 5)).traverse();
 					}
 					return random(900, 1200);
 				}
-
 				final RSObject Portal = objects.getNearest(PORTAL_ID);
-
 				if (Portal == null) {
 					log.info("Could not find portal.");
 					return random(800, 1200);
 				}
-
-				if (Portal.doAction("Enter")) {
-					return random(800, 1200);
+				if (Portal.interact("Enter")) {
+					return random(4000, 5000);
 				}
 				return random(200, 500);
 		}
 		return random(1000, 1500);
 	}
 
-	public boolean searchText(final int interfac, final String text) {
+	boolean searchText(final int interfac, final String text) {
 		final RSInterface talkFace = interfaces.get(interfac);
 		if (!talkFace.isValid()) {
 			return false;
@@ -325,13 +319,10 @@ public class FreakyForester extends Random implements MessageListener {
 		return false;
 	}
 
-	@Override
 	public void messageReceived(final MessageEvent e) {
 		final String serverString = e.getMessage();
 		if (serverString.contains("no ammo left")) {
 			unequip = true;
 		}
-
 	}
-
 }

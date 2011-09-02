@@ -1,9 +1,12 @@
 package org.rsbot.script.methods;
 
+import org.rsbot.script.wrappers.RSComponent;
 import org.rsbot.script.wrappers.RSInterface;
+import org.rsbot.script.wrappers.RSItem;
 import org.rsbot.script.wrappers.RSPlayer;
 
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Trade handling.
@@ -11,10 +14,7 @@ import java.util.logging.Logger;
  * @author Timer
  * @author kyleshay
  */
-@SuppressWarnings("unused")
 public class Trade extends MethodProvider {
-	private static final Logger log = Logger.getLogger(Trade.class.getName());
-
 	public static final int INTERFACE_TRADE_MAIN = 335;
 	public static final int INTERFACE_TRADE_SECOND = 334;
 	public static final int INTERFACE_TRADE_MAIN_NAME = 15;
@@ -25,14 +25,16 @@ public class Trade extends MethodProvider {
 	public static final int INTERFACE_TRADE_MAIN_DECLINE = 19;
 	public static final int INTERFACE_TRADE_SECOND_ACCEPT = 36;
 	public static final int INTERFACE_TRADE_SECOND_DECLINE = 37;
+	public static final int INTERFACE_TRADE_OUR_AMOUNT = 43;
+	public static final int INTERFACE_TRADE_THEIR_AMOUNT = 44;
 
-	private final static int INTERFACE_TRADE_MAIN_INV_SLOTS = 21;
+	public final static int INTERFACE_TRADE_MAIN_INV_SLOTS = 21;
 
 	public static final int TRADE_TYPE_MAIN = 0;
 	public static final int TRADE_TYPE_SECONDARY = 1;
 	public static final int TRADE_TYPE_NONE = 2;
 
-	Trade(MethodContext ctx) {
+	Trade(final MethodContext ctx) {
 		super(ctx);
 	}
 
@@ -42,7 +44,7 @@ public class Trade extends MethodProvider {
 	 * @return <tt>true</tt> if in first stage.
 	 */
 	public boolean inTradeMain() {
-		RSInterface tradeInterface = methods.interfaces.get(INTERFACE_TRADE_MAIN);
+		final RSInterface tradeInterface = methods.interfaces.get(INTERFACE_TRADE_MAIN);
 		return tradeInterface != null && tradeInterface.isValid();
 	}
 
@@ -52,7 +54,7 @@ public class Trade extends MethodProvider {
 	 * @return <tt>true</tt> if in second stage.
 	 */
 	public boolean inTradeSecond() {
-		RSInterface tradeInterface = methods.interfaces.get(INTERFACE_TRADE_SECOND);
+		final RSInterface tradeInterface = methods.interfaces.get(INTERFACE_TRADE_SECOND);
 		return tradeInterface != null && tradeInterface.isValid();
 	}
 
@@ -74,16 +76,8 @@ public class Trade extends MethodProvider {
 	 */
 	public boolean tradePlayer(final String playerName, final int tradeWait) {
 		if (!inTrade()) {
-			RSPlayer targetPlayer = methods.players.getNearest(playerName);
-			if (targetPlayer != null) {
-				if (targetPlayer.doAction("Trade with " + targetPlayer.getName())) {
-					return waitForTrade(TRADE_TYPE_MAIN, tradeWait);
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
+			final RSPlayer targetPlayer = methods.players.getNearest(playerName);
+			return targetPlayer != null && targetPlayer.interact("Trade with", targetPlayer.getName()) && waitForTrade(TRADE_TYPE_MAIN, tradeWait);
 		} else {
 			return isTradingWith(playerName);
 		}
@@ -108,15 +102,7 @@ public class Trade extends MethodProvider {
 	 */
 	public boolean tradePlayer(final RSPlayer targetPlayer, final int tradeWait) {
 		if (!inTrade()) {
-			if (targetPlayer != null) {
-				if (targetPlayer.doAction("Trade with " + targetPlayer.getName())) {
-					return waitForTrade(TRADE_TYPE_MAIN, tradeWait);
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
+			return targetPlayer != null && targetPlayer.interact("Trade with", targetPlayer.getName()) && waitForTrade(TRADE_TYPE_MAIN, tradeWait);
 		} else {
 			return isTradingWith(targetPlayer.getName());
 		}
@@ -139,13 +125,9 @@ public class Trade extends MethodProvider {
 	 */
 	public boolean acceptTrade() {
 		if (inTradeMain()) {
-			return methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_MAIN_ACCEPT).doAction(
-					"Accept");
-		} else if (inTradeSecond()) {
-			return methods.interfaces.get(INTERFACE_TRADE_SECOND).getComponent(INTERFACE_TRADE_SECOND_ACCEPT).doAction(
-					"Accept");
+			return methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_MAIN_ACCEPT).interact("Accept");
 		} else {
-			return false;
+			return inTradeSecond() && methods.interfaces.get(INTERFACE_TRADE_SECOND).getComponent(INTERFACE_TRADE_SECOND_ACCEPT).interact("Accept");
 		}
 	}
 
@@ -156,13 +138,9 @@ public class Trade extends MethodProvider {
 	 */
 	public boolean declineTrade() {
 		if (inTradeMain()) {
-			return methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_MAIN_DECLINE).doAction(
-					"Decline");
-		} else if (inTradeSecond()) {
-			return methods.interfaces.get(INTERFACE_TRADE_SECOND).getComponent(INTERFACE_TRADE_SECOND_DECLINE)
-					.doAction("Decline");
+			return methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_MAIN_DECLINE).interact("Decline");
 		} else {
-			return false;
+			return inTradeSecond() && methods.interfaces.get(INTERFACE_TRADE_SECOND).getComponent(INTERFACE_TRADE_SECOND_DECLINE).interact("Decline");
 		}
 	}
 
@@ -174,7 +152,7 @@ public class Trade extends MethodProvider {
 	 * @return <tt>true</tt> if true, otherwise false.
 	 */
 	public boolean waitForTrade(final int tradeType, final long timeOut) {
-		long timeCounter = System.currentTimeMillis() + timeOut;
+		final long timeCounter = System.currentTimeMillis() + timeOut;
 		while (timeCounter - System.currentTimeMillis() > 0) {
 			switch (tradeType) {
 				case TRADE_TYPE_MAIN:
@@ -185,6 +163,12 @@ public class Trade extends MethodProvider {
 				case TRADE_TYPE_SECONDARY:
 					if (inTradeSecond()) {
 						return true;
+					}
+					if (!inTrade()) {
+						sleep(1000);
+						if (!inTrade()) {
+							return false;
+						}
 					}
 					break;
 				case TRADE_TYPE_NONE:
@@ -203,9 +187,9 @@ public class Trade extends MethodProvider {
 	 *
 	 * @return The person's name you're trading with.
 	 */
-	private String getTradingWith() {
+	public String getTradingWith() {
 		if (inTradeMain()) {
-			String name = methods.interfaces.getComponent(INTERFACE_TRADE_MAIN, INTERFACE_TRADE_MAIN_NAME).getText();
+			final String name = methods.interfaces.getComponent(INTERFACE_TRADE_MAIN, INTERFACE_TRADE_MAIN_NAME).getText();
 			return name.substring(name.indexOf(": ") + 2);
 		} else if (inTradeSecond()) {
 			return methods.interfaces.getComponent(INTERFACE_TRADE_SECOND, INTERFACE_TRADE_SECOND_NAME).getText();
@@ -219,7 +203,7 @@ public class Trade extends MethodProvider {
 	 * @param name The person's name.
 	 * @return <tt>true</tt> if true; otherwise <tt>false</tt>.
 	 */
-	private boolean isTradingWith(String name) {
+	public boolean isTradingWith(final String name) {
 		return getTradingWith().equals(name);
 	}
 
@@ -228,11 +212,10 @@ public class Trade extends MethodProvider {
 	 *
 	 * @return The number of items offered.
 	 */
-	private int getNumberOfItemsOffered() {
+	public int getNumberOfItemsOffered() {
 		int number = 0;
 		for (int i = 0; i < 28; i++) {
-			if (methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(
-					INTERFACE_TRADE_MAIN_OUR).getComponent(i).getComponentStackSize() != 0) {
+			if (methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_MAIN_THEIR).getComponent(i).getComponentStackSize() != 0) {
 				++number;
 			}
 		}
@@ -240,21 +223,93 @@ public class Trade extends MethodProvider {
 	}
 
 	/**
+	 * Returns the items offered by another player
+	 *
+	 * @return The items offered.
+	 */
+	public RSItem[] getItemsOffered() {
+		List<RSItem> items = new ArrayList<RSItem>();
+		for (int i = 0; i < 28; i++) {
+			RSComponent component = methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_MAIN_THEIR).getComponent(i);
+			if (component != null && component.getComponentStackSize() != 0) {
+				items.add(new RSItem(methods, component));
+			}
+		}
+		return items.toArray(new RSItem[items.size()]);
+	}
+
+	/**
 	 * Returns the total number of free slots the other player has
 	 *
 	 * @return The number of free slots.
 	 */
-	private int getFreeSlots() {
+	public int getFreeSlots() {
 		if (inTradeMain()) {
-			String text = methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(
-					INTERFACE_TRADE_MAIN_INV_SLOTS).getText().substring(4, 6);
+			String text = methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_MAIN_INV_SLOTS).getText().substring(4, 6);
 			text = text.trim();
 			try {
 				return Integer.parseInt(text);
-			} catch (Exception e) {
+			} catch (final Exception ignored) {
 			}
 		}
 		return 0;
 	}
 
+	/**
+	 * Checks if you have offered any item.
+	 *
+	 * @return <tt>true</tt> if something has been offered; otherwise <tt>false</tt>.
+	 */
+	public boolean isWealthOffered() {
+		return inTradeMain() && methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_OUR_AMOUNT).getText().indexOf("Nothing") == -1;
+	}
+
+	/**
+	 * Checks if other player has offered any item.
+	 *
+	 * @return <tt>true</tt> if something has been offered; otherwise <tt>false</tt>.
+	 */
+	public boolean isWealthReceived() {
+		return inTradeMain() && methods.interfaces.get(INTERFACE_TRADE_MAIN).getComponent(INTERFACE_TRADE_THEIR_AMOUNT).getText().indexOf("Nothing") == -1;
+	}
+
+	/**
+	 * If trade main is open, offers specified amount of an item.
+	 *
+	 * @param itemID The ID of the item.
+	 * @param number The amount to offer. 0 deposits All. 1,5,10 offer
+	 *               corresponding amount while other numbers offer X.
+	 * @return <tt>true</tt> if successful; otherwise <tt>false</tt>.
+	 */
+	public boolean offer(final int itemID, final int number) {
+		if (!inTradeMain()) {
+			return false;
+		}
+		if (number < 0) {
+			throw new IllegalArgumentException("number < 0 (" + number + ")");
+		}
+		RSComponent item = methods.inventory.getItem(itemID).getComponent();
+		final int itemCount = methods.inventory.getCount(true, itemID);
+		if (item == null) {
+			return true;
+		}
+		switch (number) {
+			case 0:
+				item.interact(itemCount > 1 ? "Offer-All" : "Offer");
+				break;
+			case 1:
+				item.interact("Offer");
+				break;
+			default:
+				if (!item.interact("Offer-" + number)) {
+					if (item.interact("Offer-X")) {
+						sleep(random(1000, 1300));
+						methods.inputManager.sendKeys(String.valueOf(number), true);
+					}
+				}
+				break;
+		}
+		sleep(300);
+		return (methods.inventory.getCount(itemID) < itemCount) || (methods.inventory.getCount() == 0);
+	}
 }

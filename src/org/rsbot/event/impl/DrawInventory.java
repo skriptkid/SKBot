@@ -9,10 +9,9 @@ import org.rsbot.script.wrappers.RSItem;
 import java.awt.*;
 
 public class DrawInventory implements PaintListener {
-
 	private final MethodContext ctx;
 
-	public DrawInventory(Bot bot) {
+	public DrawInventory(final Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
@@ -21,14 +20,14 @@ public class DrawInventory implements PaintListener {
 			return;
 		}
 
-		if (ctx.game.getCurrentTab() != Game.TAB_INVENTORY) {
+		if (ctx.game.getTab() != Game.Tab.INVENTORY) {
 			return;
 		}
 
 		render.setColor(Color.WHITE);
 		final RSItem[] inventoryItems = ctx.inventory.getItems();
 
-		for (RSItem inventoryItem : inventoryItems) {
+		for (final RSItem inventoryItem : inventoryItems) {
 			if (inventoryItem.getID() != -1) {
 				final Point location = inventoryItem.getComponent().getCenter();
 				render.drawString("" + inventoryItem.getID(), location.x, location.y);

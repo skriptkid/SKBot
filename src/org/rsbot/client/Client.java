@@ -6,7 +6,6 @@ import org.rsbot.client.input.Mouse;
 import java.awt.*;
 
 public interface Client {
-
 	ChatLine[] getChatLines();
 
 	boolean isMenuCollapsed();
@@ -33,9 +32,9 @@ public interface Client {
 
 	int getCamPosZ();
 
-	String getCurrentPassword();
-
 	String getCurrentUsername();
+
+	String getCurrentPassword();
 
 	int getDestX();
 
@@ -69,9 +68,9 @@ public interface Client {
 
 	int getSubMenuWidth();
 
-	int getMinimapAngle();
+	int getMinimapOffset();
 
-	float getMinimapOffset();
+	float getMinimapAngle();
 
 	int getMinimapScale();
 
@@ -152,5 +151,4 @@ public interface Client {
 	ServerData getWorldData();
 
 	void setCallback(Callback cb);
-
 }

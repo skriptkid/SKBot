@@ -1,13 +1,14 @@
 package org.rsbot.script.util;
 
 /**
- * A Timer
+ * A Timer utility.
+ *
+ * @author Jacmob
  */
 public class Timer {
-
 	private long end;
-	private long start;
-	private long period;
+	private final long start;
+	private final long period;
 
 	/**
 	 * Instantiates a new Timer with a given time
@@ -15,10 +16,10 @@ public class Timer {
 	 *
 	 * @param period Time period in milliseconds.
 	 */
-	public Timer(long period) {
+	public Timer(final long period) {
 		this.period = period;
-		this.start = System.currentTimeMillis();
-		this.end = start + period;
+		start = System.currentTimeMillis();
+		end = start + period;
 	}
 
 	/**
@@ -28,7 +29,7 @@ public class Timer {
 	 * @return The elapsed time in milliseconds.
 	 */
 	public long getElapsed() {
-		return (System.currentTimeMillis() - start);
+		return System.currentTimeMillis() - start;
 	}
 
 	/**
@@ -39,7 +40,7 @@ public class Timer {
 	 */
 	public long getRemaining() {
 		if (isRunning()) {
-			return (end - System.currentTimeMillis());
+			return end - System.currentTimeMillis();
 		}
 		return 0;
 	}
@@ -51,14 +52,14 @@ public class Timer {
 	 * @return <tt>true</tt> if the time period has not yet passed.
 	 */
 	public boolean isRunning() {
-		return (System.currentTimeMillis() < end);
+		return System.currentTimeMillis() < end;
 	}
 
 	/**
 	 * Restarts this timer using its period.
 	 */
 	public void reset() {
-		this.end = System.currentTimeMillis() + period;
+		end = System.currentTimeMillis() + period;
 	}
 
 	/**
@@ -71,9 +72,9 @@ public class Timer {
 	 *           should stop running.
 	 * @return The new end time.
 	 */
-	public long setEndIn(long ms) {
-		this.end = System.currentTimeMillis() + ms;
-		return this.end;
+	public long setEndIn(final long ms) {
+		end = System.currentTimeMillis() + ms;
+		return end;
 	}
 
 	/**
@@ -101,14 +102,14 @@ public class Timer {
 	 * @param time The number of milliseconds.
 	 * @return The formatted String.
 	 */
-	public static String format(long time) {
-		StringBuilder t = new StringBuilder();
-		long total_secs = time / 1000;
-		long total_mins = total_secs / 60;
-		long total_hrs = total_mins / 60;
-		int secs = (int) total_secs % 60;
-		int mins = (int) total_mins % 60;
-		int hrs = (int) total_hrs % 60;
+	public static String format(final long time) {
+		final StringBuilder t = new StringBuilder();
+		final long total_secs = time / 1000;
+		final long total_mins = total_secs / 60;
+		final long total_hrs = total_mins / 60;
+		final int secs = (int) total_secs % 60;
+		final int mins = (int) total_mins % 60;
+		final int hrs = (int) total_hrs % 60;
 		if (hrs < 10) {
 			t.append("0");
 		}

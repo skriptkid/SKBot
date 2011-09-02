@@ -16,9 +16,15 @@ public class Mime extends Random {
 	private RSNPC mime;
 
 	@Override
+	public void onFinish() {
+		mime = null;
+		animation = -1;
+	}
+
+	@Override
 	public boolean activateCondition() {
 		final RSNPC mime = npcs.getNearest(1056);
-		return (mime != null) && (calc.distanceTo(mime.getLocation()) < 15);
+		return mime != null && calc.distanceTo(mime.getLocation()) < 15;
 	}
 
 	private boolean clickAnimation(final String find) {
@@ -28,14 +34,17 @@ public class Mime extends Random {
 		for (int a = 0; a < interfaces.get(188).getChildCount(); a++) {
 			if (interfaces.get(188).getComponent(a).getText().contains(find)) {
 				log("Clicked on: " + find);
-				return interfaces.get(188).getComponent(a).doClick();
+				sleep(random(500, 1000));
+				interfaces.get(188).getComponent(a).doClick();
+				sleep(random(1000, 1200));
+				return true;
 			}
 		}
 		return false;
 	}
 
 	private RSNPC getNPCAt(final RSTile t) {
-		for (RSNPC npc : npcs.getAll()) {
+		for (final RSNPC npc : npcs.getAll()) {
 			if (npc.getLocation().equals(t)) {
 				return npc;
 			}
@@ -49,7 +58,7 @@ public class Mime extends Random {
 		} else if (mime == null) {
 			return Stage.findMime;
 		} else if ((interfaces.get(372).getComponent(2).getText().contains("Watch") || interfaces.get(372).getComponent(
-				3).getText().contains("Watch")) && (mime.getAnimation() != -1) && (mime.getAnimation() != 858)) {
+				3).getText().contains("Watch")) && mime.getAnimation() != -1 && mime.getAnimation() != 858) {
 			return Stage.findAnimation;
 		} else if (interfaces.get(188).isValid()) {
 			return Stage.clickAnimation;
@@ -70,7 +79,7 @@ public class Mime extends Random {
 				return random(200, 400);
 
 			case findMime:
-				if (((mime = npcs.getNearest(1056)) == null) && ((mime = getNPCAt(new RSTile(2011, 4762))) == null)) {
+				if ((mime = npcs.getNearest(1056)) == null && (mime = getNPCAt(new RSTile(2011, 4762))) == null) {
 					log.warning("ERROR: Mime not found!");
 					return -1;
 				}
@@ -94,7 +103,7 @@ public class Mime extends Random {
 
 			case clickAnimation:
 				log.info("Clicking text according to animation: " + animation);
-				if ((animation != -1) && (animation != 858)) {
+				if (animation != -1 && animation != 858) {
 					switch (animation) {
 						case 857:
 							clickAnimation("Think");

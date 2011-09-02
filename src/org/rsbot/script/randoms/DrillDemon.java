@@ -9,24 +9,32 @@ import org.rsbot.script.wrappers.RSTile;
 @ScriptManifest(authors = {"Keilgo"}, name = "DrillDemon", version = 0.2)
 public class DrillDemon extends Random {
 
-	public int demonID = 2790;
-	public int sign1;
-	public int sign2;
-	public int sign3;
-	public int sign4;
+	private final int demonID = 2790;
+	private int sign1;
+	private int sign2;
+	private int sign3;
+	private int sign4;
+
+	@Override
+	public void onFinish() {
+		sign1 = -1;
+		sign2 = -1;
+		sign3 = -1;
+		sign4 = -1;
+	}
+
 
 	@Override
 	public boolean activateCondition() {
 		return playerInArea(3167, 4822, 3159, 4818);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public int loop() {
 		camera.setPitch(true);
 		camera.setCompass('N');
 
-		if (getMyPlayer().isMoving() || (getMyPlayer().getAnimation() != -1)) {
+		if (getMyPlayer().isMoving() || getMyPlayer().getAnimation() != -1) {
 			return random(1900, 2400);
 		}
 
@@ -195,26 +203,24 @@ public class DrillDemon extends Random {
 		if (interfaces.getComponent(148, 1).getText().contains("jumps")) {
 			if (sign1 == 1) {
 				if (calc.distanceTo(new RSTile(3167, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3160, 4820), 0, 0));
-					mat1.doAction("Use");
+					walking.walkTileMM(new RSTile(3160, 4820));
+					mat1.interact("Use");
 				} else {
-					mat1.doAction("Use");
+					mat1.interact("Use");
 				}
 				return random(2000, 2500);
 			} else if (sign2 == 1) {
-				mat2.doAction("Use");
+				mat2.interact("Use");
 				return random(2000, 2500);
 			} else if (sign3 == 1) {
-				mat3.doAction("Use");
+				mat3.interact("Use");
 				return random(2000, 2500);
 			} else if (sign4 == 1) {
 				if (calc.distanceTo(new RSTile(3159, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3166, 4820), 0, 0));
-					mat4.doAction("Use");
+					walking.walkTileMM(new RSTile(3166, 4820));
+					mat4.interact("Use");
 				} else {
-					mat4.doAction("Use");
+					mat4.interact("Use");
 				}
 				return random(2000, 2500);
 			}
@@ -222,26 +228,24 @@ public class DrillDemon extends Random {
 				.contains("push ups")) {
 			if (sign1 == 2) {
 				if (calc.distanceTo(new RSTile(3167, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3160, 4820), 0, 0));
-					mat1.doAction("Use");
+					walking.walkTileMM(new RSTile(3160, 4820));
+					mat1.interact("Use");
 				} else {
-					mat1.doAction("Use");
+					mat1.interact("Use");
 				}
 				return random(2000, 2500);
 			} else if (sign2 == 2) {
-				mat2.doAction("Use");
+				mat2.interact("Use");
 				return random(2000, 2500);
 			} else if (sign3 == 2) {
-				mat3.doAction("Use");
+				mat3.interact("Use");
 				return random(2000, 2500);
 			} else if (sign4 == 2) {
 				if (calc.distanceTo(new RSTile(3159, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3166, 4820), 0, 0));
-					mat4.doAction("Use");
+					walking.walkTileMM(new RSTile(3166, 4820));
+					mat4.interact("Use");
 				} else {
-					mat4.doAction("Use");
+					mat4.interact("Use");
 				}
 				return random(2000, 2500);
 			}
@@ -249,65 +253,61 @@ public class DrillDemon extends Random {
 				.contains("sit ups")) {
 			if (sign1 == 3) {
 				if (calc.distanceTo(new RSTile(3167, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3160, 4820), 0, 0));
-					mat1.doAction("Use");
+					walking.walkTileMM(new RSTile(3160, 4820));
+					mat1.interact("Use");
 				} else {
-					mat1.doAction("Use");
+					mat1.interact("Use");
 				}
 				return random(1000, 1500);
 			} else if (sign2 == 3) {
-				mat2.doAction("Use");
+				mat2.interact("Use");
 				return random(2000, 2500);
 			} else if (sign3 == 3) {
-				mat3.doAction("Use");
+				mat3.interact("Use");
 				return random(2000, 2500);
 			} else if (sign4 == 3) {
 				if (calc.distanceTo(new RSTile(3159, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3166, 4820), 0, 0));
-					mat4.doAction("Use");
+					walking.walkTileMM(new RSTile(3166, 4820));
+					mat4.interact("Use");
 				} else {
-					mat4.doAction("Use");
+					mat4.interact("Use");
 				}
 				return random(2000, 2500);
 			}
 		} else if (interfaces.getComponent(148, 1).getText().contains("jog on")) {
 			if (sign1 == 4) {
 				if (calc.distanceTo(new RSTile(3167, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3160, 4820), 0, 0));
-					mat1.doAction("Use");
+					walking.walkTileMM(new RSTile(3160, 4820));
+					mat1.interact("Use");
 				} else {
-					mat1.doAction("Use");
+					mat1.interact("Use");
 				}
 				return random(2000, 2500);
 			} else if (sign2 == 4) {
-				mat2.doAction("Use");
+				mat2.interact("Use");
 				return random(2000, 2500);
 			} else if (sign3 == 4) {
-				mat3.doAction("Use");
+				mat3.interact("Use");
 				return random(2000, 2500);
 			} else if (sign4 == 4) {
 				if (calc.distanceTo(new RSTile(3159, 4820)) < 2) {
-					walking.walkTileMM(walking.randomize(
-							new RSTile(3166, 4820), 0, 0));
-					mat4.doAction("Use");
+					walking.walkTileMM(new RSTile(3166, 4820));
+					mat4.interact("Use");
 				} else {
-					mat4.doAction("Use");
+					mat4.interact("Use");
 				}
 				return random(2000, 2500);
 			}
 		}
 
 		if (!myClickContinue() && getMyPlayer().getAnimation() == -1) {
-			demon.doAction("Talk-to");
+			demon.interact("Talk-to");
 		}
 
 		return random(2000, 2500);
 	}
 
-	public boolean myClickContinue() {
+	boolean myClickContinue() {
 		sleep(random(800, 1000));
 		return interfaces.getComponent(243, 7).doClick()
 				|| interfaces.getComponent(241, 5).doClick()
@@ -316,10 +316,10 @@ public class DrillDemon extends Random {
 				|| interfaces.getComponent(64, 5).doClick();
 	}
 
-	public boolean playerInArea(final int maxX, final int maxY, final int minX,
-	                            final int minY) {
+	boolean playerInArea(final int maxX, final int maxY, final int minX,
+	                     final int minY) {
 		final int x = getMyPlayer().getLocation().getX();
 		final int y = getMyPlayer().getLocation().getY();
-		return (x >= minX) && (x <= maxX) && (y >= minY) && (y <= maxY);
+		return x >= minX && x <= maxX && y >= minY && y <= maxY;
 	}
 }

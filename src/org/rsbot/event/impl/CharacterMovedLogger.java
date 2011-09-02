@@ -6,7 +6,6 @@ import org.rsbot.event.listeners.CharacterMovedListener;
 import java.util.logging.Logger;
 
 public class CharacterMovedLogger implements CharacterMovedListener {
-
 	private final Logger log = Logger.getLogger(CharacterMovedLogger.class.getName());
 
 	public void characterMoved(final CharacterMovedEvent e) {

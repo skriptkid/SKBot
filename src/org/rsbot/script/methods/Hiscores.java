@@ -15,7 +15,6 @@ import java.net.URL;
  * @version 0.2
  */
 public class Hiscores extends MethodProvider {
-
 	private static final String HOST = "http://hiscore.runescape.com";
 	private static final String GET = "/index_lite.ws?player=";
 
@@ -30,16 +29,15 @@ public class Hiscores extends MethodProvider {
 	 * @return An instance of Hiscores.Stats; <code>null</code> if unable to
 	 *         fetch data.
 	 */
-	public Stats lookup(String username) {
+	public Stats lookup(final String username) {
 		if (username != null && !username.isEmpty()) {
 			try {
-				URL url = new URL(Hiscores.HOST + Hiscores.GET + username);
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						url.openStream()));
+				final URL url = new URL(Hiscores.HOST + Hiscores.GET + username);
+				final BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 				String[] html;
-				int[] exps = new int[26];
-				int[] lvls = new int[26];
-				int[] ranks = new int[26];
+				final int[] exps = new int[26];
+				final int[] lvls = new int[26];
+				final int[] ranks = new int[26];
 				for (int i = 0; i < 26; i++) {
 					html = br.readLine().split(",");
 					exps[i] = Integer.parseInt(html[2]);
@@ -48,7 +46,7 @@ public class Hiscores extends MethodProvider {
 				}
 				br.close();
 				return new Stats(username, exps, lvls, ranks);
-			} catch (IOException ignored) {
+			} catch (final IOException ignored) {
 			}
 		}
 		return null;
@@ -57,17 +55,16 @@ public class Hiscores extends MethodProvider {
 	/**
 	 * Provides access to High Scores Information.
 	 *
-	 * @author Jacmob, Aut0r
+	 * @author Jacmob
 	 */
 	public static class Stats {
+		private final String username;
 
-		private String username;
+		private final int[] exps;
+		private final int[] lvls;
+		private final int[] ranks;
 
-		private int[] exps;
-		private int[] lvls;
-		private int[] ranks;
-
-		Stats(String username, int[] exps, int[] lvls, int[] ranks) {
+		Stats(final String username, final int[] exps, final int[] lvls, final int[] ranks) {
 			this.username = username;
 			this.exps = exps;
 			this.lvls = lvls;
@@ -80,10 +77,9 @@ public class Hiscores extends MethodProvider {
 		 * @param index The index of the skill
 		 * @return The experience or -1
 		 */
-		public int getExperience(int index) {
+		public int getExperience(final int index) {
 			if (index < 0 || index >= exps.length - 1) {
-				throw new IllegalArgumentException("Illegal skill index: "
-						+ index);
+				throw new IllegalArgumentException("Illegal skill index: " + index);
 			}
 			return exps[index + 1];
 		}
@@ -94,10 +90,9 @@ public class Hiscores extends MethodProvider {
 		 * @param index The index of the skill
 		 * @return The level or -1
 		 */
-		public int getLevel(int index) {
+		public int getLevel(final int index) {
 			if (index < 0 || index >= exps.length - 1) {
-				throw new IllegalArgumentException("Illegal skill index: "
-						+ index);
+				throw new IllegalArgumentException("Illegal skill index: " + index);
 			}
 			return lvls[index + 1];
 		}
@@ -108,10 +103,9 @@ public class Hiscores extends MethodProvider {
 		 * @param index The index of the skill
 		 * @return The rank or -1
 		 */
-		public int getRank(int index) {
+		public int getRank(final int index) {
 			if (index < 0 || index >= exps.length - 1) {
-				throw new IllegalArgumentException("Illegal skill index: "
-						+ index);
+				throw new IllegalArgumentException("Illegal skill index: " + index);
 			}
 			return ranks[index + 1];
 		}
@@ -154,7 +148,7 @@ public class Hiscores extends MethodProvider {
 
 		@Override
 		public String toString() {
-			StringBuilder sb = new StringBuilder();
+			final StringBuilder sb = new StringBuilder();
 			sb.append(username).append("[overall:");
 			sb.append(lvls[0]).append(",").append(ranks[0]);
 			sb.append(",").append(exps[0]).append(" ");

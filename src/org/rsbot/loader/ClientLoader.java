@@ -1,238 +1,217 @@
 package org.rsbot.loader;
 
+import org.rsbot.Configuration;
 import org.rsbot.loader.asm.ClassReader;
 import org.rsbot.loader.script.ModScript;
 import org.rsbot.loader.script.ParseException;
-import org.rsbot.util.GlobalConfiguration;
+import org.rsbot.util.io.HttpClient;
+import org.rsbot.util.io.IOHelper;
+import org.rsbot.util.io.IniParser;
 
-import javax.swing.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.JarURLConnection;
+import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
- * @author Jacmob
+ * @author Paris
  */
 public class ClientLoader {
-
-	private final Logger log = Logger.getLogger(ClientLoader.class.getName());
-
-	private ModScript script;
+	private final static ClientLoader instance = new ClientLoader();
+	private final String id = ClientLoader.class.getName();
+	private final Logger log = Logger.getLogger(id);
+	private static final File manifest = new File(Configuration.Paths.getCacheDirectory(), "client.ini");
+	private static final File cache = new File(Configuration.Paths.getCacheDirectory(), "client.jar");
+	private static final File localms = new File(Configuration.Paths.getCacheDirectory(), "modscript");
+	public final static int PORT_CLIENT = 43594;
+	private int[] version = {-1, -1, -1};
 	private Map<String, byte[]> classes;
-	private int world = nextWorld();
 
-	public void init(URL script, File cache) throws IOException, ParseException {
-		byte[] data;
-		try {
-			data = download(script);
-
-			if (cache.exists() || cache.createNewFile()) {
-				FileOutputStream fos = new FileOutputStream(cache);
-				fos.write(data);
-				fos.close();
-			}
-		} catch (IOException ex) {
-			if (cache.exists()) {
-				long length = cache.length();
-
-				if (length == 0) {
-					throw new IOException("Unable to download ModScript data. Local copy empty.");
-				}
-				if (length > Integer.MAX_VALUE) {
-					throw new IOException("Unable to download ModScript data. Local copy invalid.");
-				}
-
-				FileInputStream fis = new FileInputStream(cache);
-				data = new byte[(int) length];
-				int total = 0;
-				while (total < data.length) {
-					int read = fis.read(data, total, data.length - total);
-					if (read < 0) {
-						break;
-					}
-					total += read;
-				}
-
-				if (total < data.length) {
-					throw new IOException("Unable to download ModScript data. Local copy could not be read fully.");
-				}
-
-				fis.close();
-			} else {
-				throw new IOException("Unable to download ModScript data.");
-			}
-		}
-
-		this.script = new ModScript(unpack(data));
+	private ClientLoader() {
 	}
 
-	public void load(File cache, File version_file) throws IOException {
-		classes = new HashMap<String, byte[]>();
-		int version = script.getVersion();
-		String target = script.getAttribute("target");
+	public static ClientLoader getInstance() {
+		return instance;
+	}
 
-		int cached_version = 0;
-		if (cache.exists() && version_file.exists()) {
-			BufferedReader reader = new BufferedReader(new FileReader(version_file));
-			cached_version = Integer.parseInt(reader.readLine());
-			reader.close();
+	public static File getClientManifest() {
+		return manifest;
+	}
+
+	private boolean isCacheClean() {
+		if (!(manifest.exists() && cache.exists()) || (localms.exists() && !Configuration.RUNNING_FROM_JAR)) {
+			return false;
 		}
-
-		if (version <= cached_version) {
-			JarFile jar = new JarFile(cache);
-
-			checkVersion(jar.getInputStream(jar.getJarEntry("client.class")));
-
-			log.info("Processing client");
-			Enumeration<JarEntry> entries = jar.entries();
-			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
-				String name = entry.getName();
-				if (name.endsWith(".class")) {
-					name = name.substring(0, name.length() - 6).replace('/', '.');
-					classes.put(name, script.process(name, jar.getInputStream(entry)));
-				}
+		final Map<String, String> info;
+		try {
+			info = IniParser.deserialise(manifest).get(id);
+		} catch (final IOException ignored) {
+			ignored.printStackTrace();
+			return false;
+		}
+		if (info != null && info.containsKey("v1") && info.containsKey("t")) {
+			try {
+				version[1] = Integer.parseInt(info.get("v1"));
+			} catch (final NumberFormatException ignored) {
+				return false;
 			}
+			try {
+				version[2] = getRemoteVersion(version[1]);
+			} catch (final IOException ignored) {
+				return false;
+			}
+			boolean notModified = false;
+			try {
+				notModified = HttpClient.isModifiedSince(new URL(Configuration.Paths.URLs.CLIENTPATCH), Long.parseLong(info.get("t")));
+			} catch (final IOException ignored) {
+			} catch (final NumberFormatException ignored) {
+			}
+			return version[1] == version[2] && notModified;
 		} else {
-			log.info("Downloading client: " + target);
-			JarFile loader = getJar(target, true);
-			JarFile client = getJar(target, false);
+			return false;
+		}
+	}
 
-			List<String> replace = Arrays.asList(script.getAttribute("replace").split(" "));
+	public synchronized void load() throws IOException, ParseException {
+		if (classes != null) {
+			return;
+		}
+		classes = new HashMap<String, byte[]>();
 
-			Enumeration<JarEntry> entries = client.entries();
+		if (isCacheClean()) {
+			log.info("Reading game client from cache");
+			final JarFile jar = new JarFile(cache);
+			final Enumeration<JarEntry> entries = jar.entries();
 			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
+				final JarEntry entry = entries.nextElement();
 				String name = entry.getName();
 				if (name.endsWith(".class")) {
 					name = name.substring(0, name.length() - 6).replace('/', '.');
-					classes.put(name, load(client.getInputStream(entry)));
+					classes.put(name, IOHelper.read(jar.getInputStream(entry)));
 				}
 			}
+			jar.close();
+		} else {
+			final ModScript script;
+			if (localms.exists() && !Configuration.RUNNING_FROM_JAR) {
+				log.info("Loading game client against local patch");
+				script = new ModScript(IOHelper.ungzip(IOHelper.read(localms)));
+			} else {
+				log.info("Downloading new game client");
+				script = new ModScript(HttpClient.downloadBinary(new URL(Configuration.Paths.URLs.CLIENTPATCH)));
+			}
+			version[0] = script.getVersion();
+			if (version[2] > version[0]) {
+				throw new ParseException("Patch outdated (" + version[2] + " > " + version[0] + ")");
+			}
+			final JarFile loader = getJar(true), client = getJar(false);
+			final List<String> replace = Arrays.asList(script.getAttribute("replace").split(" "));
 
-			entries = loader.entries();
-			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
-				String name = entry.getName();
-				if (name.endsWith(".class")) {
-					name = name.substring(0, name.length() - 6).replace('/', '.');
-					if (replace.contains(name)) {
-						classes.put(name, load(loader.getInputStream(entry)));
+			for (final JarFile jar : new JarFile[]{loader, client}) {
+				final Enumeration<JarEntry> entries = jar.entries();
+				while (entries.hasMoreElements()) {
+					final JarEntry entry = entries.nextElement();
+					String name = entry.getName();
+					if (name.endsWith(".class")) {
+						name = name.substring(0, name.length() - 6).replace('/', '.');
+						if (jar == client || replace.contains(name)) {
+							classes.put(name, IOHelper.read(jar.getInputStream(entry)));
+						}
 					}
 				}
+				jar.close();
 			}
 
-			FileOutputStream stream = new FileOutputStream(cache);
-			JarOutputStream out = new JarOutputStream(stream);
-
-			for (Map.Entry<String, byte[]> entry : classes.entrySet()) {
-				out.putNextEntry(new JarEntry(entry.getKey() + ".class"));
-				out.write(entry.getValue());
-			}
-
-			out.close();
-			stream.close();
-
-			int client_version = 0;
-
-			try {
-				client_version = checkVersion(new ByteArrayInputStream(classes.get("client")));
-			} finally {
-				if (client_version != 0) {
-					FileWriter writer = new FileWriter(GlobalConfiguration.Paths.getVersionCache());
-					writer.write(Integer.toString(client_version));
-					writer.close();
-				}
-			}
-
-			log.info("Processing client");
-			for (Map.Entry<String, byte[]> entry : classes.entrySet()) {
+			for (final Map.Entry<String, byte[]> entry : classes.entrySet()) {
 				entry.setValue(script.process(entry.getKey(), entry.getValue()));
 			}
 
+			final ClassReader reader = new ClassReader(new ByteArrayInputStream(classes.get("client")));
+			final VersionVisitor vv = new VersionVisitor();
+			reader.accept(vv, ClassReader.SKIP_FRAMES);
+			version[1] = vv.getVersion();
+
+			final ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(cache));
+			zip.setMethod(ZipOutputStream.STORED);
+			zip.setLevel(0);
+			for (final Entry<String, byte[]> item : classes.entrySet()) {
+				final ZipEntry entry = new ZipEntry(item.getKey() + ".class");
+				entry.setMethod(ZipEntry.STORED);
+				final byte[] data = item.getValue();
+				entry.setSize(data.length);
+				entry.setCompressedSize(data.length);
+				entry.setCrc(IOHelper.crc32(data));
+				zip.putNextEntry(entry);
+				zip.write(item.getValue());
+				zip.closeEntry();
+			}
+			zip.close();
+
+			final Map<String, Map<String, String>> data = new HashMap<String, Map<String, String>>(1);
+			final Map<String, String> info = new HashMap<String, String>();
+			info.put("v1", Integer.toString(version[1]));
+			info.put("t", Long.toString(System.currentTimeMillis() / 1000L));
+			data.put(id, info);
+			IniParser.serialise(data, manifest);
 		}
 	}
 
 	public Map<String, byte[]> getClasses() {
-		return classes;
-	}
-
-	public String getTargetName() {
-		return script.getAttribute("target");
-	}
-
-	private int checkVersion(InputStream in) throws IOException {
-		ClassReader reader = new ClassReader(in);
-		VersionVisitor vv = new VersionVisitor();
-		reader.accept(vv, ClassReader.SKIP_FRAMES);
-		if (vv.getVersion() != script.getVersion()) {
-			JOptionPane.showMessageDialog(
-					null,
-					GlobalConfiguration.NAME + " does not yet support the latest version of this game client.\n" +
-							"Our developers are currently ensuring that the bot can understand any new game content.\n" +
-							"This process also ensures that the bot client remains undetectable.\n" +
-							"This application will update itself when opened after the update is complete.\n" +
-							"Try again in a few minutes or check the powerbot.org announcements for more information.\n" +
-							"If this does not give you an exact time, refrain from asking as no one else will be able to.",
-					"Outdated (" + script.getName() + ")",
-					JOptionPane.INFORMATION_MESSAGE);
-			throw new IOException("ModScript #" + script.getVersion() + " != #" + vv.getVersion());
+		final Map<String, byte[]> copy = new HashMap<String, byte[]>(classes.size());
+		for (final Entry<String, byte[]> item : classes.entrySet()) {
+			copy.put(item.getKey(), item.getValue().clone());
 		}
-		return vv.getVersion();
+		return copy;
 	}
 
-	private JarFile getJar(String target, boolean loader) {
+	public static String getTargetName() {
+		return "runescape";
+	}
+
+	public boolean isOutdated() {
+		return version[2] > version[1];
+	}
+
+	public static int getRemoteVersion(final int start) throws IOException {
+		final String host = getTargetHost();
+		for (int i = start; i < start + 50; i++) {
+			final Socket sock = new Socket(host, PORT_CLIENT);
+			final byte[] payload = new byte[]{15, 0, 0, (byte) (i >> 8), (byte) i};
+			sock.getOutputStream().write(payload, 0, payload.length);
+			if (sock.getInputStream().read() == 0) {
+				sock.close();
+				return i;
+			} else {
+				sock.close();
+			}
+		}
+		return -1;
+	}
+
+	private static JarFile getJar(final boolean loader) {
 		while (true) {
 			try {
-				String s = "jar:http://world" + world + "." + target + ".com/";
-				if (loader) {
-					s += "loader.jar!/";
-				} else {
-					s += target + ".jar!/";
-				}
-				URL url = new URL(s);
-				JarURLConnection juc = (JarURLConnection) url.openConnection();
+				final StringBuilder sb = new StringBuilder(50);
+				sb.append("jar:http://").append(getTargetHost()).append("/").append(loader ? "loader" : getTargetName()).append(".jar!/");
+				final JarURLConnection juc = (JarURLConnection) new URL(sb.toString()).openConnection();
 				juc.setConnectTimeout(5000);
 				return juc.getJarFile();
-			} catch (Exception ignored) {
-				world = nextWorld();
+			} catch (final Exception ignored) {
 			}
 		}
 	}
 
-	private int nextWorld() {
-		return 1 + new Random().nextInt(169);
+	private static String getTargetHost() {
+		return "world" + (1 + new Random().nextInt(169)) + "." + getTargetName() + ".com";
 	}
-
-	private byte[] unpack(byte[] packed) throws IOException {
-		return load(new GZIPInputStream(new ByteArrayInputStream(packed)));
-	}
-
-	private byte[] load(InputStream is) throws IOException {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		byte[] buffer = new byte[4096];
-		int n;
-		while ((n = is.read(buffer)) != -1) {
-			os.write(buffer, 0, n);
-		}
-		return os.toByteArray();
-	}
-
-	private byte[] download(URL url) throws IOException {
-		URLConnection uc = url.openConnection();
-		uc.setConnectTimeout(10000);
-		DataInputStream di = new DataInputStream(uc.getInputStream());
-		byte[] buffer = new byte[uc.getContentLength()];
-		di.readFully(buffer);
-		di.close();
-		return buffer;
-	}
-
 }

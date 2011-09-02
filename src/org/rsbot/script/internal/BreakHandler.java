@@ -1,27 +1,25 @@
 package org.rsbot.script.internal;
 
-import org.rsbot.bot.Bot;
+import org.rsbot.script.Script;
 
 import java.util.Random;
 
 public class BreakHandler {
-
 	private final Random random = new Random();
 
 	private long nextBreak;
 	private long breakEnd;
 	private int ticks = 0;
-	private Bot bot;
+	private final Script script;
 	private boolean checked = false;
 	private boolean result = false;
 
-	public BreakHandler(Bot bot) {
-		this.bot = bot;
+	public BreakHandler(final Script script) {
+		this.script = script;
 	}
 
 	public boolean isBreaking() {
-		return ticks > 50 && nextBreak > 0 && nextBreak < System.currentTimeMillis()
-				&& breakEnd > System.currentTimeMillis() && can();
+		return ticks > 50 && nextBreak > 0 && nextBreak < System.currentTimeMillis() && breakEnd > System.currentTimeMillis() && can();
 	}
 
 	private boolean can() {
@@ -29,7 +27,7 @@ public class BreakHandler {
 			return result;
 		} else {
 			checked = true;
-			result = bot.getScriptHandler().onBreak();
+			result = script.onBreakStart();
 			return result;
 		}
 	}
@@ -38,11 +36,11 @@ public class BreakHandler {
 		++ticks;
 		if (checked) {
 			checked = false;
-			bot.getScriptHandler().onBreakResume();
+			script.onBreakFinish();
 		}
 		if (nextBreak < 0 || nextBreak - System.currentTimeMillis() < -30000) {
 			ticks = 0;
-			int offset = random(20, 120) * 60000;
+			final int offset = random(20, 120) * 60000;
 			nextBreak = System.currentTimeMillis() + offset;
 			if (random(0, 4) != 0) {
 				breakEnd = nextBreak + random(2, 40) * 60000 + offset / 6;
@@ -56,9 +54,8 @@ public class BreakHandler {
 		return breakEnd - System.currentTimeMillis();
 	}
 
-	private int random(int min, int max) {
-		int n = Math.abs(max - min);
+	private int random(final int min, final int max) {
+		final int n = Math.abs(max - min);
 		return Math.min(min, max) + (n == 0 ? 0 : random.nextInt(n));
 	}
-
 }

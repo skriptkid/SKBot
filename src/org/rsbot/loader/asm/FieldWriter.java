@@ -115,10 +115,10 @@ final class FieldWriter implements FieldVisitor {
 		if (!ClassReader.ANNOTATIONS) {
 			return null;
 		}
-		ByteVector bv = new ByteVector();
+		final ByteVector bv = new ByteVector();
 		// write type, and reserve space for values count
 		bv.putShort(cw.newUTF8(desc)).putShort(0);
-		AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+		final AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
 		if (visible) {
 			aw.next = anns;
 			anns = aw;
@@ -185,9 +185,9 @@ final class FieldWriter implements FieldVisitor {
 	 * @param out where the content of this field must be put.
 	 */
 	void put(final ByteVector out) {
-		int mask = Opcodes.ACC_DEPRECATED
+		final int mask = Opcodes.ACC_DEPRECATED
 				| ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-				| ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
+				| (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC);
 		out.putShort(access & ~mask).putShort(name).putShort(desc);
 		int attributeCount = 0;
 		if (value != 0) {

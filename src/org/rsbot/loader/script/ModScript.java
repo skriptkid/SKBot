@@ -6,6 +6,7 @@ import org.rsbot.loader.asm.ClassVisitor;
 import org.rsbot.loader.asm.ClassWriter;
 import org.rsbot.loader.script.adapter.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Jacmob
  */
 public class ModScript {
 
@@ -30,7 +30,7 @@ public class ModScript {
 		int OVERRIDE_CLASS = 10;
 	}
 
-	public static final int MAGIC = 0xFADFAD;
+	private static final int MAGIC = 0xFADFAD;
 
 	private String name;
 	private int version;
@@ -38,8 +38,12 @@ public class ModScript {
 	private Map<String, ClassAdapter> adapters;
 	private Map<String, ClassWriter> writers;
 
-	public ModScript(byte[] data) throws ParseException {
-		load(new Buffer(data));
+	public ModScript(final byte[] data) throws ParseException {
+		this(new ByteArrayInputStream(data));
+	}
+
+	public ModScript(final InputStream in) throws ParseException {
+		load(new Scanner(in));
 	}
 
 	public String getName() {
@@ -50,29 +54,29 @@ public class ModScript {
 		return version;
 	}
 
-	public String getAttribute(String key) {
+	public String getAttribute(final String key) {
 		return attributes.get(key);
 	}
 
-	public byte[] process(String key, byte[] data) {
-		ClassAdapter adapter = adapters.get(key);
+	public byte[] process(final String key, final byte[] data) {
+		final ClassAdapter adapter = adapters.get(key);
 		if (adapter != null) {
-			ClassReader reader = new ClassReader(data);
+			final ClassReader reader = new ClassReader(data);
 			reader.accept(adapter, ClassReader.SKIP_FRAMES);
 			return writers.get(key).toByteArray();
 		}
 		return data;
 	}
 
-	public byte[] process(String key, InputStream is) throws IOException {
-		ClassAdapter adapter = adapters.get(key);
+	public byte[] process(final String key, final InputStream is) throws IOException {
+		final ClassAdapter adapter = adapters.get(key);
 		if (adapter != null) {
-			ClassReader reader = new ClassReader(is);
+			final ClassReader reader = new ClassReader(is);
 			reader.accept(adapter, ClassReader.SKIP_FRAMES);
 			return writers.get(key).toByteArray();
 		}
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		byte[] buffer = new byte[4096];
+		final ByteArrayOutputStream os = new ByteArrayOutputStream();
+		final byte[] buffer = new byte[4096];
 		int n;
 		while ((n = is.read(buffer)) != -1) {
 			os.write(buffer, 0, n);
@@ -80,119 +84,131 @@ public class ModScript {
 		return os.toByteArray();
 	}
 
-	private void load(Buffer buff) throws ParseException {
-		if (buff.g4() != ModScript.MAGIC) {
-			throw new ParseException("Bad magic!");
+	private void load(final Scanner scan) throws ParseException {
+		if (scan.readInt() != ModScript.MAGIC) {
+			throw new ParseException("invalid patch format");
 		}
 		attributes = new HashMap<String, String>();
 		adapters = new HashMap<String, ClassAdapter>();
 		writers = new HashMap<String, ClassWriter>();
-		name = buff.gstr();
-		version = buff.g2();
-		int num = buff.g2();
+		name = scan.readString();
+		version = scan.readShort();
+		int num = scan.readShort();
 		while (num-- > 0) {
-			int op = buff.g1();
-			if (op == Opcodes.ATTRIBUTE) {
-				String key = buff.gstr();
-				String value = buff.gstr();
+			final String clazz;
+			int count = 0, ptr = 0;
+			final int op = scan.readByte();
+			switch (op) {
+			case Opcodes.ATTRIBUTE:
+				final String key = scan.readString();
+				final String value = scan.readString();
 				attributes.put(key, new StringBuilder(value).reverse().toString());
-			} else if (op == Opcodes.GET_STATIC || op == Opcodes.GET_FIELD) {
-				String clazz = buff.gstr();
-				int count = buff.g2(), ptr = 0;
-				AddGetterAdapter.Field[] fields = new AddGetterAdapter.Field[count];
+				break;
+			case Opcodes.GET_STATIC:
+			case Opcodes.GET_FIELD:
+				clazz = scan.readString();
+				count = scan.readShort();
+				final AddGetterAdapter.Field[] fieldsGet = new AddGetterAdapter.Field[count];
 				while (ptr < count) {
-					AddGetterAdapter.Field f = new AddGetterAdapter.Field();
-					f.getter_access = buff.g4();
-					f.getter_name = buff.gstr();
-					f.getter_desc = buff.gstr();
-					f.owner = buff.gstr();
-					f.name = buff.gstr();
-					f.desc = buff.gstr();
-
-					fields[ptr++] = f;
+					final AddGetterAdapter.Field f = new AddGetterAdapter.Field();
+					f.getter_access = scan.readInt();
+					f.getter_name = scan.readString();
+					f.getter_desc = scan.readString();
+					f.owner = scan.readString();
+					f.name = scan.readString();
+					f.desc = scan.readString();
+					fieldsGet[ptr++] = f;
 				}
-				adapters.put(clazz, new AddGetterAdapter(delegate(clazz), op == Opcodes.GET_FIELD, fields));
-			} else if (op == Opcodes.ADD_FIELD) {
-				String clazz = buff.gstr();
-				int count = buff.g2(), ptr = 0;
-				AddFieldAdapter.Field[] fields = new AddFieldAdapter.Field[count];
+				adapters.put(clazz, new AddGetterAdapter(delegate(clazz), op == Opcodes.GET_FIELD, fieldsGet));
+				break;
+			case Opcodes.ADD_FIELD:
+				clazz = scan.readString();
+				count = scan.readShort();
+				final AddFieldAdapter.Field[] fieldsAdd = new AddFieldAdapter.Field[count];
 				while (ptr < count) {
-					AddFieldAdapter.Field f = new AddFieldAdapter.Field();
-					f.access = buff.g4();
-					f.name = buff.gstr();
-					f.desc = buff.gstr();
-					fields[ptr++] = f;
+					final AddFieldAdapter.Field f = new AddFieldAdapter.Field();
+					f.access = scan.readInt();
+					f.name = scan.readString();
+					f.desc = scan.readString();
+					fieldsAdd[ptr++] = f;
 				}
-				adapters.put(clazz, new AddFieldAdapter(delegate(clazz), fields));
-			} else if (op == Opcodes.ADD_METHOD) {
-				String clazz = buff.gstr();
-				int count = buff.g2(), ptr = 0;
-				AddMethodAdapter.Method[] methods = new AddMethodAdapter.Method[count];
+				adapters.put(clazz, new AddFieldAdapter(delegate(clazz), fieldsAdd));
+				break;
+			case Opcodes.ADD_METHOD:
+				clazz = scan.readString();
+				count = scan.readShort();
+				final AddMethodAdapter.Method[] methods = new AddMethodAdapter.Method[count];
 				while (ptr < count) {
-					AddMethodAdapter.Method m = new AddMethodAdapter.Method();
-					m.access = buff.g4();
-					m.name = buff.gstr();
-					m.desc = buff.gstr();
-					byte[] code = new byte[buff.g4()];
-					buff.gdata(code, code.length, 0);
+					final AddMethodAdapter.Method m = new AddMethodAdapter.Method();
+					m.access = scan.readInt();
+					m.name = scan.readString();
+					m.desc = scan.readString();
+					final byte[] code = new byte[scan.readInt()];
+					scan.readSegment(code, code.length, 0);
 					m.code = code;
-					m.max_locals = buff.g1();
-					m.max_stack = buff.g1();
+					m.max_locals = scan.readByte();
+					m.max_stack = scan.readByte();
 					methods[ptr++] = m;
 				}
 				adapters.put(clazz, new AddMethodAdapter(delegate(clazz), methods));
-			} else if (op == Opcodes.ADD_INTERFACE) {
-				String clazz = buff.gstr();
-				String inter = buff.gstr();
+				break;
+			case Opcodes.ADD_INTERFACE:
+				clazz = scan.readString();
+				final String inter = scan.readString();
 				adapters.put(clazz, new AddInterfaceAdapter(delegate(clazz), inter));
-			} else if (op == Opcodes.SET_SUPER) {
-				String clazz = buff.gstr();
-				String superName = buff.gstr();
+				break;
+			case Opcodes.SET_SUPER:
+				clazz = scan.readString();
+				final String superName = scan.readString();
 				adapters.put(clazz, new SetSuperAdapter(delegate(clazz), superName));
-			} else if (op == Opcodes.SET_SIGNATURE) {
-				String clazz = buff.gstr();
-				int count = buff.g2(), ptr = 0;
-				SetSignatureAdapter.Signature[] signatures = new SetSignatureAdapter.Signature[count];
+				break;
+			case Opcodes.SET_SIGNATURE:
+				clazz = scan.readString();
+				count = scan.readShort();
+				final SetSignatureAdapter.Signature[] signatures = new SetSignatureAdapter.Signature[count];
 				while (ptr < count) {
-					SetSignatureAdapter.Signature s = new SetSignatureAdapter.Signature();
-					s.name = buff.gstr();
-					s.desc = buff.gstr();
-					s.new_access = buff.g4();
-					s.new_name = buff.gstr();
-					s.new_desc = buff.gstr();
+					final SetSignatureAdapter.Signature s = new SetSignatureAdapter.Signature();
+					s.name = scan.readString();
+					s.desc = scan.readString();
+					s.new_access = scan.readInt();
+					s.new_name = scan.readString();
+					s.new_desc = scan.readString();
 					signatures[ptr++] = s;
 				}
 				adapters.put(clazz, new SetSignatureAdapter(delegate(clazz), signatures));
-			} else if (op == Opcodes.INSERT_CODE) {
-				String clazz = buff.gstr();
-				String name = buff.gstr();
-				String desc = buff.gstr();
-				int count = buff.g1();
-				Map<Integer, byte[]> fragments = new HashMap<Integer, byte[]>();
+				break;
+			case Opcodes.INSERT_CODE:
+				clazz = scan.readString();
+				final String name = scan.readString();
+				final String desc = scan.readString();
+				count = scan.readByte();
+				final Map<Integer, byte[]> fragments = new HashMap<Integer, byte[]>();
 				while (count-- > 0) {
-					int off = buff.g2();
-					byte[] code = new byte[buff.g4()];
-					buff.gdata(code, code.length, 0);
+					final int off = scan.readShort();
+					final byte[] code = new byte[scan.readInt()];
+					scan.readSegment(code, code.length, 0);
 					fragments.put(off, code);
 				}
 				adapters.put(clazz, new InsertCodeAdapter(delegate(clazz),
-						name, desc, fragments, buff.g1(), buff.g1()));
-			} else if (op == Opcodes.OVERRIDE_CLASS) {
-				String old_clazz = buff.gstr();
-				String new_clazz = buff.gstr();
-				int count = buff.g1();
+						name, desc, fragments, scan.readByte(), scan.readByte()));
+				break;
+			case Opcodes.OVERRIDE_CLASS:
+				final String old_clazz = scan.readString();
+				final String new_clazz = scan.readString();
+				count = scan.readByte();
 				while (count-- > 0) {
-					String clazz = buff.gstr();
-					adapters.put(clazz, new OverrideClassAdapter(delegate(clazz), old_clazz, new_clazz));
+					final String current_clazz = scan.readString();
+					adapters.put(current_clazz, new OverrideClassAdapter(delegate(current_clazz), old_clazz, new_clazz));
 				}
+				break;
 			}
 		}
 	}
 
-	private ClassVisitor delegate(String clazz) {
-		ClassAdapter delegate = adapters.get(clazz);
+	private ClassVisitor delegate(final String clazz) {
+		final ClassAdapter delegate = adapters.get(clazz);
 		if (delegate == null) {
-			ClassWriter writer = new ClassWriter(0);
+			final ClassWriter writer = new ClassWriter(0);
 			writers.put(clazz, writer);
 			return writer;
 		} else {

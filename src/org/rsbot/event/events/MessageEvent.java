@@ -7,20 +7,18 @@ import java.util.EventListener;
 
 /**
  * A message event.
- *
- * @author Jacmob
  */
 public class MessageEvent extends RSEvent {
-
 	public static final int MESSAGE_SERVER = 0;
 	public static final int MESSAGE_CHAT = 2;
 	public static final int MESSAGE_PRIVATE_IN = 3;
 	public static final int MESSAGE_PRIVATE_INFO = 5;
 	public static final int MESSAGE_PRIVATE_OUT = 6;
-	public static final int MESSAGE_CLAN_CHAT = 9;
+	public static final int MESSAGE_FRIENDS_CHAT = 9;
 	public static final int MESSAGE_CLIENT = 11;
 	public static final int MESSAGE_EXAMINE_NPC = 28;
 	public static final int MESSAGE_EXAMINE_OBJECT = 29;
+	public static final int MESSAGE_CLAN_CHAT = 41;
 	public static final int MESSAGE_TRADE_REQ = 100;
 	public static final int MESSAGE_ASSIST_REQ = 102;
 	public static final int MESSAGE_TRADE_INFO = 103;
@@ -33,7 +31,7 @@ public class MessageEvent extends RSEvent {
 	private final int id;
 	private final String message;
 
-	public MessageEvent(String sender, int id, String message) {
+	public MessageEvent(final String sender, final int id, final String message) {
 		this.sender = sender;
 		this.id = id;
 		this.message = message;
@@ -60,5 +58,4 @@ public class MessageEvent extends RSEvent {
 	public String getMessage() {
 		return message;
 	}
-
 }

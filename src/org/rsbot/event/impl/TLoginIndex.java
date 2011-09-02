@@ -8,10 +8,9 @@ import org.rsbot.util.StringUtil;
 import java.awt.*;
 
 public class TLoginIndex implements TextPaintListener {
-
 	private final Game game;
 
-	public TLoginIndex(Bot bot) {
+	public TLoginIndex(final Bot bot) {
 		game = bot.getMethodContext().game;
 	}
 

@@ -9,10 +9,9 @@ import org.rsbot.util.StringUtil;
 import java.awt.*;
 
 public class TPlayerPosition implements TextPaintListener {
-
 	private final Players players;
 
-	public TPlayerPosition(Bot bot) {
+	public TPlayerPosition(final Bot bot) {
 		players = bot.getMethodContext().players;
 	}
 
@@ -21,5 +20,4 @@ public class TPlayerPosition implements TextPaintListener {
 		StringUtil.drawLine(render, idx++, "Position: " + position);
 		return idx;
 	}
-
 }

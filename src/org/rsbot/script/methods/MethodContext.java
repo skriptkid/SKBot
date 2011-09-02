@@ -3,14 +3,17 @@ package org.rsbot.script.methods;
 import org.rsbot.bot.Bot;
 import org.rsbot.client.Client;
 import org.rsbot.script.internal.InputManager;
+import org.rsbot.script.task.executor.ScriptPool;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * For internal use to link MethodProviders.
- *
- * @author Jacmob
  */
 public class MethodContext {
-
 	/**
 	 * The instance of {@link java.util.Random} for random number generation.
 	 */
@@ -49,7 +52,7 @@ public class MethodContext {
 	/**
 	 * The singleton of Grand Exchange
 	 */
-	public final GrandExchange grandExchange = new GrandExchange();
+	public final GrandExchange grandExchange = new GrandExchange(this);
 
 	/**
 	 * The singletion of Hiscores
@@ -167,6 +170,11 @@ public class MethodContext {
 	public final Prayer prayer = new Prayer(this);
 
 	/**
+	 * The singleton of Quests
+	 */
+	public final Quests quests = new Quests(this);
+
+	/**
 	 * The singleton of Prayer
 	 */
 	public final FriendChat friendChat = new FriendChat(this);
@@ -177,7 +185,7 @@ public class MethodContext {
 	public final Trade trade = new Trade(this);
 
 	/**
-	 * The singleton of Trade
+	 * The singleton of Lobby
 	 */
 	public final Lobby lobby = new Lobby(this);
 
@@ -191,12 +199,23 @@ public class MethodContext {
 	 */
 	public final Client client;
 
+	/**
+	 * The Web
+	 */
+	public final Web web = new Web(this);
+
+	/**
+	 * The ExecutorService
+	 */
+	public final ExecutorService service;
+
 	public final Bot bot;
 
-	public MethodContext(Bot bot) {
+	public MethodContext(final Bot bot) {
 		this.bot = bot;
-		this.client = bot.getClient();
-		this.inputManager = bot.getInputManager();
+		client = bot.getClient();
+		inputManager = bot.getInputManager();
+		service = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+				new SynchronousQueue<Runnable>(), new ScriptPool(), new ThreadPoolExecutor.AbortPolicy());
 	}
-
 }

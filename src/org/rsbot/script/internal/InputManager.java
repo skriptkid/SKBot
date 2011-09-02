@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public class InputManager {
-
 	private final java.util.Random random = new java.util.Random();
 	private final MouseHandler mouseHandler = new MouseHandler(this);
 	private final Bot bot;
@@ -20,9 +19,9 @@ public class InputManager {
 	/**
 	 * The side of the screen off which the mouse last moved.
 	 */
-	private int side = random(1, 5);
+	public int side = random(1, 5);
 
-	public InputManager(Bot bot) {
+	public InputManager(final Bot bot) {
 		this.bot = bot;
 	}
 
@@ -70,7 +69,7 @@ public class InputManager {
 	}
 
 	private char getKeyChar(final char c) {
-		if ((c >= 36) && (c <= 40)) {
+		if (c >= 36 && c <= 40) {
 			return KeyEvent.VK_UNDEFINED;
 		} else {
 			return c;
@@ -95,19 +94,16 @@ public class InputManager {
 		getClient().getKeyboard()._keyPressed(ke);
 
 		if (ms > 500) {
-			ke = new KeyEvent(getTarget(), KeyEvent.KEY_PRESSED, System.currentTimeMillis() + 500, 0, keyCode,
-					(char) keyCode);
+			ke = new KeyEvent(getTarget(), KeyEvent.KEY_PRESSED, System.currentTimeMillis() + 500, 0, keyCode, (char) keyCode);
 			getClient().getKeyboard()._keyPressed(ke);
 			final int ms2 = ms - 500;
 			for (int i = 37; i < ms2; i += random(20, 40)) {
-				ke = new KeyEvent(getTarget(), KeyEvent.KEY_PRESSED, System.currentTimeMillis() + i + 500, 0, keyCode,
-						(char) keyCode);
+				ke = new KeyEvent(getTarget(), KeyEvent.KEY_PRESSED, System.currentTimeMillis() + i + 500, 0, keyCode, (char) keyCode);
 				getClient().getKeyboard()._keyPressed(ke);
 			}
 		}
 		final int delay2 = ms + random(-30, 30);
-		ke = new KeyEvent(getTarget(), KeyEvent.KEY_RELEASED, System.currentTimeMillis() + delay2, 0, keyCode,
-				(char) keyCode);
+		ke = new KeyEvent(getTarget(), KeyEvent.KEY_RELEASED, System.currentTimeMillis() + delay2, 0, keyCode, (char) keyCode);
 		getClient().getKeyboard()._keyReleased(ke);
 	}
 
@@ -144,7 +140,7 @@ public class InputManager {
 			final MouseEvent me = new MouseEvent(getTarget(), MouseEvent.MOUSE_EXITED, System.currentTimeMillis(), 0, x,
 					y, 0, false);
 			getClient().getMouse().sendEvent(me);
-			int w = bot.getCanvas().getWidth(), h = bot.getCanvas().getHeight(), d = 50;
+			final int w = bot.getCanvas().getWidth(), h = bot.getCanvas().getHeight(), d = 50;
 			if (x < d) {
 				if (y < d) {
 					side = 4; // top
@@ -166,6 +162,10 @@ public class InputManager {
 	}
 
 	/**
+	 * @param x       the x value
+	 * @param y       the y value
+	 * @param randomX x-axis randomness (added to x)
+	 * @param randomY y-axis randomness (added to y)
 	 * @see #moveMouse(int, int, int, int, int)
 	 */
 	public void moveMouse(final int x, final int y, final int randomX, final int randomY) {
@@ -229,8 +229,7 @@ public class InputManager {
 
 	public void releaseKey(final char ch) {
 		KeyEvent ke;
-		ke = new KeyEvent(getTarget(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), InputEvent.ALT_DOWN_MASK, ch,
-				getKeyChar(ch));
+		ke = new KeyEvent(getTarget(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), InputEvent.ALT_DOWN_MASK, ch, getKeyChar(ch));
 		getClient().getKeyboard()._keyReleased(ke);
 	}
 
@@ -258,19 +257,17 @@ public class InputManager {
 	private void sendKey(final char ch, final int delay) {
 		boolean shift = false;
 		int code = ch;
-		if ((ch >= 'a') && (ch <= 'z')) {
+		if (ch >= 'a' && ch <= 'z') {
 			code -= 32;
-		} else if ((ch >= 'A') && (ch <= 'Z')) {
+		} else if (ch >= 'A' && ch <= 'Z') {
 			shift = true;
 		}
 		KeyEvent ke;
-		if ((code == KeyEvent.VK_LEFT) || (code == KeyEvent.VK_UP) || (code == KeyEvent.VK_DOWN)) {
-			ke = new KeyEvent(getTarget(), KeyEvent.KEY_PRESSED, System.currentTimeMillis() + delay, 0, code,
-					getKeyChar(ch), KeyEvent.KEY_LOCATION_STANDARD);
+		if (code == KeyEvent.VK_LEFT || code == KeyEvent.VK_UP || code == KeyEvent.VK_DOWN) {
+			ke = new KeyEvent(getTarget(), KeyEvent.KEY_PRESSED, System.currentTimeMillis() + delay, 0, code, getKeyChar(ch), KeyEvent.KEY_LOCATION_STANDARD);
 			getClient().getKeyboard()._keyPressed(ke);
 			final int delay2 = random(50, 120) + random(0, 100);
-			ke = new KeyEvent(getTarget(), KeyEvent.KEY_RELEASED, System.currentTimeMillis() + delay2, 0, code,
-					getKeyChar(ch), KeyEvent.KEY_LOCATION_STANDARD);
+			ke = new KeyEvent(getTarget(), KeyEvent.KEY_RELEASED, System.currentTimeMillis() + delay2, 0, code, getKeyChar(ch), KeyEvent.KEY_LOCATION_STANDARD);
 			getClient().getKeyboard()._keyReleased(ke);
 		} else {
 			if (!shift) {
@@ -353,6 +350,10 @@ public class InputManager {
 	}
 
 	/**
+	 * @param curX    the x value to move from
+	 * @param curY    the y value to move from
+	 * @param targetX the x value to move to
+	 * @param targetY the y value to move to
 	 * @see #windMouse(int, int, int, int, int)
 	 */
 	public void windMouse(final int curX, final int curY, final int targetX, final int targetY) {

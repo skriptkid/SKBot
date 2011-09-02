@@ -1,10 +1,9 @@
 package org.rsbot.bot;
 
 import org.rsbot.Application;
+import org.rsbot.Configuration;
 import org.rsbot.client.Loader;
 import org.rsbot.loader.ClientLoader;
-import org.rsbot.loader.script.ParseException;
-import org.rsbot.util.GlobalConfiguration;
 
 import java.applet.Applet;
 import java.awt.*;
@@ -18,9 +17,7 @@ import java.util.logging.Logger;
  * @author Qauters
  */
 public class RSLoader extends Applet implements Runnable, Loader {
-
 	private final Logger log = Logger.getLogger(RSLoader.class.getName());
-
 	private static final long serialVersionUID = 6288499508495040201L;
 
 	/**
@@ -29,11 +26,8 @@ public class RSLoader extends Applet implements Runnable, Loader {
 	private Applet client;
 
 	private Runnable loadedCallback;
-
 	private String targetName;
-
 	private Dimension size = Application.getPanelSize();
-
 	/**
 	 * The game class loader
 	 */
@@ -58,30 +52,12 @@ public class RSLoader extends Applet implements Runnable, Loader {
 		}
 	}
 
-	@Override
-	public final void paint(final Graphics graphics) {
-		if (client != null) {
-			client.paint(graphics);
-		} else {
-			Font font = new Font("Helvetica", 1, 13);
-			FontMetrics fontMetrics = getFontMetrics(font);
-			graphics.setColor(Color.black);
-			graphics.fillRect(0, 0, 768, 503);
-			graphics.setColor(new Color(150, 0, 0));
-			graphics.drawRect(230, 233, 303, 33);
-			String s = "Loading...";
-			graphics.setFont(font);
-			graphics.setColor(Color.WHITE);
-			graphics.drawString(s, (768 - fontMetrics.stringWidth(s)) / 2, 255);
-		}
-	}
-
 	/**
 	 * The run void of the loader
 	 */
 	public void run() {
 		try {
-			Class<?> c = classLoader.loadClass("client");
+			final Class<?> c = classLoader.loadClass("client");
 			client = (Applet) c.newInstance();
 			loadedCallback.run();
 			c.getMethod("provideLoaderApplet", new Class[]{java.applet.Applet.class}).invoke(null, this);
@@ -89,7 +65,7 @@ public class RSLoader extends Applet implements Runnable, Loader {
 			client.start();
 		} catch (final Throwable e) {
 			log.severe("Unable to load client, please check your firewall and internet connection.");
-			File versionFile = new File(GlobalConfiguration.Paths.getVersionCache());
+			final File versionFile = new File(Configuration.Paths.getVersionCache());
 			if (versionFile.exists() && !versionFile.delete()) {
 				log.warning("Unable to clear cache.");
 			}
@@ -104,22 +80,11 @@ public class RSLoader extends Applet implements Runnable, Loader {
 
 	public void load() {
 		try {
-			WebLoader webLoader = new WebLoader();
-			if (webLoader.load()) {
-				ClientLoader cl = new ClientLoader();
-				cl.init(new URL(GlobalConfiguration.Paths.URLs.UPDATE),
-						new File(GlobalConfiguration.Paths.getModScriptCache()));
-				cl.load(new File(GlobalConfiguration.Paths.getClientCache()),
-						new File(GlobalConfiguration.Paths.getVersionCache()));
-				targetName = cl.getTargetName();
-				classLoader = new RSClassLoader(cl.getClasses(), new URL("http://" + targetName + ".com/"));
-			} else {
-				log.severe("Unable to download web data.");
-			}
-		} catch (IOException ex) {
-			log.severe("Unable to load client - " + ex.getMessage());
-		} catch (ParseException ex) {
-			log.severe("Unable to load client - " + ex.toString());
+			final ClientLoader cl = ClientLoader.getInstance();
+			targetName = ClientLoader.getTargetName();
+			classLoader = new RSClassLoader(cl.getClasses(), new URL("http://" + targetName + ".com/"));
+		} catch (final IOException ex) {
+			log.severe("Unable to load client: " + ex.getMessage());
 		}
 	}
 
@@ -155,7 +120,7 @@ public class RSLoader extends Applet implements Runnable, Loader {
 	 * Overridden void update(Graphics)
 	 */
 	@Override
-	public final void update(Graphics graphics) {
+	public final void update(final Graphics graphics) {
 		if (client != null) {
 			client.update(graphics);
 		} else {
@@ -163,13 +128,15 @@ public class RSLoader extends Applet implements Runnable, Loader {
 		}
 	}
 
-	public final void setSize(int width, int height) {
+	@Override
+	public final void setSize(final int width, final int height) {
 		super.setSize(width, height);
 		size = new Dimension(width, height);
 	}
 
+	@Override
 	public final Dimension getSize() {
 		return size;
 	}
-
 }
+

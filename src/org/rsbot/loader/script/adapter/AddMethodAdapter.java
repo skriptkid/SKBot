@@ -6,10 +6,8 @@ import org.rsbot.loader.asm.MethodVisitor;
 import org.rsbot.loader.script.CodeReader;
 
 /**
- * @author Jacmob
  */
 public class AddMethodAdapter extends ClassAdapter {
-
 	public static class Method {
 		public int access;
 		public String name;
@@ -21,14 +19,15 @@ public class AddMethodAdapter extends ClassAdapter {
 
 	private final Method[] methods;
 
-	public AddMethodAdapter(ClassVisitor delegate, Method[] methods) {
+	public AddMethodAdapter(final ClassVisitor delegate, final Method[] methods) {
 		super(delegate);
 		this.methods = methods;
 	}
 
+	@Override
 	public void visitEnd() {
-		for (Method m : methods) {
-			MethodVisitor mv = cv.visitMethod(m.access, m.name, m.desc, null, null);
+		for (final Method m : methods) {
+			final MethodVisitor mv = cv.visitMethod(m.access, m.name, m.desc, null, null);
 			mv.visitCode();
 			new CodeReader(m.code).accept(mv);
 			mv.visitMaxs(m.max_stack, m.max_locals);
@@ -36,5 +35,4 @@ public class AddMethodAdapter extends ClassAdapter {
 		}
 		cv.visitEnd();
 	}
-
 }

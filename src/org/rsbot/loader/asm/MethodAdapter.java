@@ -50,9 +50,11 @@ public class MethodAdapter implements MethodVisitor {
 		mv.visitAttribute(attr);
 	}
 
+
 	public void visitCode() {
 		mv.visitCode();
 	}
+
 
 	public void visitFrame(
 			final int type,
@@ -63,21 +65,26 @@ public class MethodAdapter implements MethodVisitor {
 		mv.visitFrame(type, nLocal, local, nStack, stack);
 	}
 
+
 	public void visitInsn(final int opcode) {
 		mv.visitInsn(opcode);
 	}
+
 
 	public void visitIntInsn(final int opcode, final int operand) {
 		mv.visitIntInsn(opcode, operand);
 	}
 
+
 	public void visitVarInsn(final int opcode, final int var) {
 		mv.visitVarInsn(opcode, var);
 	}
 
+
 	public void visitTypeInsn(final int opcode, final String type) {
 		mv.visitTypeInsn(opcode, type);
 	}
+
 
 	public void visitFieldInsn(
 			final int opcode,
@@ -87,6 +94,7 @@ public class MethodAdapter implements MethodVisitor {
 		mv.visitFieldInsn(opcode, owner, name, desc);
 	}
 
+
 	public void visitMethodInsn(
 			final int opcode,
 			final String owner,
@@ -95,21 +103,26 @@ public class MethodAdapter implements MethodVisitor {
 		mv.visitMethodInsn(opcode, owner, name, desc);
 	}
 
+
 	public void visitJumpInsn(final int opcode, final Label label) {
 		mv.visitJumpInsn(opcode, label);
 	}
+
 
 	public void visitLabel(final Label label) {
 		mv.visitLabel(label);
 	}
 
+
 	public void visitLdcInsn(final Object cst) {
 		mv.visitLdcInsn(cst);
 	}
 
+
 	public void visitIincInsn(final int var, final int increment) {
 		mv.visitIincInsn(var, increment);
 	}
+
 
 	public void visitTableSwitchInsn(
 			final int min,
@@ -119,6 +132,7 @@ public class MethodAdapter implements MethodVisitor {
 		mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
 
+
 	public void visitLookupSwitchInsn(
 			final Label dflt,
 			final int[] keys,
@@ -126,9 +140,11 @@ public class MethodAdapter implements MethodVisitor {
 		mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
 
+
 	public void visitMultiANewArrayInsn(final String desc, final int dims) {
 		mv.visitMultiANewArrayInsn(desc, dims);
 	}
+
 
 	public void visitTryCatchBlock(
 			final Label start,
@@ -137,6 +153,7 @@ public class MethodAdapter implements MethodVisitor {
 			final String type) {
 		mv.visitTryCatchBlock(start, end, handler, type);
 	}
+
 
 	public void visitLocalVariable(
 			final String name,
@@ -148,13 +165,16 @@ public class MethodAdapter implements MethodVisitor {
 		mv.visitLocalVariable(name, desc, signature, start, end, index);
 	}
 
+
 	public void visitLineNumber(final int line, final Label start) {
 		mv.visitLineNumber(line, start);
 	}
 
+
 	public void visitMaxs(final int maxStack, final int maxLocals) {
 		mv.visitMaxs(maxStack, maxLocals);
 	}
+
 
 	public void visitEnd() {
 		mv.visitEnd();

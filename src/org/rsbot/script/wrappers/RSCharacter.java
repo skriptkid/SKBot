@@ -2,15 +2,15 @@ package org.rsbot.script.wrappers;
 
 import org.rsbot.client.Model;
 import org.rsbot.client.Node;
+import org.rsbot.client.RSMessageData;
 import org.rsbot.client.RSNPCNode;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.MethodProvider;
 
 import java.awt.*;
 
-public abstract class RSCharacter extends MethodProvider {
-
-	public RSCharacter(MethodContext ctx) {
+public abstract class RSCharacter extends MethodProvider implements RSTarget {
+	public RSCharacter(final MethodContext ctx) {
 		super(ctx);
 	}
 
@@ -21,32 +21,79 @@ public abstract class RSCharacter extends MethodProvider {
 	 *
 	 * @return The client accessor.
 	 */
-	protected abstract org.rsbot.client.RSCharacter getAccessor();
+	public abstract org.rsbot.client.RSCharacter getAccessor();
 
 	/**
-	 * Clicks a humanoid character (tall and skinny).
+	 * Performs an action on a humanoid character (tall and skinny).
 	 *
-	 * @param action The option to be clicked (if available).
+	 * @param action The action of the menu entry to be clicked (if available).
 	 * @return <tt>true</tt> if the option was found; otherwise <tt>false</tt>.
 	 */
-	public boolean doAction(final String action) {
-		RSModel model = this.getModel();
-		return model != null && this.isValid() && this.getModel().doAction(action);
+	public boolean interact(final String action) {
+		return interact(action, null);
 	}
 
-	public RSModel getModel() {
-		org.rsbot.client.RSCharacter c = getAccessor();
-		if (c != null) {
-			Model model = c.getModel();
+	/**
+	 * Performs an action on a humanoid character (tall and skinny).
+	 *
+	 * @param action The action of the menu entry to be clicked (if available).
+	 * @return <tt>true</tt> if the option was found; otherwise <tt>false</tt>.
+	 * @see org.rsbot.script.wrappers.RSCharacter#interact(String)
+	 */
+	@Deprecated
+	public boolean doAction(final String action) {
+		return interact(action);
+	}
+
+	/**
+	 * Performs an action on a humanoid character (tall and skinny).
+	 *
+	 * @param action The action of the menu entry to be clicked (if available).
+	 * @param option The option of the menu entry to be clicked (if available).
+	 * @return <tt>true</tt> if the option was found; otherwise <tt>false</tt>.
+	 */
+	public boolean interact(final String action, final String option) {
+		if (isValid()) {
+			final RSModel model = getModel();
 			if (model != null) {
-				return new RSCharacterModel(methods, model, c);
+				return model.interact(action, option);
+			}
+			try {
+				Point screenLoc;
+				for (int i = 0; i < 10; i++) {
+					screenLoc = getScreenLocation();
+					if (!isValid() || !methods.calc.pointOnScreen(screenLoc)) {
+						break;
+					}
+					if (!methods.mouse.getLocation().equals(screenLoc) &&
+							methods.menu.doAction(action, option)) {
+						return true;
+					}
+					methods.mouse.move(screenLoc);
+				}
+			} catch (final Exception e) {
+				e.printStackTrace();
 			}
 		}
-		return null;
+		return false;
+	}
+
+	/**
+	 * Performs an action on a humanoid character (tall and skinny).
+	 *
+	 * @param action The action of the menu entry to be clicked (if available).
+	 * @param option The option of the menu entry to be clicked (if available).
+	 * @return <tt>true</tt> if the option was found; otherwise <tt>false</tt>.
+	 * @see org.rsbot.script.wrappers.RSCharacter#interact(String, String)
+	 */
+	@Deprecated
+	public boolean doAction(final String action, final String option) {
+		return interact(action, option);
 	}
 
 	public int getAnimation() {
-		return getAccessor().getAnimation();
+		final int[] q = getAccessor().getAnimationQueue();
+		return q == null || q.length == 0 ? -1 : q[0];
 	}
 
 	public int getGraphic() {
@@ -58,7 +105,7 @@ public abstract class RSCharacter extends MethodProvider {
 	}
 
 	/**
-	 * @return The % of HP
+	 * @return The % of HP remaining
 	 */
 	public int getHPPercent() {
 		return isInCombat() ? getAccessor().getHPRatio() * 100 / 255 : 100;
@@ -70,8 +117,7 @@ public abstract class RSCharacter extends MethodProvider {
 			return null;
 		}
 		if (interact < 32768) {
-			Node node = methods.nodes.lookup(methods.client.getRSNPCNC(),
-					interact);
+			final Node node = methods.nodes.lookup(methods.client.getRSNPCNC(), interact);
 			if (node == null || !(node instanceof RSNPCNode)) {
 				return null;
 			}
@@ -81,23 +127,27 @@ public abstract class RSCharacter extends MethodProvider {
 			if (index == methods.client.getSelfInteracting()) {
 				index = 2047;
 			}
-			return new RSPlayer(methods,
-					methods.client.getRSPlayerArray()[index]);
+			return new RSPlayer(methods, methods.client.getRSPlayerArray()[index]);
 		}
+	}
+
+	public int getLevel() {
+		return -1; // should be overridden too
 	}
 
 	public RSTile getLocation() {
-		org.rsbot.client.RSCharacter c = getAccessor();
+		final org.rsbot.client.RSCharacter c = getAccessor();
 		if (c == null) {
 			return new RSTile(-1, -1);
 		}
-		int x = methods.client.getBaseX() + (c.getX() >> 9);
-		int y = methods.client.getBaseY() + (c.getY() >> 9);
-		return new RSTile(x, y);
+		final int x = methods.client.getBaseX() + (c.getX() >> 9);
+		final int y = methods.client.getBaseY() + (c.getY() >> 9);
+		return new RSTile(x, y, methods.game.getPlane());
 	}
 
 	public String getMessage() {
-		return getAccessor().getMessage();
+		final RSMessageData messageData = getAccessor().getMessageData();
+		return messageData != null ? messageData.getMessage() : null;
 	}
 
 	/**
@@ -107,27 +157,34 @@ public abstract class RSCharacter extends MethodProvider {
 	 * @return The location of the character on the minimap.
 	 */
 	public Point getMinimapLocation() {
-		org.rsbot.client.RSCharacter c = getAccessor();
-		int cX = methods.client.getBaseX() + (c.getX() / 32 - 2) / 4;
-		int cY = methods.client.getBaseY() + (c.getY() / 32 - 2) / 4;
+		final org.rsbot.client.RSCharacter c = getAccessor();
+		final int cX = methods.client.getBaseX() + (c.getX() / 32 - 2) / 4;
+		final int cY = methods.client.getBaseY() + (c.getY() / 32 - 2) / 4;
 		return methods.calc.worldToMinimap(cX, cY);
 	}
 
-	public String getName() {
-		return null; // should be overridden, obviously
+	public RSModel getModel() {
+		final org.rsbot.client.RSCharacter c = getAccessor();
+		if (c != null) {
+			final Model model = c.getModel();
+			if (model != null) {
+				return new RSCharacterModel(methods, model, c);
+			}
+		}
+		return null;
 	}
 
-	public int getLevel() {
-		return -1; // should be overridden too
+	public String getName() {
+		return ""; // should be overridden, obviously
 	}
 
 	public int getOrientation() {
-		return (int) (270 - (getAccessor().getOrientation() & 0x3fff) / 45.51) % 360;
+		return (180 + (getAccessor().getOrientation() * 45 / 2048)) % 360;
 	}
 
 	public Point getScreenLocation() {
-		org.rsbot.client.RSCharacter c = getAccessor();
-		RSModel model = getModel();
+		final org.rsbot.client.RSCharacter c = getAccessor();
+		final RSModel model = getModel();
 		if (model == null) {
 			return methods.calc.groundToScreen(c.getX(), c.getY(),
 					c.getHeight() / 2);
@@ -140,13 +197,23 @@ public abstract class RSCharacter extends MethodProvider {
 	 * Hovers this Player/NPC
 	 */
 	public void hover() {
-		this.getModel().hover();
+		getModel().hover();
 	}
 
 	public boolean isInCombat() {
 		return methods.game.isLoggedIn()
 				&& methods.client.getLoopCycle() < getAccessor()
 				.getLoopCycleStatus();
+	}
+
+	/**
+	 * Determines whether the character is dead or dying
+	 *
+	 * @return <tt>true</tt> if the character is dead/dying; otherwise
+	 *         <tt>false</tt>.
+	 */
+	public boolean isDead() {
+		return !isValid() || getAnimation() == 836;
 	}
 
 	public boolean isInteractingWithLocalPlayer() {
@@ -159,7 +226,7 @@ public abstract class RSCharacter extends MethodProvider {
 	}
 
 	public boolean isOnScreen() {
-		RSModel model = getModel();
+		final RSModel model = getModel();
 		if (model == null) {
 			return methods.calc.tileOnScreen(getLocation());
 		} else {
@@ -172,29 +239,38 @@ public abstract class RSCharacter extends MethodProvider {
 	}
 
 	@Override
-	public int hashCode() {
-		return System.identityHashCode(getAccessor());
-	}
-
-	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (obj instanceof RSCharacter) {
-			RSCharacter cha = (org.rsbot.script.wrappers.RSCharacter) obj;
+			final RSCharacter cha = (org.rsbot.script.wrappers.RSCharacter) obj;
 			return cha.getAccessor() == getAccessor();
 		}
 		return false;
 	}
 
 	@Override
-	public String toString() {
-		final RSCharacter inter = getInteracting();
-		return "[anim="
-				+ getAnimation()
-				+ ",msg="
-				+ getMessage()
-				+ ",interact="
-				+ (inter == null ? "null" : inter.isValid() ? inter
-				.getMessage() : "Invalid") + "]";
+	public int hashCode() {
+		return System.identityHashCode(getAccessor());
 	}
 
+	@Override
+	public String toString() {
+		final RSCharacter inter = getInteracting();
+		final String msg = getMessage();
+		return "[anim=" + getAnimation()
+				+ (msg != null ? ",msg=" + getMessage() : "")
+				+ ",interact=" + (inter == null ? "null" :
+				inter.isValid() ? inter.getName() : "Invalid") + "]";
+	}
+
+	public Point getPoint() {
+		return getScreenLocation();
+	}
+
+	public boolean contains(int x, int y) {
+		RSModel model = getModel();
+		if (model != null) {
+			return model.contains(x, y);
+		}
+		return getScreenLocation().distance(x, y) < random(0, 8);
+	}
 }

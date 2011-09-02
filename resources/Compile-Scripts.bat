@@ -1,6 +1,6 @@
 @ECHO OFF
 
-TITLE SKBot Scripts
+TITLE RSBot Scripts
 
 SET cc=javac
 SET cflags=
@@ -9,7 +9,7 @@ SET scriptspre=Scripts\Precompiled
 SET jarpathfile=Settings\path.txt
 
 IF NOT EXIST "%jarpathfile%" (
-	ECHO Path file does not exist. Please run SKBot and try again.
+	ECHO Path file does not exist. Please run RSBot and try again.
 	GOTO end
 )
 

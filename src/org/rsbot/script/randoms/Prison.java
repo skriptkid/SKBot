@@ -119,7 +119,7 @@ public class Prison extends Random {
 		}
 		if (!talkedtopete) {
 			camera.setPitch(true);
-			if ((camera.getAngle() < 175) || (camera.getAngle() > 185)) {
+			if (camera.getAngle() < 175 || camera.getAngle() > 185) {
 				camera.setAngle(random(175, 185));
 				return random(500, 750);
 			}
@@ -143,7 +143,7 @@ public class Prison extends Random {
 					unlocked = 10;
 					return random(500, 600);
 				}
-				if ((inventory.getCount(false) == 28)
+				if (inventory.getCount(false) == 28
 						&& !inventory.containsAll(DOOR_KEY)) {
 					log("Not enough space for this random. Depositing an Item");
 					final RSObject depo = objects.getNearest(32924);
@@ -158,7 +158,7 @@ public class Prison extends Random {
 							return random(1000, 1500);
 						}
 						camera.turnTo(depo, 20);
-						if (depo.doAction("Deposit")) {
+						if (depo.interact("Deposit")) {
 							sleep(random(1800, 2000));
 							if (getMyPlayer().isMoving()) {
 								sleep(random(200, 500));
@@ -168,7 +168,7 @@ public class Prison extends Random {
 								sleep(random(700, 1200));
 								interfaces.get(11).getComponent(17)
 										.getComponent(random(16, 17))
-										.doAction("Dep");
+										.interact("Dep");
 								sleep(random(700, 1200));
 								interfaces.getComponent(11, 15).doClick();
 							}
@@ -201,13 +201,13 @@ public class Prison extends Random {
 					return random(1000, 1200);
 				}
 				if (!talkedtopete && pete != null
-						&& !(interfaces.get(228).isValid())
+						&& !interfaces.get(228).isValid()
 						&& !interfaces.canContinue()) {
 					if (!calc.tileOnScreen(pete.getLocation())) {
 						walking.walkTileMM(pete.getLocation());
 						return random(1000, 1400);
 					}
-					if (pete.doAction("talk")) {
+					if (pete.interact("talk")) {
 						return random(1500, 1600);
 					} else {
 						camera.turnTo(pete.getLocation());
@@ -246,7 +246,7 @@ public class Prison extends Random {
 					if (atLever()) {
 						if (balloonToPop != null
 								&& interfaces.get(273).getComponent(4)
-								.doAction("Close")) {
+								.interact("Close")) {
 							state = 2;
 							return random(800, 900);
 						}
@@ -254,7 +254,7 @@ public class Prison extends Random {
 					}
 				}
 				final RSObject lever = objects.getNearest(LEVER_ID);
-				if ((lever != null) && talkedtopete) {
+				if (lever != null && talkedtopete) {
 					if (!calc.tileOnScreen(lever.getLocation())) {
 						walking.walkTileMM(lever.getLocation());
 						return random(1000, 1200);
@@ -263,12 +263,12 @@ public class Prison extends Random {
 							&& calc.tileOnScreen(lever.getLocation())) {
 						// if (tiles.doAction(lever.getLocation(), 0.5, 0.5, 170,
 						// "Pull")) {
-						if (lever.doAction("Pull")) {
+						if (lever.interact("Pull")) {
 							sleep(random(1400, 1600));
 							if (atLever()) {
 								if (balloonToPop != null
 										&& interfaces.get(273).getComponent(4)
-										.doAction("Close")) {
+										.interact("Close")) {
 									state = 2;
 									return random(800, 900);
 								}
@@ -317,7 +317,7 @@ public class Prison extends Random {
 
 				if (!inventory.containsAll(DOOR_KEY)) {
 					if (calc.tileOnScreen(balloonToPop.getLocation())) {
-						balloonToPop.doAction("Pop");
+						balloonToPop.interact("Pop");
 						return random(1200, 1400);
 					} else {
 						if (!getMyPlayer().isMoving()) {
@@ -380,13 +380,13 @@ public class Prison extends Random {
 					return random(500, 600);
 				}
 				if (pete != null && !calc.tileOnScreen(pete.getLocation())
-						&& !(interfaces.get(243).isValid())) {
+						&& !interfaces.get(243).isValid()) {
 					walking.walkTileMM(pete.getLocation());
 					return random(400, 600);
 				}
 				if (!inventory.containsAll(DOOR_KEY)
-						&& (npcs.getNearest(PRISON_MATE) != null)
-						&& (unlocked <= 2) && key) {
+						&& npcs.getNearest(PRISON_MATE) != null
+						&& unlocked <= 2 && key) {
 					unlocked++;
 					state = 0;
 					balloonToPop = null;
@@ -394,12 +394,12 @@ public class Prison extends Random {
 				}
 
 				if (inventory.containsAll(DOOR_KEY) && !getMyPlayer().isMoving()) {
-					inventory.getItem(DOOR_KEY).doAction("Return");
+					inventory.getItem(DOOR_KEY).interact("Return");
 					return random(1000, 2000);
 				}
 				if (!inventory.containsAll(DOOR_KEY)
-						&& (npcs.getNearest(PRISON_MATE) != null)
-						&& (unlocked <= 2) && !key) {
+						&& npcs.getNearest(PRISON_MATE) != null
+						&& unlocked <= 2 && !key) {
 					state = 0;
 					balloonToPop = null;
 					return random(350, 400);
@@ -408,7 +408,7 @@ public class Prison extends Random {
 				return random(350, 400);
 			case 4:
 				// exits
-				RSTile doorTile = new RSTile(2086, 4459);
+				final RSTile doorTile = new RSTile(2086, 4459);
 				if (unlocked <= 2 && !lucky) {
 					state = 0;
 					return random(500, 600);
@@ -418,9 +418,9 @@ public class Prison extends Random {
 					return random(400, 500);
 				}
 				if (calc.tileOnScreen(doorTile)) {
-					RSObject gate = objects.getNearest(11177, 11178);
+					final RSObject gate = objects.getNearest(11177, 11178);
 					if (gate != null) {
-						gate.doAction("Open");
+						gate.interact("Open");
 					}
 					// tiles.doAction(new RSTile(2085, 4459), 1, 0, 30, "Open");
 					return random(500, 600);
@@ -437,9 +437,15 @@ public class Prison extends Random {
 			sleep(5000, 10000);
 			stopScript(false);
 		}
+		unlocked = state = 0;
+		balloonToPop = null;
+		pete = null;
+		talkedtopete = false;
+		key = false;
+		lucky = false;
 	}
 
-	public short[] setItemIDs(final int b2p) {
+	short[] setItemIDs(final int b2p) {
 		// sets the proper balloon id
 		switch (b2p) {
 			case 10749: // skinny bend at end of tail
@@ -454,11 +460,11 @@ public class Prison extends Random {
 		return new short[]{};
 	}
 
-	public boolean interfaceContains(String s) {
-		RSInterface[] all = interfaces.getAll();
-		for (RSInterface iface : all) {
+	boolean interfaceContains(final String s) {
+		final RSInterface[] all = interfaces.getAll();
+		for (final RSInterface iface : all) {
 			if (iface != null) {
-				int count = iface.getComponents().length;
+				final int count = iface.getComponents().length;
 				for (int i = 0; i < count; i++) {
 					if (iface.getComponent(i).getText() != null
 							&& iface.getComponent(i).getText().contains(s)) {
@@ -470,14 +476,13 @@ public class Prison extends Random {
 		return false;
 	}
 
-	public boolean atLever() {
+	boolean atLever() {
 		if (interfaces.get(273).getComponent(3).isValid()) {
 			final Filter<RSModel> filter = RSModel
 					.newVertexFilter(setItemIDs(interfaces.get(273)
 							.getComponent(3).getModelID()));
 			balloonToPop = npcs.getNearest(new Filter<RSNPC>() {
-				@Override
-				public boolean accept(RSNPC n) {
+				public boolean accept(final RSNPC n) {
 					return filter.accept(n.getModel());
 				}
 			});

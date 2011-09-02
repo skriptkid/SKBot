@@ -2,29 +2,30 @@ package org.rsbot.script.internal;
 
 import org.rsbot.bot.Bot;
 import org.rsbot.script.Script;
-import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.internal.event.ScriptListener;
 import org.rsbot.script.randoms.*;
+import org.rsbot.script.task.LoopTask;
+import org.rsbot.script.task.TaskContainer;
 
 import java.util.*;
 
-public class ScriptHandler {
+public class ScriptHandler extends TaskContainer {
+	private final ArrayList<org.rsbot.script.Random> randoms = new ArrayList<org.rsbot.script.Random>();
+	public final static String THREAD_GROUP_NAME = "Scripts";
+	public final static ThreadGroup THREAD_GROUP = new ThreadGroup(THREAD_GROUP_NAME);
+	private final Set<ScriptListener> listeners = Collections.synchronizedSet(new HashSet<ScriptListener>());
 
-	private ArrayList<org.rsbot.script.Random> randoms = new ArrayList<org.rsbot.script.Random>();
-	private HashMap<Integer, Script> scripts = new HashMap<Integer, Script>();
-	private HashMap<Integer, Thread> scriptThreads = new HashMap<Integer, Thread>();
+	private final Bot bot;
 
-	private Set<ScriptListener> listeners = Collections.synchronizedSet(new HashSet<ScriptListener>());
-
-	private Bot bot;
-
-	public ScriptHandler(Bot bot) {
+	public ScriptHandler(final Bot bot) {
 		this.bot = bot;
 	}
 
 	public void init() {
+		setContext(bot.getMethodContext());
 		try {
-			randoms.add(new LoginBot());
+			bot.setLoginBot(new ImprovedLoginBot());
+			randoms.add(bot.getLoginBot());
 			randoms.add(new BankPins());
 			randoms.add(new BeehiveSolver());
 			randoms.add(new CapnArnav());
@@ -50,34 +51,20 @@ public class ScriptHandler {
 			randoms.add(new FirstTimeDeath());
 			randoms.add(new LeaveSafeArea());
 			randoms.add(new SystemUpdate());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
-		for (org.rsbot.script.Random r : randoms) {
+		for (final org.rsbot.script.Random r : randoms) {
 			r.init(bot.getMethodContext());
 		}
 	}
 
-	public void addScriptListener(ScriptListener l) {
+	public void addScriptListener(final ScriptListener l) {
 		listeners.add(l);
 	}
 
-	public void removeScriptListener(ScriptListener l) {
+	public void removeScriptListener(final ScriptListener l) {
 		listeners.remove(l);
-	}
-
-	private void addScriptToPool(Script ss, Thread t) {
-		for (int off = 0; off < scripts.size(); ++off) {
-			if (!scripts.containsKey(off)) {
-				scripts.put(off, ss);
-				ss.setID(off);
-				scriptThreads.put(off, t);
-				return;
-			}
-		}
-		ss.setID(scripts.size());
-		scripts.put(scripts.size(), ss);
-		scriptThreads.put(scriptThreads.size(), t);
 	}
 
 	public Bot getBot() {
@@ -88,119 +75,75 @@ public class ScriptHandler {
 		return randoms;
 	}
 
-	public Map<Integer, Script> getRunningScripts() {
-		return Collections.unmodifiableMap(scripts);
+	public Map<Integer, LoopTask> getRunningScripts() {
+		return Collections.unmodifiableMap(getTasks());
 	}
 
-	public void pauseScript(int id) {
-		Script s = scripts.get(id);
+
+	public void pauseScript(final int id) {
+		final LoopTask s = getTasks().get(id);
 		s.setPaused(!s.isPaused());
 		if (s.isPaused()) {
-			for (ScriptListener l : listeners) {
-				l.scriptPaused(this, s);
+			for (final ScriptListener l : listeners) {
+				l.scriptPaused(this);
 			}
 		} else {
-			for (ScriptListener l : listeners) {
-				l.scriptResumed(this, s);
+			for (final ScriptListener l : listeners) {
+				l.scriptResumed(this);
 			}
+		}
+		for (final Map.Entry<Integer, LoopTask> lt : getTasks().entrySet()) {
+			lt.getValue().setPaused(s.isPaused());
 		}
 	}
 
-	public void stopScript(int id) {
-		Script script = scripts.get(id);
-		if (script != null) {
-			script.deactivate(id);
-			scripts.remove(id);
-			scriptThreads.remove(id);
-			for (ScriptListener l : listeners) {
-				l.scriptStopped(this, script);
-			}
+	public void stopScript(final int id) {
+		if (stopDaemonScript(id)) {
+			notifyStop();
 		}
 	}
 
-	public boolean onBreak(int id) {
-		Script script = scripts.get(id);
+	public boolean stopDaemonScript(final int id) {
+		final LoopTask script = getTasks().get(id);
 		if (script != null) {
-			return script.onBreakStart();
+			script.stop();
+			remove(id);
+			return true;
 		}
 		return false;
 	}
 
-	public void onBreakConclude(int id) {
-		Script script = scripts.get(id);
-		if (script != null) {
-			script.onBreakFinish();
-		}
+	public int runScript(final Script script) {
+		notifyStart();
+		return runDaemonScript(script);
 	}
 
-	public void runScript(Script script) {
-		script.init(bot.getMethodContext());
-		for (ScriptListener l : listeners) {
-			l.scriptStarted(this, script);
-		}
-		ScriptManifest prop = script.getClass().getAnnotation(ScriptManifest.class);
-		Thread t = new Thread(script, "Script-" + prop.name());
-		addScriptToPool(script, t);
-		t.start();
+	public int runDaemonScript(final Script script) {
+		final int id = pool(script);
+		invoke(id);
+		return id;
 	}
 
 	public void stopAllScripts() {
-		for (int i : scripts.keySet()) {
-			stopScript(i);
-		}
+		stop();
+		notifyStop();
 	}
 
-	public void stopScript() {
-		Thread curThread = Thread.currentThread();
-		for (int i = 0; i < scripts.size(); i++) {
-			Script script = scripts.get(i);
-			if (script != null && script.isRunning()) {
-				if (scriptThreads.get(i) == curThread) {
-					stopScript(i);
-				}
-			}
-		}
-		if (curThread == null) {
-			throw new ThreadDeath();
-		}
-	}
-
-	public boolean onBreak() {
-		Thread curThread = Thread.currentThread();
-		for (int i = 0; i < scripts.size(); i++) {
-			Script script = scripts.get(i);
-			if (script != null && script.isRunning()) {
-				if (scriptThreads.get(i) == curThread) {
-					return onBreak(i);
-				}
-			}
-		}
-		if (curThread == null) {
-			throw new ThreadDeath();
-		}
-		return false;
-	}
-
-	public void onBreakResume() {
-		Thread curThread = Thread.currentThread();
-		for (int i = 0; i < scripts.size(); i++) {
-			Script script = scripts.get(i);
-			if (script != null && script.isRunning()) {
-				if (scriptThreads.get(i) == curThread) {
-					onBreakConclude(i);
-					return;
-				}
-			}
-		}
-		if (curThread == null) {
-			throw new ThreadDeath();
-		}
-	}
-
-	public void updateInput(Bot bot, int mask) {
-		for (ScriptListener l : listeners) {
+	public void updateInput(final Bot bot, final int mask) {
+		for (final ScriptListener l : listeners) {
 			l.inputChanged(bot, mask);
 		}
 	}
 
+	private void notifyStart() {
+		for (final ScriptListener l : listeners) {
+			l.scriptStarted(this);
+		}
+	}
+
+	private void notifyStop() {
+		for (final ScriptListener l : listeners) {
+			l.scriptStopped(this);
+		}
+	}
 }

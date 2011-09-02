@@ -11,10 +11,9 @@ import org.rsbot.script.wrappers.RSTile;
 import java.awt.*;
 
 public class DrawItems implements PaintListener {
-
 	private final MethodContext ctx;
 
-	public DrawItems(Bot bot) {
+	public DrawItems(final Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
@@ -39,10 +38,10 @@ public class DrawItems implements PaintListener {
 				}
 				final RSGroundItem[] items = ctx.groundItems.getAllAt(x, y);
 				if (items.length > 0) {
-					RSModel model = items[0].getModel();
+					final RSModel model = items[0].getModel();
 					if (model != null) {
 						render.setColor(Color.BLUE);
-						for (Polygon polygon : model.getTriangles()) {
+						for (final Polygon polygon : model.getTriangles()) {
 							render.drawPolygon(polygon);
 						}
 					}

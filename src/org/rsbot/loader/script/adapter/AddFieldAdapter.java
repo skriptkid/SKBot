@@ -3,11 +3,7 @@ package org.rsbot.loader.script.adapter;
 import org.rsbot.loader.asm.ClassAdapter;
 import org.rsbot.loader.asm.ClassVisitor;
 
-/**
- * @author Jacmob
- */
 public class AddFieldAdapter extends ClassAdapter {
-
 	public static class Field {
 		public int access;
 		public String name;
@@ -16,16 +12,16 @@ public class AddFieldAdapter extends ClassAdapter {
 
 	private final Field[] fields;
 
-	public AddFieldAdapter(ClassVisitor delegate, Field[] fields) {
+	public AddFieldAdapter(final ClassVisitor delegate, final Field[] fields) {
 		super(delegate);
 		this.fields = fields;
 	}
 
+	@Override
 	public void visitEnd() {
-		for (Field f : fields) {
+		for (final Field f : fields) {
 			cv.visitField(f.access, f.name, f.desc, null, null);
 		}
 		cv.visitEnd();
 	}
-
 }

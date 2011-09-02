@@ -8,7 +8,6 @@ import java.awt.*;
 import java.util.Arrays;
 
 public class DrawSettings implements PaintListener {
-
 	private static final Font monoFont = Font.decode(Font.MONOSPACED);
 	private static final int TIMEOUT = 5000;
 
@@ -17,7 +16,7 @@ public class DrawSettings implements PaintListener {
 
 	private final Settings settings;
 
-	public DrawSettings(Bot bot) {
+	public DrawSettings(final Bot bot) {
 		settings = bot.getMethodContext().settings;
 	}
 

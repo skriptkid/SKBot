@@ -7,11 +7,8 @@ import java.util.EnumSet;
 
 /**
  * Represents a path to walk along in game.
- *
- * @author Jacmob
  */
 public abstract class RSPath extends MethodProvider {
-
 	/**
 	 * Defines the path traversal options.
 	 */
@@ -19,7 +16,7 @@ public abstract class RSPath extends MethodProvider {
 		HANDLE_RUN, SPACE_ACTIONS
 	}
 
-	public RSPath(MethodContext ctx) {
+	public RSPath(final MethodContext ctx) {
 		super(ctx);
 	}
 
@@ -84,5 +81,4 @@ public abstract class RSPath extends MethodProvider {
 	 * @return The end <code>RSTile</code>.
 	 */
 	public abstract RSTile getEnd();
-
 }

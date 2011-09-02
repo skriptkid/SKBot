@@ -311,14 +311,14 @@ class MethodWriter implements MethodVisitor {
 	// ------------------------------------------------------------------------
 
 	/*
-			  * Fields for the control flow graph analysis algorithm (used to compute the
-			  * maximum stack size). A control flow graph contains one node per "basic
-			  * block", and one edge per "jump" from one basic block to another. Each
-			  * node (i.e., each basic block) is represented by the Label object that
-			  * corresponds to the first instruction of this basic block. Each node also
-			  * stores the list of its successors in the graph, as a linked list of Edge
-			  * objects.
-			  */
+	 * Fields for the control flow graph analysis algorithm (used to compute the
+	 * maximum stack size). A control flow graph contains one node per "basic
+	 * block", and one edge per "jump" from one basic block to another. Each
+	 * node (i.e., each basic block) is represented by the Label object that
+	 * corresponds to the first instruction of this basic block. Each node also
+	 * stores the list of its successors in the graph, as a linked list of Edge
+	 * objects.
+	 */
 
 	/**
 	 * Indicates what must be automatically computed.
@@ -403,7 +403,7 @@ class MethodWriter implements MethodVisitor {
 		this.access = access;
 		this.name = cw.newUTF8(name);
 		this.desc = cw.newUTF8(desc);
-		this.descriptor = desc;
+		descriptor = desc;
 		if (ClassReader.SIGNATURES) {
 			this.signature = signature;
 		}
@@ -414,7 +414,7 @@ class MethodWriter implements MethodVisitor {
 				this.exceptions[i] = cw.newClass(exceptions[i]);
 			}
 		}
-		this.compute = computeFrames ? FRAMES : (computeMaxs ? MAXS : NOTHING);
+		compute = computeFrames ? FRAMES : computeMaxs ? MAXS : NOTHING;
 		if (computeMaxs || computeFrames) {
 			if (computeFrames && "<init>".equals(name)) {
 				this.access |= ACC_CONSTRUCTOR;
@@ -450,10 +450,10 @@ class MethodWriter implements MethodVisitor {
 		if (!ClassReader.ANNOTATIONS) {
 			return null;
 		}
-		ByteVector bv = new ByteVector();
+		final ByteVector bv = new ByteVector();
 		// write type, and reserve space for values count
 		bv.putShort(cw.newUTF8(desc)).putShort(0);
-		AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+		final AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
 		if (visible) {
 			aw.next = anns;
 			anns = aw;
@@ -471,7 +471,7 @@ class MethodWriter implements MethodVisitor {
 		if (!ClassReader.ANNOTATIONS) {
 			return null;
 		}
-		ByteVector bv = new ByteVector();
+		final ByteVector bv = new ByteVector();
 		if ("Ljava/lang/Synthetic;".equals(desc)) {
 			// workaround for a bug in javac with synthetic parameters
 			// see ClassReader.readParameterAnnotations
@@ -480,7 +480,7 @@ class MethodWriter implements MethodVisitor {
 		}
 		// write type, and reserve space for values count
 		bv.putShort(cw.newUTF8(desc)).putShort(0);
-		AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+		final AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
 		if (visible) {
 			if (panns == null) {
 				panns = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
@@ -620,14 +620,14 @@ class MethodWriter implements MethodVisitor {
 				currentBlock.frame.execute(opcode, 0, null, null);
 			} else {
 				// updates current and max stack sizes
-				int size = stackSize + Frame.SIZE[opcode];
+				final int size = stackSize + Frame.SIZE[opcode];
 				if (size > maxStackSize) {
 					maxStackSize = size;
 				}
 				stackSize = size;
 			}
 			// if opcode == ATHROW or xRETURN, ends current block (no successor)
-			if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
+			if (opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN
 					|| opcode == Opcodes.ATHROW) {
 				noSuccessor();
 			}
@@ -642,7 +642,7 @@ class MethodWriter implements MethodVisitor {
 			} else if (opcode != Opcodes.NEWARRAY) {
 				// updates current and max stack sizes only for NEWARRAY
 				// (stack size variation = 0 for BIPUSH or SIPUSH)
-				int size = stackSize + 1;
+				final int size = stackSize + 1;
 				if (size > maxStackSize) {
 					maxStackSize = size;
 				}
@@ -672,7 +672,7 @@ class MethodWriter implements MethodVisitor {
 					currentBlock.inputStackTop = stackSize;
 					noSuccessor();
 				} else { // xLOAD or xSTORE
-					int size = stackSize + Frame.SIZE[opcode];
+					final int size = stackSize + Frame.SIZE[opcode];
 					if (size > maxStackSize) {
 						maxStackSize = size;
 					}
@@ -698,10 +698,10 @@ class MethodWriter implements MethodVisitor {
 			int opt;
 			if (opcode < Opcodes.ISTORE) {
 				/* ILOAD_0 */
-				opt = 26 + ((opcode - Opcodes.ILOAD) << 2) + var;
+				opt = 26 + (opcode - Opcodes.ILOAD << 2) + var;
 			} else {
 				/* ISTORE_0 */
-				opt = 59 + ((opcode - Opcodes.ISTORE) << 2) + var;
+				opt = 59 + (opcode - Opcodes.ISTORE << 2) + var;
 			}
 			code.putByte(opt);
 		} else if (var >= 256) {
@@ -715,7 +715,7 @@ class MethodWriter implements MethodVisitor {
 	}
 
 	public void visitTypeInsn(final int opcode, final String type) {
-		Item i = cw.newClassItem(type);
+		final Item i = cw.newClassItem(type);
 		// Label currentBlock = this.currentBlock;
 		if (currentBlock != null) {
 			if (compute == FRAMES) {
@@ -723,7 +723,7 @@ class MethodWriter implements MethodVisitor {
 			} else if (opcode == Opcodes.NEW) {
 				// updates current and max stack sizes only if opcode == NEW
 				// (no stack change for ANEWARRAY, CHECKCAST, INSTANCEOF)
-				int size = stackSize + 1;
+				final int size = stackSize + 1;
 				if (size > maxStackSize) {
 					maxStackSize = size;
 				}
@@ -739,7 +739,7 @@ class MethodWriter implements MethodVisitor {
 			final String owner,
 			final String name,
 			final String desc) {
-		Item i = cw.newFieldItem(owner, name, desc);
+		final Item i = cw.newFieldItem(owner, name, desc);
 		// Label currentBlock = this.currentBlock;
 		if (currentBlock != null) {
 			if (compute == FRAMES) {
@@ -747,7 +747,7 @@ class MethodWriter implements MethodVisitor {
 			} else {
 				int size;
 				// computes the stack size variation
-				char c = desc.charAt(0);
+				final char c = desc.charAt(0);
 				switch (opcode) {
 					case Opcodes.GETSTATIC:
 						size = stackSize + (c == 'D' || c == 'J' ? 2 : 1);
@@ -779,8 +779,8 @@ class MethodWriter implements MethodVisitor {
 			final String owner,
 			final String name,
 			final String desc) {
-		boolean itf = opcode == Opcodes.INVOKEINTERFACE;
-		Item i = (opcode == Opcodes.INVOKEDYNAMIC) ?
+		final boolean itf = opcode == Opcodes.INVOKEINTERFACE;
+		final Item i = opcode == Opcodes.INVOKEDYNAMIC ?
 				cw.newNameTypeItem(name, desc) :
 				cw.newMethodItem(owner, name, desc, itf);
 		int argSize = i.intVal;
@@ -790,13 +790,13 @@ class MethodWriter implements MethodVisitor {
 				currentBlock.frame.execute(opcode, 0, cw, i);
 			} else {
 				/*
-													 * computes the stack size variation. In order not to recompute
-													 * several times this variation for the same Item, we use the
-													 * intVal field of this item to store this variation, once it
-													 * has been computed. More precisely this intVal field stores
-													 * the sizes of the arguments and of the return value
-													 * corresponding to desc.
-													 */
+										 * computes the stack size variation. In order not to recompute
+										 * several times this variation for the same Item, we use the
+										 * intVal field of this item to store this variation, once it
+										 * has been computed. More precisely this intVal field stores
+										 * the sizes of the arguments and of the return value
+										 * corresponding to desc.
+										 */
 				if (argSize == 0) {
 					// the above sizes have not been computed yet,
 					// so we compute them...
@@ -858,11 +858,11 @@ class MethodWriter implements MethodVisitor {
 					// creates a Label for the next basic block
 					nextInsn = new Label();
 					/*
-																  * note that, by construction in this method, a JSR block
-																  * has at least two successors in the control flow graph:
-																  * the first one leads the next instruction after the JSR,
-																  * while the second one leads to the JSR target.
-																  */
+					 * note that, by construction in this method, a JSR block
+					 * has at least two successors in the control flow graph:
+					 * the first one leads the next instruction after the JSR,
+					 * while the second one leads to the JSR target.
+					 */
 				} else {
 					// updates current stack size (max stack size unchanged
 					// because stack size variation always negative in this
@@ -876,12 +876,12 @@ class MethodWriter implements MethodVisitor {
 		if ((label.status & Label.RESOLVED) != 0
 				&& label.position - code.length < Short.MIN_VALUE) {
 			/*
-										* case of a backward jump with an offset < -32768. In this case we
-										* automatically replace GOTO with GOTO_W, JSR with JSR_W and IFxxx
-										* <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the
-										* "opposite" opcode of IFxxx (i.e., IFNE for IFEQ) and where <l'>
-										* designates the instruction just after the GOTO_W.
-										*/
+			 * case of a backward jump with an offset < -32768. In this case we
+			 * automatically replace GOTO with GOTO_W, JSR with JSR_W and IFxxx
+			 * <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the
+			 * "opposite" opcode of IFxxx (i.e., IFNE for IFEQ) and where <l'>
+			 * designates the instruction just after the GOTO_W.
+			 */
 			if (opcode == Opcodes.GOTO) {
 				code.putByte(200); // GOTO_W
 			} else if (opcode == Opcodes.JSR) {
@@ -893,7 +893,7 @@ class MethodWriter implements MethodVisitor {
 					nextInsn.status |= Label.TARGET;
 				}
 				code.putByte(opcode <= 166
-						? ((opcode + 1) ^ 1) - 1
+						? (opcode + 1 ^ 1) - 1
 						: opcode ^ 1);
 				code.putShort(8); // jump offset
 				code.putByte(200); // GOTO_W
@@ -901,11 +901,11 @@ class MethodWriter implements MethodVisitor {
 			label.put(this, code, code.length - 1, true);
 		} else {
 			/*
-							* case of a backward jump with an offset >= -32768, or of a forward
-							* jump with, of course, an unknown offset. In these cases we store
-							* the offset in 2 bytes (which will be increased in
-							* resizeInstructions, if needed).
-							*/
+			 * case of a backward jump with an offset >= -32768, or of a forward
+			 * jump with, of course, an unknown offset. In these cases we store
+			 * the offset in 2 bytes (which will be increased in
+			 * resizeInstructions, if needed).
+			 */
 			code.putByte(opcode);
 			label.put(this, code, code.length - 1, false);
 		}
@@ -934,7 +934,7 @@ class MethodWriter implements MethodVisitor {
 			if (currentBlock != null) {
 				if (label.position == currentBlock.position) {
 					// successive labels, do not start a new basic block
-					currentBlock.status |= (label.status & Label.TARGET);
+					currentBlock.status |= label.status & Label.TARGET;
 					label.frame = currentBlock.frame;
 					return;
 				}
@@ -950,7 +950,7 @@ class MethodWriter implements MethodVisitor {
 			// updates the basic block list
 			if (previousBlock != null) {
 				if (label.position == previousBlock.position) {
-					previousBlock.status |= (label.status & Label.TARGET);
+					previousBlock.status |= label.status & Label.TARGET;
 					label.frame = previousBlock.frame;
 					currentBlock = previousBlock;
 					return;
@@ -978,7 +978,7 @@ class MethodWriter implements MethodVisitor {
 	}
 
 	public void visitLdcInsn(final Object cst) {
-		Item i = cw.newConstItem(cst);
+		final Item i = cw.newConstItem(cst);
 		// Label currentBlock = this.currentBlock;
 		if (currentBlock != null) {
 			if (compute == FRAMES) {
@@ -999,7 +999,7 @@ class MethodWriter implements MethodVisitor {
 			}
 		}
 		// adds the instruction to the bytecode of the method
-		int index = i.index;
+		final int index = i.index;
 		if (i.type == ClassWriter.LONG || i.type == ClassWriter.DOUBLE) {
 			code.put12(20 /* LDC2_W */, index);
 		} else if (index >= 256) {
@@ -1017,13 +1017,13 @@ class MethodWriter implements MethodVisitor {
 		}
 		if (compute != NOTHING) {
 			// updates max locals
-			int n = var + 1;
+			final int n = var + 1;
 			if (n > maxLocals) {
 				maxLocals = n;
 			}
 		}
 		// adds the instruction to the bytecode of the method
-		if ((var > 255) || (increment > 127) || (increment < -128)) {
+		if (var > 255 || increment > 127 || increment < -128) {
 			code.putByte(196 /* WIDE */)
 					.put12(Opcodes.IINC, var)
 					.putShort(increment);
@@ -1038,7 +1038,7 @@ class MethodWriter implements MethodVisitor {
 			final Label dflt,
 			final Label[] labels) {
 		// adds the instruction to the bytecode of the method
-		int source = code.length;
+		final int source = code.length;
 		code.putByte(Opcodes.TABLESWITCH);
 		code.putByteArray(null, 0, (4 - code.length % 4) % 4);
 		dflt.put(this, code, source, true);
@@ -1055,7 +1055,7 @@ class MethodWriter implements MethodVisitor {
 			final int[] keys,
 			final Label[] labels) {
 		// adds the instruction to the bytecode of the method
-		int source = code.length;
+		final int source = code.length;
 		code.putByte(Opcodes.LOOKUPSWITCH);
 		code.putByteArray(null, 0, (4 - code.length % 4) % 4);
 		dflt.put(this, code, source, true);
@@ -1095,7 +1095,7 @@ class MethodWriter implements MethodVisitor {
 	}
 
 	public void visitMultiANewArrayInsn(final String desc, final int dims) {
-		Item i = cw.newClassItem(desc);
+		final Item i = cw.newClassItem(desc);
 		// Label currentBlock = this.currentBlock;
 		if (currentBlock != null) {
 			if (compute == FRAMES) {
@@ -1116,7 +1116,7 @@ class MethodWriter implements MethodVisitor {
 			final Label handler,
 			final String type) {
 		++handlerCount;
-		Handler h = new Handler();
+		final Handler h = new Handler();
 		h.start = start;
 		h.end = end;
 		h.handler = handler;
@@ -1159,8 +1159,8 @@ class MethodWriter implements MethodVisitor {
 				.putShort(index);
 		if (compute != NOTHING) {
 			// updates max locals
-			char c = desc.charAt(0);
-			int n = index + (c == 'J' || c == 'D' ? 2 : 1);
+			final char c = desc.charAt(0);
+			final int n = index + (c == 'J' || c == 'D' ? 2 : 1);
 			if (n > maxLocals) {
 				maxLocals = n;
 			}
@@ -1182,19 +1182,19 @@ class MethodWriter implements MethodVisitor {
 			Handler handler = firstHandler;
 			while (handler != null) {
 				Label l = handler.start.getFirst();
-				Label h = handler.handler.getFirst();
-				Label e = handler.end.getFirst();
+				final Label h = handler.handler.getFirst();
+				final Label e = handler.end.getFirst();
 				// computes the kind of the edges to 'h'
-				String t = handler.desc == null
+				final String t = handler.desc == null
 						? "java/lang/Throwable"
 						: handler.desc;
-				int kind = Frame.OBJECT | cw.addType(t);
+				final int kind = Frame.OBJECT | cw.addType(t);
 				// h is an exception handler
 				h.status |= Label.TARGET;
 				// adds 'h' as a successor of labels between 'start' and 'end'
 				while (l != e) {
 					// creates an edge to 'h'
-					Edge b = new Edge();
+					final Edge b = new Edge();
 					b.info = kind;
 					b.successor = h;
 					// adds it to the successors of 'l'
@@ -1208,21 +1208,21 @@ class MethodWriter implements MethodVisitor {
 
 			// creates and visits the first (implicit) frame
 			Frame f = labels.frame;
-			Type[] args = Type.getArgumentTypes(descriptor);
+			final Type[] args = Type.getArgumentTypes(descriptor);
 			f.initInputFrame(cw, access, args, this.maxLocals);
 			visitFrame(f);
 
 			/*
-										* fix point algorithm: mark the first basic block as 'changed'
-										* (i.e. put it in the 'changed' list) and, while there are changed
-										* basic blocks, choose one, mark it as unchanged, and update its
-										* successors (which can be changed in the process).
-										*/
+			 * fix point algorithm: mark the first basic block as 'changed'
+			 * (i.e. put it in the 'changed' list) and, while there are changed
+			 * basic blocks, choose one, mark it as unchanged, and update its
+			 * successors (which can be changed in the process).
+			 */
 			int max = 0;
 			Label changed = labels;
 			while (changed != null) {
 				// removes a basic block from the list of changed basic blocks
-				Label l = changed;
+				final Label l = changed;
 				changed = changed.next;
 				l.next = null;
 				f = l.frame;
@@ -1233,15 +1233,15 @@ class MethodWriter implements MethodVisitor {
 				// all visited labels are reachable, by definition
 				l.status |= Label.REACHABLE;
 				// updates the (absolute) maximum stack size
-				int blockMax = f.inputStack.length + l.outputStackMax;
+				final int blockMax = f.inputStack.length + l.outputStackMax;
 				if (blockMax > max) {
 					max = blockMax;
 				}
 				// updates the successors of the current basic block
 				Edge e = l.successors;
 				while (e != null) {
-					Label n = e.successor.getFirst();
-					boolean change = f.merge(cw, n.frame, e.info);
+					final Label n = e.successor.getFirst();
+					final boolean change = f.merge(cw, n.frame, e.info);
 					if (change && n.next == null) {
 						// if n has changed and is not already in the 'changed'
 						// list, adds it to this list
@@ -1261,9 +1261,9 @@ class MethodWriter implements MethodVisitor {
 				}
 				if ((l.status & Label.REACHABLE) == 0) {
 					// finds start and end of dead basic block
-					Label k = l.successor;
-					int start = l.position;
-					int end = (k == null ? code.length : k.position) - 1;
+					final Label k = l.successor;
+					final int start = l.position;
+					final int end = (k == null ? code.length : k.position) - 1;
 					// if non empty basic block
 					if (end >= start) {
 						max = Math.max(max, 1);
@@ -1288,12 +1288,12 @@ class MethodWriter implements MethodVisitor {
 			Handler handler = firstHandler;
 			while (handler != null) {
 				Label l = handler.start;
-				Label h = handler.handler;
-				Label e = handler.end;
+				final Label h = handler.handler;
+				final Label e = handler.end;
 				// adds 'h' as a successor of labels between 'start' and 'end'
 				while (l != e) {
 					// creates an edge to 'h'
-					Edge b = new Edge();
+					final Edge b = new Edge();
 					b.info = Edge.EXCEPTION;
 					b.successor = h;
 					// adds it to the successors of 'l'
@@ -1316,9 +1316,9 @@ class MethodWriter implements MethodVisitor {
 			if (subroutines > 0) {
 				// completes the control flow graph with the RET successors
 				/*
-													 * first step: finds the subroutines. This step determines, for
-													 * each basic block, to which subroutine(s) it belongs.
-													 */
+				 * first step: finds the subroutines. This step determines, for
+				 * each basic block, to which subroutine(s) it belongs.
+				 */
 				// finds the basic blocks that belong to the "main" subroutine
 				int id = 0;
 				labels.visitSubroutine(null, 1, subroutines);
@@ -1327,13 +1327,13 @@ class MethodWriter implements MethodVisitor {
 				while (l != null) {
 					if ((l.status & Label.JSR) != 0) {
 						// the subroutine is defined by l's TARGET, not by l
-						Label subroutine = l.successors.next.successor;
+						final Label subroutine = l.successors.next.successor;
 						// if this subroutine has not been visited yet...
 						if ((subroutine.status & Label.VISITED) == 0) {
 							// ...assigns it a new id and finds its basic blocks
 							id += 1;
-							subroutine.visitSubroutine(null, (id / 32L) << 32
-									| (1L << (id % 32)), subroutines);
+							subroutine.visitSubroutine(null, id / 32L << 32
+									| 1L << id % 32, subroutines);
 						}
 					}
 					l = l.successor;
@@ -1348,7 +1348,7 @@ class MethodWriter implements MethodVisitor {
 							L = L.successor;
 						}
 						// the subroutine is defined by l's TARGET, not by l
-						Label subroutine = l.successors.next.successor;
+						final Label subroutine = l.successors.next.successor;
 						subroutine.visitSubroutine(l, 0, subroutines);
 					}
 					l = l.successor;
@@ -1356,15 +1356,15 @@ class MethodWriter implements MethodVisitor {
 			}
 
 			/*
-										* control flow analysis algorithm: while the block stack is not
-										* empty, pop a block from this stack, update the max stack size,
-										* compute the true (non relative) begin stack size of the
-										* successors of this block, and push these successors onto the
-										* stack (unless they have already been pushed onto the stack).
-										* Note: by hypothesis, the {@link Label#inputStackTop} of the
-										* blocks in the block stack are the true (non relative) beginning
-										* stack sizes of these blocks.
-										*/
+			 * control flow analysis algorithm: while the block stack is not
+			 * empty, pop a block from this stack, update the max stack size,
+			 * compute the true (non relative) begin stack size of the
+			 * successors of this block, and push these successors onto the
+			 * stack (unless they have already been pushed onto the stack).
+			 * Note: by hypothesis, the {@link Label#inputStackTop} of the
+			 * blocks in the block stack are the true (non relative) beginning
+			 * stack sizes of these blocks.
+			 */
 			int max = 0;
 			Label stack = labels;
 			while (stack != null) {
@@ -1372,8 +1372,8 @@ class MethodWriter implements MethodVisitor {
 				Label l = stack;
 				stack = stack.next;
 				// computes the true (non relative) max stack size of this block
-				int start = l.inputStackTop;
-				int blockMax = start + l.outputStackMax;
+				final int start = l.inputStackTop;
+				final int blockMax = start + l.outputStackMax;
 				// updates the global max stack size
 				if (blockMax > max) {
 					max = blockMax;
@@ -1421,7 +1421,7 @@ class MethodWriter implements MethodVisitor {
 	 */
 	private void addSuccessor(final int info, final Label successor) {
 		// creates and initializes an Edge object...
-		Edge b = new Edge();
+		final Edge b = new Edge();
 		b.info = info;
 		b.successor = successor;
 		// ...and adds it to the successor list of the currentBlock block
@@ -1435,7 +1435,7 @@ class MethodWriter implements MethodVisitor {
 	 */
 	private void noSuccessor() {
 		if (compute == FRAMES) {
-			Label l = new Label();
+			final Label l = new Label();
 			l.frame = new Frame();
 			l.frame.owner = l;
 			l.resolve(this, code.length, code.data);
@@ -1461,8 +1461,8 @@ class MethodWriter implements MethodVisitor {
 		int nTop = 0;
 		int nLocal = 0;
 		int nStack = 0;
-		int[] locals = f.inputLocals;
-		int[] stacks = f.inputStack;
+		final int[] locals = f.inputLocals;
+		final int[] stacks = f.inputStack;
 		// computes the number of locals (ignores TOP types that are just after
 		// a LONG or a DOUBLE, and all trailing TOP types)
 		for (i = 0; i < locals.length; ++i) {
@@ -1514,7 +1514,7 @@ class MethodWriter implements MethodVisitor {
 	 * @param nStack the number of stack elements in the frame.
 	 */
 	private void startFrame(final int offset, final int nLocal, final int nStack) {
-		int n = 3 + nLocal + nStack;
+		final int n = 3 + nLocal + nStack;
 		if (frame == null || frame.length < n) {
 			frame = new int[n];
 		}
@@ -1545,8 +1545,8 @@ class MethodWriter implements MethodVisitor {
 	 * attribute.
 	 */
 	private void writeFrame() {
-		int clocalsSize = frame[1];
-		int cstackSize = frame[2];
+		final int clocalsSize = frame[1];
+		final int cstackSize = frame[2];
 		if ((cw.version & 0xFFFF) < Opcodes.V1_6) {
 			stackMap.putShort(frame[0]).putShort(clocalsSize);
 			writeFrameTypes(3, 3 + clocalsSize);
@@ -1642,10 +1642,10 @@ class MethodWriter implements MethodVisitor {
 	 */
 	private void writeFrameTypes(final int start, final int end) {
 		for (int i = start; i < end; ++i) {
-			int t = frame[i];
+			final int t = frame[i];
 			int d = t & Frame.DIM;
 			if (d == 0) {
-				int v = t & Frame.BASE_VALUE;
+				final int v = t & Frame.BASE_VALUE;
 				switch (t & Frame.BASE_KIND) {
 					case Frame.OBJECT:
 						stackMap.putByte(7)
@@ -1658,7 +1658,7 @@ class MethodWriter implements MethodVisitor {
 						stackMap.putByte(v);
 				}
 			} else {
-				StringBuffer buf = new StringBuffer();
+				final StringBuffer buf = new StringBuffer();
 				d >>= 28;
 				while (d-- > 0) {
 					buf.append('[');
@@ -1747,7 +1747,7 @@ class MethodWriter implements MethodVisitor {
 				size += 8 + lineNumber.length;
 			}
 			if (stackMap != null) {
-				boolean zip = (cw.version & 0xFFFF) >= Opcodes.V1_6;
+				final boolean zip = (cw.version & 0xFFFF) >= Opcodes.V1_6;
 				cw.newUTF8(zip ? "StackMapTable" : "StackMap");
 				size += 8 + stackMap.length;
 			}
@@ -1816,9 +1816,9 @@ class MethodWriter implements MethodVisitor {
 	 *            copied.
 	 */
 	final void put(final ByteVector out) {
-		int mask = Opcodes.ACC_DEPRECATED
+		final int mask = Opcodes.ACC_DEPRECATED
 				| ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-				| ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
+				| (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC);
 		out.putShort(access & ~mask).putShort(name).putShort(desc);
 		if (classReaderOffset != 0) {
 			out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
@@ -1928,7 +1928,7 @@ class MethodWriter implements MethodVisitor {
 				out.putByteArray(lineNumber.data, 0, lineNumber.length);
 			}
 			if (stackMap != null) {
-				boolean zip = (cw.version & 0xFFFF) >= Opcodes.V1_6;
+				final boolean zip = (cw.version & 0xFFFF) >= Opcodes.V1_6;
 				out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
 				out.putInt(stackMap.length + 2).putShort(frameCount);
 				out.putByteArray(stackMap.data, 0, stackMap.length);
@@ -2007,30 +2007,30 @@ class MethodWriter implements MethodVisitor {
 		int u, v, label; // indexes in b
 		int i, j; // loop indexes
 		/*
-						   * 1st step: As explained above, resizing an instruction may require to
-						   * resize another one, which may require to resize yet another one, and
-						   * so on. The first step of the algorithm consists in finding all the
-						   * instructions that need to be resized, without modifying the code.
-						   * This is done by the following "fix point" algorithm:
-						   *
-						   * Parse the code to find the jump instructions whose offset will need
-						   * more than 2 bytes to be stored (the future offset is computed from
-						   * the current offset and from the number of bytes that will be inserted
-						   * or removed between the source and target instructions). For each such
-						   * instruction, adds an entry in (a copy of) the indexes and sizes
-						   * arrays (if this has not already been done in a previous iteration!).
-						   *
-						   * If at least one entry has been added during the previous step, go
-						   * back to the beginning, otherwise stop.
-						   *
-						   * In fact the real algorithm is complicated by the fact that the size
-						   * of TABLESWITCH and LOOKUPSWITCH instructions depends on their
-						   * position in the bytecode (because of padding). In order to ensure the
-						   * convergence of the algorithm, the number of bytes to be added or
-						   * removed from these instructions is over estimated during the previous
-						   * loop, and computed exactly only after the loop is finished (this
-						   * requires another pass to parse the bytecode of the method).
-						   */
+		 * 1st step: As explained above, resizing an instruction may require to
+		 * resize another one, which may require to resize yet another one, and
+		 * so on. The first step of the algorithm consists in finding all the
+		 * instructions that need to be resized, without modifying the code.
+		 * This is done by the following "fix point" algorithm:
+		 *
+		 * Parse the code to find the jump instructions whose offset will need
+		 * more than 2 bytes to be stored (the future offset is computed from
+		 * the current offset and from the number of bytes that will be inserted
+		 * or removed between the source and target instructions). For each such
+		 * instruction, adds an entry in (a copy of) the indexes and sizes
+		 * arrays (if this has not already been done in a previous iteration!).
+		 *
+		 * If at least one entry has been added during the previous step, go
+		 * back to the beginning, otherwise stop.
+		 *
+		 * In fact the real algorithm is complicated by the fact that the size
+		 * of TABLESWITCH and LOOKUPSWITCH instructions depends on their
+		 * position in the bytecode (because of padding). In order to ensure the
+		 * convergence of the algorithm, the number of bytes to be added or
+		 * removed from these instructions is over estimated during the previous
+		 * loop, and computed exactly only after the loop is finished (this
+		 * requires another pass to parse the bytecode of the method).
+		 */
 		int[] allIndexes = new int[0]; // copy of indexes
 		int[] allSizes = new int[0]; // copy of sizes
 		boolean[] resize; // instructions to be resized
@@ -2158,8 +2158,8 @@ class MethodWriter implements MethodVisitor {
 				if (insert != 0) {
 					// adds a new (u, insert) entry in the allIndexes and
 					// allSizes arrays
-					int[] newIndexes = new int[allIndexes.length + 1];
-					int[] newSizes = new int[allSizes.length + 1];
+					final int[] newIndexes = new int[allIndexes.length + 1];
+					final int[] newSizes = new int[allSizes.length + 1];
 					System.arraycopy(allIndexes,
 							0,
 							newIndexes,
@@ -2184,7 +2184,7 @@ class MethodWriter implements MethodVisitor {
 		// copies the bytecode of the method into a new bytevector, updates the
 		// offsets, and inserts (or removes) bytes as requested.
 
-		ByteVector newCode = new ByteVector(code.length);
+		final ByteVector newCode = new ByteVector(code.length);
 
 		u = 0;
 		while (u < code.length) {
@@ -2218,7 +2218,7 @@ class MethodWriter implements MethodVisitor {
 							newCode.putByte(201); // JSR_W
 						} else {
 							newCode.putByte(opcode <= 166
-									? ((opcode + 1) ^ 1) - 1
+									? (opcode + 1 ^ 1) - 1
 									: opcode ^ 1);
 							newCode.putShort(8); // jump offset
 							newCode.putByte(200); // GOTO_W
@@ -2329,19 +2329,19 @@ class MethodWriter implements MethodVisitor {
 				stackMap = null;
 				previousFrame = null;
 				frame = null;
-				Frame f = new Frame();
+				final Frame f = new Frame();
 				f.owner = labels;
-				Type[] args = Type.getArgumentTypes(descriptor);
+				final Type[] args = Type.getArgumentTypes(descriptor);
 				f.initInputFrame(cw, access, args, maxLocals);
 				visitFrame(f);
 				Label l = labels;
 				while (l != null) {
 					/*
-																  * here we need the original label position. getNewOffset
-																  * must therefore never have been called for this label.
-																  */
+					 * here we need the original label position. getNewOffset
+					 * must therefore never have been called for this label.
+					 */
 					u = l.position - 3;
-					if ((l.status & Label.STORE) != 0 || (u >= 0 && resize[u])) {
+					if ((l.status & Label.STORE) != 0 || u >= 0 && resize[u]) {
 						getNewOffset(allIndexes, allSizes, l);
 						// TODO update offsets in UNINITIALIZED values
 						visitFrame(l.frame);
@@ -2350,19 +2350,19 @@ class MethodWriter implements MethodVisitor {
 				}
 			} else {
 				/*
-													 * Resizing an existing stack map frame table is really hard.
-													 * Not only the table must be parsed to update the offets, but
-													 * new frames may be needed for jump instructions that were
-													 * inserted by this method. And updating the offsets or
-													 * inserting frames can change the format of the following
-													 * frames, in case of packed frames. In practice the whole table
-													 * must be recomputed. For this the frames are marked as
-													 * potentially invalid. This will cause the whole class to be
-													 * reread and rewritten with the COMPUTE_FRAMES option (see the
-													 * ClassWriter.toByteArray method). This is not very efficient
-													 * but is much easier and requires much less code than any other
-													 * method I can think of.
-													 */
+				 * Resizing an existing stack map frame table is really hard.
+				 * Not only the table must be parsed to update the offets, but
+				 * new frames may be needed for jump instructions that were
+				 * inserted by this method. And updating the offsets or
+				 * inserting frames can change the format of the following
+				 * frames, in case of packed frames. In practice the whole table
+				 * must be recomputed. For this the frames are marked as
+				 * potentially invalid. This will cause the whole class to be
+				 * reread and rewritten with the COMPUTE_FRAMES option (see the
+				 * ClassWriter.toByteArray method). This is not very efficient
+				 * but is much easier and requires much less code than any other
+				 * method I can think of.
+				 */
 				cw.invalidFrames = true;
 			}
 		}
@@ -2377,7 +2377,7 @@ class MethodWriter implements MethodVisitor {
 		// updates the instructions addresses in the
 		// local var and line number tables
 		for (i = 0; i < 2; ++i) {
-			ByteVector bv = i == 0 ? localVar : localVarType;
+			final ByteVector bv = i == 0 ? localVar : localVarType;
 			if (bv != null) {
 				b = bv.data;
 				u = 0;
@@ -2407,7 +2407,7 @@ class MethodWriter implements MethodVisitor {
 		// updates the labels of the other attributes
 		Attribute attr = cattrs;
 		while (attr != null) {
-			Label[] labels = attr.getLabels();
+			final Label[] labels = attr.getLabels();
 			if (labels != null) {
 				for (i = labels.length - 1; i >= 0; --i) {
 					getNewOffset(allIndexes, allSizes, labels[i]);
@@ -2428,7 +2428,7 @@ class MethodWriter implements MethodVisitor {
 	 * @return the read value.
 	 */
 	static int readUnsignedShort(final byte[] b, final int index) {
-		return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
+		return (b[index] & 0xFF) << 8 | b[index + 1] & 0xFF;
 	}
 
 	/**
@@ -2439,7 +2439,7 @@ class MethodWriter implements MethodVisitor {
 	 * @return the read value.
 	 */
 	static short readShort(final byte[] b, final int index) {
-		return (short) (((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF));
+		return (short) ((b[index] & 0xFF) << 8 | b[index + 1] & 0xFF);
 	}
 
 	/**
@@ -2450,8 +2450,8 @@ class MethodWriter implements MethodVisitor {
 	 * @return the read value.
 	 */
 	static int readInt(final byte[] b, final int index) {
-		return ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16)
-				| ((b[index + 2] & 0xFF) << 8) | (b[index + 3] & 0xFF);
+		return (b[index] & 0xFF) << 24 | (b[index + 1] & 0xFF) << 16
+				| (b[index + 2] & 0xFF) << 8 | b[index + 3] & 0xFF;
 	}
 
 	/**

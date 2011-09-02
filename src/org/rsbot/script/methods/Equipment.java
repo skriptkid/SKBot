@@ -8,7 +8,6 @@ import org.rsbot.script.wrappers.RSItem;
  * Equipment related operations.
  */
 public class Equipment extends MethodProvider {
-
 	public static final int ITEM_SLOTS = 11;
 	public static final int INTERFACE_EQUIPMENT = 387;
 	public static final int HELMET = 8;
@@ -33,12 +32,11 @@ public class Equipment extends MethodProvider {
 	 * @return the equipment interface
 	 */
 	public RSInterface getInterface() {
-		// Tab needs to be open for it to update its content -.-
-		if (methods.game.getCurrentTab() != Game.TAB_EQUIPMENT) {
+		if (methods.game.getTab() != Game.Tab.EQUIPMENT) {
 			if (methods.bank.isOpen()) {
 				methods.bank.close();
 			}
-			methods.game.openTab(Game.TAB_EQUIPMENT);
+			methods.game.openTab(Game.Tab.EQUIPMENT);
 			sleep(random(900, 1500));
 		}
 		return methods.interfaces.get(INTERFACE_EQUIPMENT);
@@ -50,10 +48,25 @@ public class Equipment extends MethodProvider {
 	 * @return An array containing all equipped items
 	 */
 	public RSItem[] getItems() {
-		RSComponent[] equip = getInterface().getComponents();
-		RSItem[] items = new RSItem[ITEM_SLOTS];
+		final RSComponent[] equip = getInterface().getComponents();
+		final RSItem[] items = new RSItem[ITEM_SLOTS];
 		for (int i = 0; i < items.length; i++) {
 			items[i] = new RSItem(methods, equip[i * 3 + 8]);
+		}
+		return items;
+	}
+
+	/**
+	 * Gets the worn equipment array.
+	 * This method excludes stack sizes.
+	 *
+	 * @return An array containing all equipped items
+	 */
+	public RSItem[] getWornItems() {
+		final int[] equip = methods.players.getMyPlayer().getEquipment();
+		final RSItem[] items = new RSItem[ITEM_SLOTS];
+		for (int i = 0; i < items.length; i++) {
+			items[i] = new RSItem(methods, equip[i], 1);
 		}
 		return items;
 	}
@@ -65,9 +78,9 @@ public class Equipment extends MethodProvider {
 	 *         opened.
 	 */
 	public RSItem[] getCachedItems() {
-		RSInterface equipment = methods.interfaces.get(INTERFACE_EQUIPMENT);
-		RSComponent[] components = equipment.getComponents();
-		RSItem[] items = new RSItem[ITEM_SLOTS];
+		final RSInterface equipment = methods.interfaces.get(INTERFACE_EQUIPMENT);
+		final RSComponent[] components = equipment.getComponents();
+		final RSItem[] items = new RSItem[ITEM_SLOTS];
 		for (int i = 0; i < items.length; i++) {
 			items[i] = new RSItem(methods, components[i * 3 + 8]);
 		}
@@ -80,7 +93,7 @@ public class Equipment extends MethodProvider {
 	 * @param index The item index.
 	 * @return The equipped item.
 	 */
-	public RSItem getItem(int index) {
+	public RSItem getItem(final int index) {
 		return new RSItem(methods, getInterface().getComponents()[index]);
 	}
 
@@ -102,9 +115,9 @@ public class Equipment extends MethodProvider {
 	 * @return Amount of specified item currently equipped.
 	 * @see #getItems()
 	 */
-	public int getCount(int itemID) {
+	public int getCount(final int itemID) {
 		int count = 0;
-		for (RSItem item : getItems()) {
+		for (final RSItem item : getItems()) {
 			if (item.getID() == itemID) {
 				count++;
 			}
@@ -121,11 +134,11 @@ public class Equipment extends MethodProvider {
 	 *         <tt>false</tt>.
 	 * @see #getItems()
 	 */
-	public boolean containsAll(int... items) {
-		RSItem[] equips = getItems();
+	public boolean containsAll(final int... items) {
+		final RSItem[] equips = getItems();
 		int count = 0;
-		for (int item : items) {
-			for (RSItem equip : equips) {
+		for (final int item : items) {
+			for (final RSItem equip : equips) {
 				if (equip.getID() == item) {
 					count++;
 					break;
@@ -142,9 +155,9 @@ public class Equipment extends MethodProvider {
 	 * @return <tt>true</tt> if the player has one (or more) of the given items
 	 *         equipped; otherwise <tt>false</tt>.
 	 */
-	public boolean containsOneOf(int... items) {
-		for (RSItem item : getItems()) {
-			for (int id : items) {
+	public boolean containsOneOf(final int... items) {
+		for (final RSItem item : getItems()) {
+			for (final int id : items) {
 				if (item.getID() == id) {
 					return true;
 				}
@@ -152,5 +165,4 @@ public class Equipment extends MethodProvider {
 		}
 		return false;
 	}
-
 }

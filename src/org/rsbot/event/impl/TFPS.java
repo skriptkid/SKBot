@@ -6,7 +6,6 @@ import org.rsbot.util.StringUtil;
 import java.awt.*;
 
 public class TFPS implements TextPaintListener {
-
 	private static final int LEN = 2;
 
 	private final int[] frameCount = new int[TFPS.LEN];
@@ -15,10 +14,8 @@ public class TFPS implements TextPaintListener {
 
 	public int drawLine(final Graphics render, int idx) {
 		final int secTime = (int) (System.currentTimeMillis() / 1000);
-
 		final int prevIdx = (secTime - 1) % TFPS.LEN;
 		StringUtil.drawLine(render, idx++, String.format("%2d fps", frameCount[prevIdx]));
-
 		final int curIdx = secTime % TFPS.LEN;
 		if (lastIdx != curIdx) {
 			lastIdx = curIdx;

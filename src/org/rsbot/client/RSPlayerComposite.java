@@ -1,10 +1,10 @@
 package org.rsbot.client;
 
 /**
- * @author Jacmob
+ * @author Timer
  */
 public interface RSPlayerComposite {
-
 	int getNPCID();
 
+	int[] getEquipment();
 }

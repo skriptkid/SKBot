@@ -11,13 +11,19 @@ import java.util.EventListener;
  * A paint update event.
  */
 public class PaintEvent extends RSEvent {
-
 	private static final long serialVersionUID = -7404828108740551228L;
 
 	public Graphics graphics;
 
 	@Override
 	public void dispatch(final EventListener el) {
+		if (graphics == null) {
+			try {
+				((PaintListener) el).onRepaint(null);
+			} catch (NullPointerException ignored) {
+			}
+			return;
+		}
 		final Graphics2D g2d = (Graphics2D) graphics;
 
 		// Store settings
@@ -50,5 +56,4 @@ public class PaintEvent extends RSEvent {
 	public long getMask() {
 		return EventMulticaster.PAINT_EVENT;
 	}
-
 }

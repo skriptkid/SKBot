@@ -1,6 +1,6 @@
 package org.rsbot.bot;
 
-import org.rsbot.util.GlobalConfiguration;
+import org.rsbot.Configuration;
 
 import javax.swing.*;
 import java.applet.Applet;
@@ -19,8 +19,7 @@ import java.util.logging.Logger;
 
 public class BotStub implements AppletStub, AppletContext {
 	private final Map<URL, WeakReference<Image>> IMAGE_CACHE = new HashMap<URL, WeakReference<Image>>();
-	private final Map<String, InputStream> INPUT_CACHE = Collections.synchronizedMap(
-			new HashMap<String, InputStream>(2));
+	private final Map<String, InputStream> INPUT_CACHE = Collections.synchronizedMap(new HashMap<String, InputStream>(2));
 
 	private final Logger log = Logger.getLogger(BotStub.class.getName());
 	private final Applet applet;
@@ -31,7 +30,7 @@ public class BotStub implements AppletStub, AppletContext {
 
 	public BotStub(final RSLoader applet) {
 		this.applet = applet;
-		Crawler c = new Crawler("http://www." + applet.getTargetName() + ".com/");
+		final Crawler c = new Crawler("http://www." + applet.getTargetName() + ".com/");
 		parameters = c.getParameters();
 		final String world_prefix = c.getWorldPrefix();
 		try {
@@ -67,8 +66,7 @@ public class BotStub implements AppletStub, AppletContext {
 	}
 
 	public AudioClip getAudioClip(final URL url) {
-		log.info("NOT YET IMPLEMENTED getAudioClip=" + url);
-		return null;
+		throw new UnsupportedOperationException("NOT YET IMPLEMENTED getAudioClip=" + url);
 	}
 
 	public URL getCodeBase() {
@@ -83,7 +81,7 @@ public class BotStub implements AppletStub, AppletContext {
 		synchronized (IMAGE_CACHE) {
 			WeakReference<Image> ref = IMAGE_CACHE.get(url);
 			Image img;
-			if ((ref == null) || ((img = ref.get()) == null)) {
+			if (ref == null || (img = ref.get()) == null) {
 				img = Toolkit.getDefaultToolkit().createImage(url);
 				ref = new WeakReference<Image>(img);
 				IMAGE_CACHE.put(url, ref);
@@ -126,10 +124,10 @@ public class BotStub implements AppletStub, AppletContext {
 
 	public void showDocument(final URL url, final String target) {
 		if (url.toString().contains("outofdate")) {
-			final String message = GlobalConfiguration.NAME + " is currently outdated, please wait patiently for a new version.";
+			final String message = Configuration.NAME + " is currently outdated, please wait patiently for a new version.";
 			log.severe(message);
 			JOptionPane.showMessageDialog(null, message, "Outdated", JOptionPane.WARNING_MESSAGE);
-			File versionFile = new File(GlobalConfiguration.Paths.getVersionCache());
+			final File versionFile = new File(Configuration.Paths.getVersionCache());
 			if (versionFile.exists() && !versionFile.delete()) {
 				log.warning("Unable to clear cache.");
 			}

@@ -1,8 +1,10 @@
 package org.rsbot.gui;
 
-import org.rsbot.service.ScriptDeliveryNetwork;
-import org.rsbot.util.AccountStore;
-import org.rsbot.util.GlobalConfiguration;
+import org.rsbot.Configuration;
+import org.rsbot.bot.Bot;
+import org.rsbot.script.AccountStore;
+import org.rsbot.script.randoms.ImprovedLoginBot;
+import org.rsbot.security.UniqueID;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -23,14 +25,14 @@ import java.util.logging.Logger;
 
 /**
  * @author Tekk
- * @author Jacmob
  * @author Aion
  * @author Timer
+ * @author Paris
  */
-@SuppressWarnings("serial")
 public class AccountManager extends JDialog implements ActionListener {
+	private static final long serialVersionUID = 2834954922670757338L;
 
-	private static final String FILE_NAME = GlobalConfiguration.Paths.getAccountsFile();
+	private static final String FILE_ACCOUNT_STORAGE = Configuration.Paths.getAccountsFile();
 
 	private static final String[] RANDOM_REWARDS = {"Cash", "Runes", "Coal", "Essence", "Ore", "Bars", "Gems", "Herbs",
 			"Seeds", "Charms", "Surprise", "Emote", "Costume", "Attack",
@@ -44,38 +46,44 @@ public class AccountManager extends JDialog implements ActionListener {
 
 	private static final Logger log = Logger.getLogger(AccountManager.class.getName());
 
-	private static AccountStore accountStore = new AccountStore(new File(FILE_NAME));
+	private static final AccountStore accountStore = new AccountStore(new File(FILE_ACCOUNT_STORAGE));
 
 	static {
-		accountStore.setPassword(ScriptDeliveryNetwork.getInstance().getKey());
+		accountStore.setPassword(UniqueID.getID());
 		try {
 			accountStore.load();
-		} catch (IOException ignored) {
+		} catch (final IOException ignored) {
 		}
 	}
 
 	private static class RandomRewardEditor extends DefaultCellEditor {
+		private static final long serialVersionUID = 6519185448833736787L;
+
 		public RandomRewardEditor() {
 			super(new JComboBox(RANDOM_REWARDS));
 		}
 	}
 
 	private static class PasswordCellEditor extends DefaultCellEditor {
+		private static final long serialVersionUID = -8042183192369284908L;
+
 		public PasswordCellEditor() {
 			super(new JPasswordField());
 		}
 	}
 
 	private static class PasswordCellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = -8149913137634230574L;
+
 		@Override
-		protected void setValue(Object value) {
+		protected void setValue(final Object value) {
 			if (value == null) {
-				setText("<none>");
+				setText("");
 			} else {
-				String str = value.toString();
-				StringBuilder b = new StringBuilder();
+				final String str = value.toString();
+				final StringBuilder b = new StringBuilder();
 				for (int i = 0; i < str.length(); ++i) {
-					b.append("*");
+					b.append("\u25CF");
 				}
 				setText(b.toString());
 			}
@@ -83,8 +91,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	private class TableSelectionListener implements ListSelectionListener {
-		public void valueChanged(ListSelectionEvent evt) {
-			int row = table.getSelectedRow();
+		public void valueChanged(final ListSelectionEvent evt) {
+			final int row = table.getSelectedRow();
 			if (!evt.getValueIsAdjusting()) {
 				removeButton.setEnabled(row >= 0 && row < table.getRowCount());
 			}
@@ -92,6 +100,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	private class AccountTableModel extends AbstractTableModel {
+		private static final long serialVersionUID = 3233063410900758383L;
+
 		public int getRowCount() {
 			return accountStore.list().size();
 		}
@@ -100,15 +110,15 @@ public class AccountManager extends JDialog implements ActionListener {
 			return VALID_KEYS.length + 2;
 		}
 
-		public Object getValueAt(int row, int column) {
+		public Object getValueAt(final int row, final int column) {
 			if (column == 0) {
 				return userForRow(row);
 			} else if (column == 1) {
 				return accountStore.get(userForRow(row)).getPassword();
 			} else {
-				AccountStore.Account acc = accountStore.get(userForRow(row));
+				final AccountStore.Account acc = accountStore.get(userForRow(row));
 				if (acc != null) {
-					String str = acc.getAttribute(VALID_KEYS[column - 2]);
+					final String str = acc.getAttribute(VALID_KEYS[column - 2]);
 					if (str == null || str.isEmpty()) {
 						return null;
 					}
@@ -125,14 +135,14 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 
 		@Override
-		public String getColumnName(int column) {
+		public String getColumnName(final int column) {
 			if (column == 0) {
 				return "Username";
 			} else if (column == 1) {
 				return "Password";
 			}
-			String str = VALID_KEYS[column - 2];
-			StringBuilder b = new StringBuilder();
+			final String str = VALID_KEYS[column - 2];
+			final StringBuilder b = new StringBuilder();
 			boolean space = true;
 			for (char c : str.toCharArray()) {
 				if (c == '_') {
@@ -145,7 +155,7 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 
 		@Override
-		public Class<?> getColumnClass(int column) {
+		public Class<?> getColumnClass(final int column) {
 			if (getColumnName(column).equals("Member")) {
 				return Boolean.class;
 			}
@@ -156,13 +166,13 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 
 		@Override
-		public boolean isCellEditable(int row, int column) {
+		public boolean isCellEditable(final int row, final int column) {
 			return column > 0;
 		}
 
 		@Override
-		public void setValueAt(Object value, int row, int column) {
-			AccountStore.Account acc = accountStore.get(userForRow(row));
+		public void setValueAt(final Object value, final int row, final int column) {
+			final AccountStore.Account acc = accountStore.get(userForRow(row));
 			if (acc == null) {
 				return;
 			}
@@ -174,8 +184,8 @@ public class AccountManager extends JDialog implements ActionListener {
 			fireTableCellUpdated(row, column);
 		}
 
-		public String userForRow(int row) {
-			Iterator<AccountStore.Account> it = accountStore.list().iterator();
+		public String userForRow(final int row) {
+			final Iterator<AccountStore.Account> it = accountStore.list().iterator();
 			for (int k = 0; it.hasNext() && k < row; k++) {
 				it.next();
 			}
@@ -190,32 +200,33 @@ public class AccountManager extends JDialog implements ActionListener {
 	private JButton removeButton;
 
 	private AccountManager() {
-		super(Frame.getFrames()[0], "Account Manager", true);
+		super(Frame.getFrames()[0], "Accounts", true);
+		setIconImage(Configuration.getImage(Configuration.Paths.Resources.ICON_REPORTKEY));
 	}
 
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() instanceof JButton) {
-			String label = ((JButton) e.getSource()).getText();
-			if (label.equals("Done")) {
+			final JButton button = (JButton) e.getSource();
+			if (button.getText().equals("Save")) {
 				try {
 					accountStore.save();
-				} catch (IOException ioe) {
-					log.info("Failed to save accounts... FUCK!");
+				} catch (final IOException ioe) {
+					ioe.printStackTrace();
+					log.info("Failed to save accounts...  Please report this.");
 				}
 				dispose();
-			} else if (label.equals("Add")) {
-				String str = JOptionPane.showInputDialog(getParent(), "Enter the account username.", "New Account",
-						JOptionPane.QUESTION_MESSAGE);
+			} else if (button.getToolTipText().equals("Add")) {
+				final String str = JOptionPane.showInputDialog(getParent(), "Enter the account username:", "New Account", JOptionPane.QUESTION_MESSAGE);
 				if (str == null || str.isEmpty()) {
 					return;
 				}
 				accountStore.add(new AccountStore.Account(str));
 				accountStore.get(str).setAttribute("reward", RANDOM_REWARDS[0]);
-				int row = table.getRowCount();
+				final int row = table.getRowCount();
 				((AccountTableModel) table.getModel()).fireTableRowsInserted(row, row);
-			} else if (label.equals("Remove")) {
-				int row = table.getSelectedRow();
-				String user = ((AccountTableModel) table.getModel()).userForRow(row);
+			} else if (button.getToolTipText().equals("Remove")) {
+				final int row = table.getSelectedRow();
+				final String user = ((AccountTableModel) table.getModel()).userForRow(row);
 				if (user != null) {
 					accountStore.remove(user);
 					((AccountTableModel) table.getModel()).fireTableRowsDeleted(row, row);
@@ -228,18 +239,18 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * Creates and displays the main GUI This GUI has the list and the main	 * buttons
 	 */
 	public void showGUI() {
-		JScrollPane scrollPane = new JScrollPane();
+		final JScrollPane scrollPane = new JScrollPane();
 		table = new JTable(new AccountTableModel());
-		JPanel bar = new JPanel();
-		removeButton = new JButton();
-		JButton newButton = new JButton();
-		JButton doneButton = new JButton();
-		setTitle("Account Manager");
-		Container contentPane = getContentPane();
-		contentPane.setLayout(new BorderLayout(5, 5));
+		final JToolBar bar = new JToolBar();
+		bar.setMargin(new Insets(1, 1, 1, 1));
+		bar.setFloatable(false);
+		removeButton = new JButton("Remove", new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_CLOSE)));
+		final JButton newButton = new JButton("Add", new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_ADD)));
+		final JButton doneButton = new JButton("Save", new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_REPORT_DISK)));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new TableSelectionListener());
-		TableColumnModel cm = table.getColumnModel();
+		table.setShowGrid(false);
+		final TableColumnModel cm = table.getColumnModel();
 		cm.getColumn(cm.getColumnIndex("Password")).setCellRenderer(new PasswordCellRenderer());
 		cm.getColumn(cm.getColumnIndex("Password")).setCellEditor(new PasswordCellEditor());
 		cm.getColumn(cm.getColumnIndex("Pin")).setCellRenderer(new PasswordCellRenderer());
@@ -247,28 +258,23 @@ public class AccountManager extends JDialog implements ActionListener {
 		cm.getColumn(cm.getColumnIndex("Reward")).setCellEditor(new RandomRewardEditor());
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setViewportView(table);
-		contentPane.add(scrollPane, BorderLayout.CENTER);
-		GridBagLayout gbl = new GridBagLayout();
-		bar.setLayout(gbl);
-		gbl.rowHeights = new int[]{0, 0};
-		gbl.rowWeights = new double[]{0.0, 1.0E-4};
-		newButton.setText("Add");
-		bar.add(newButton,
-				new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-						new Insets(0, 0, 5, 5), 0, 0));
-		removeButton.setText("Remove");
-		bar.add(removeButton,
-				new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-						new Insets(0, 0, 5, 5), 0, 0));
-		doneButton.setText("Done");
-		bar.add(doneButton,
-				new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-						new Insets(0, 0, 5, 0), 0, 0));
+		add(scrollPane, BorderLayout.CENTER);
+		newButton.setFocusable(false);
+		newButton.setToolTipText(newButton.getText());
+		newButton.setText("");
+		bar.add(newButton);
+		removeButton.setFocusable(false);
+		removeButton.setToolTipText(removeButton.getText());
+		removeButton.setText("");
+		bar.add(removeButton);
+		bar.add(Box.createHorizontalGlue());
+		doneButton.setToolTipText(doneButton.getText());
+		bar.add(doneButton);
 		newButton.addActionListener(this);
-		doneButton.addActionListener(this);
 		removeButton.addActionListener(this);
-		contentPane.add(bar, BorderLayout.SOUTH);
-		int row = table.getSelectedRow();
+		doneButton.addActionListener(this);
+		add(bar, BorderLayout.SOUTH);
+		final int row = table.getSelectedRow();
 		removeButton.setEnabled(row >= 0 && row < table.getRowCount());
 		table.clearSelection();
 		doneButton.requestFocus();
@@ -280,19 +286,20 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * Access the list of names for loaded accounts	 *	 * @return Array of the names
+	 * Access the list of names for loaded accounts
+	 *
+	 * @return Array of the names.
 	 */
 	public static String[] getAccountNames() {
+		assertLoginBot();
 		try {
-			List<String> theList = new ArrayList<String>();
-			Collection<AccountStore.Account> accountCollection = AccountManager.accountStore.list();
-			Iterator<AccountStore.Account> accountIterator = accountCollection.iterator();
-			while (accountIterator.hasNext()) {
-				AccountStore.Account account = accountIterator.next();
-				theList.add(account.getUsername());
+			final List<String> theList = new ArrayList<String>();
+			final Collection<AccountStore.Account> accountCollection = AccountManager.accountStore.list();
+			for (final AccountStore.Account anAccountCollection : accountCollection) {
+				theList.add(anAccountCollection.getUsername());
 			}
 			return theList.toArray(new String[theList.size()]);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -309,7 +316,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return Password or an empty string
 	 */
 	public static String getPassword(final String name) {
-		AccountStore.Account values = AccountManager.accountStore.get(name);
+		assertLoginBot();
+		final AccountStore.Account values = AccountManager.accountStore.get(name);
 		String pass = values.getPassword();
 		if (pass == null) {
 			pass = "";
@@ -324,7 +332,7 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return Pin or an empty string
 	 */
 	public static String getPin(final String name) {
-		AccountStore.Account values = AccountManager.accountStore.get(name);
+		final AccountStore.Account values = AccountManager.accountStore.get(name);
 		String pin = values.getAttribute("pin");
 		if (pin == null) {
 			pin = "-1";
@@ -339,8 +347,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return The desired reward
 	 */
 	public static String getReward(final String name) {
-		AccountStore.Account values = AccountManager.accountStore.get(name);
-		String reward = values.getAttribute("reward");
+		final AccountStore.Account values = AccountManager.accountStore.get(name);
+		final String reward = values.getAttribute("reward");
 		if (reward == null) {
 			return "Cash";
 		}
@@ -354,8 +362,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return true if the account is member, false if it isn't
 	 */
 	public static boolean isMember(final String name) {
-		AccountStore.Account values = AccountManager.accountStore.get(name);
-		String member = values.getAttribute("member");
+		final AccountStore.Account values = AccountManager.accountStore.get(name);
+		final String member = values.getAttribute("member");
 		return member != null && member.equalsIgnoreCase("true");
 	}
 
@@ -366,8 +374,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return true if the account is member, false if it isn't
 	 */
 	public static boolean isTakingBreaks(final String name) {
-		AccountStore.Account values = AccountManager.accountStore.get(name);
-		String member = values.getAttribute("take_breaks");
+		final AccountStore.Account values = AccountManager.accountStore.get(name);
+		final String member = values.getAttribute("take_breaks");
 		return member != null && member.equalsIgnoreCase("true");
 	}
 
@@ -379,7 +387,7 @@ public class AccountManager extends JDialog implements ActionListener {
 	 */
 	@SuppressWarnings("unused")
 	private static boolean isValidKey(final String key) {
-		for (String check : VALID_KEYS) {
+		for (final String check : VALID_KEYS) {
 			if (key.equalsIgnoreCase(check)) {
 				return true;
 			}
@@ -407,4 +415,20 @@ public class AccountManager extends JDialog implements ActionListener {
 		return false;
 	}
 
+	public static void assertLoginBot() {
+		final StackTraceElement[] s = Thread.currentThread().getStackTrace();
+		if (s.length < 4 ||
+				!s[0].getClassName().equals(Thread.class.getName()) ||
+				!s[1].getClassName().equals(AccountManager.class.getName()) ||
+				!(s[2].getClassName().equals(AccountManager.class.getName())) ||
+				!(
+						s[3].getClassName().equals(BotGUI.class.getName()) ||
+								s[3].getClassName().equals(ScriptSelector.class.getName()) ||
+								s[3].getClassName().equals(AccountManager.class.getName()) ||
+								s[3].getClassName().equals(Bot.class.getName()) ||
+								s[3].getClassName().equals(ImprovedLoginBot.class.getName()))
+				) {
+			throw new SecurityException();
+		}
+	}
 }

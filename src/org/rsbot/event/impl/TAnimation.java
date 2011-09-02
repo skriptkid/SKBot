@@ -8,10 +8,9 @@ import org.rsbot.util.StringUtil;
 import java.awt.*;
 
 public class TAnimation implements TextPaintListener {
-
 	private final MethodContext ctx;
 
-	public TAnimation(Bot bot) {
+	public TAnimation(final Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
@@ -25,5 +24,4 @@ public class TAnimation implements TextPaintListener {
 		StringUtil.drawLine(render, idx++, "Animation " + animation);
 		return idx;
 	}
-
 }

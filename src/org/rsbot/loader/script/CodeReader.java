@@ -4,7 +4,6 @@ import org.rsbot.loader.asm.Label;
 import org.rsbot.loader.asm.MethodVisitor;
 
 /**
- * @author Jacmob
  */
 public class CodeReader {
 
@@ -26,82 +25,99 @@ public class CodeReader {
 		int LABEL = 15;
 	}
 
-	private Buffer code;
+	private final Scanner code;
 
-	public CodeReader(byte[] code) {
-		this.code = new Buffer(code);
+	public CodeReader(final byte[] code) {
+		this.code = new Scanner(code);
 	}
 
-	public void accept(MethodVisitor v) {
-		int len = code.g2();
-		Label[] labels = new Label[code.g1()];
+	public void accept(final MethodVisitor v) {
+		int len = code.readShort();
+		final Label[] labels = new Label[code.readByte()];
 		for (int i = 0, l = labels.length; i < l; ++i) {
 			labels[i] = new Label();
 		}
 		while (len-- > 0) {
-			int op = code.g1();
-			if (op == Opcodes.INSN) {
-				v.visitInsn(code.g1());
-			} else if (op == Opcodes.INT_INSN) {
-				v.visitIntInsn(code.g1(), code.g2());
-			} else if (op == Opcodes.VAR_INSN) {
-				v.visitVarInsn(code.g1(), code.g1());
-			} else if (op == Opcodes.TYPE_INSN) {
-				v.visitTypeInsn(code.g1(), code.gstr());
-			} else if (op == Opcodes.FIELD_INSN) {
-				v.visitFieldInsn(code.g1(), code.gstr(), code.gstr(), code.gstr());
-			} else if (op == Opcodes.METHOD_INSN) {
-				v.visitMethodInsn(code.g1(), code.gstr(), code.gstr(), code.gstr());
-			} else if (op == Opcodes.JUMP_INSN) {
-				v.visitJumpInsn(code.g1(), labels[code.g1()]);
-			} else if (op == Opcodes.LDC_INSN) {
-				int type = code.g1();
+			final Label dflt;
+			final Label[] lbls;
+			int n, ptr = 0;
+			switch (code.readByte()) {
+			case Opcodes.INSN:
+				v.visitInsn(code.readByte());
+				break;
+			case Opcodes.INT_INSN:
+				v.visitIntInsn(code.readByte(), code.readShort());
+				break;
+			case Opcodes.VAR_INSN:
+				v.visitVarInsn(code.readByte(), code.readByte());
+				break;
+			case Opcodes.TYPE_INSN:
+				v.visitTypeInsn(code.readByte(), code.readString());
+				break;
+			case Opcodes.FIELD_INSN:
+				v.visitFieldInsn(code.readByte(), code.readString(), code.readString(), code.readString());
+				break;
+			case Opcodes.METHOD_INSN:
+				v.visitMethodInsn(code.readByte(), code.readString(), code.readString(), code.readString());
+				break;
+			case Opcodes.JUMP_INSN:
+				v.visitJumpInsn(code.readByte(), labels[code.readByte()]);
+				break;
+			case Opcodes.LDC_INSN:
+				final int type = code.readByte();
 				if (type == 1) {
-					v.visitLdcInsn(code.g4());
+					v.visitLdcInsn(code.readInt());
 				} else if (type == 2) {
-					v.visitLdcInsn(Float.parseFloat(code.gstr()));
+					v.visitLdcInsn(Float.parseFloat(code.readString()));
 				} else if (type == 3) {
-					v.visitLdcInsn(code.g8());
+					v.visitLdcInsn(code.readLong());
 				} else if (type == 4) {
-					v.visitLdcInsn(Double.parseDouble(code.gstr()));
+					v.visitLdcInsn(Double.parseDouble(code.readString()));
 				} else if (type == 5) {
-					v.visitLdcInsn(code.gstr());
+					v.visitLdcInsn(code.readString());
 				}
-			} else if (op == Opcodes.IINC_INSN) {
-				v.visitIincInsn(code.g1(), code.g1());
-			} else if (op == Opcodes.TABLESWITCH_INSN) {
-				int min = code.g2();
-				int max = code.g2();
-				Label dflt = labels[code.g1()];
-				int n = code.g1(), ptr = 0;
-				Label[] lbls = new Label[n];
+				break;
+			case Opcodes.IINC_INSN:
+				v.visitIincInsn(code.readByte(), code.readByte());
+				break;
+			case Opcodes.TABLESWITCH_INSN:
+				final int min = code.readShort();
+				final int max = code.readShort();
+				dflt = labels[code.readByte()];
+				n = code.readByte();
+				lbls = new Label[n];
 				while (ptr < n) {
-					lbls[ptr++] = labels[code.g1()];
+					lbls[ptr++] = labels[code.readByte()];
 				}
 				v.visitTableSwitchInsn(min, max, dflt, lbls);
-			} else if (op == Opcodes.LOOKUPSWITCH_INSN) {
-				Label dflt = labels[code.g1()];
-				int n = code.g1(), ptr = 0;
-				int[] keys = new int[n];
+				break;
+			case Opcodes.LOOKUPSWITCH_INSN:
+				dflt = labels[code.readByte()];
+				n = code.readByte();
+				final int[] keys = new int[n];
 				while (ptr < n) {
-					keys[ptr++] = code.g2();
+					keys[ptr++] = code.readShort();
 				}
-				n = code.g1();
+				n = code.readByte();
 				ptr = 0;
-				Label[] lbls = new Label[n];
+				lbls = new Label[n];
 				while (ptr < n) {
-					lbls[ptr++] = labels[code.g1()];
+					lbls[ptr++] = labels[code.readByte()];
 				}
 				v.visitLookupSwitchInsn(dflt, keys, lbls);
-			} else if (op == Opcodes.MULTIANEWARRAY_INSN) {
-				v.visitMultiANewArrayInsn(code.gstr(), code.g1());
-			} else if (op == Opcodes.TRY_CATCH_BLOCK) {
-				v.visitTryCatchBlock(labels[code.g1()], labels[code.g1()], labels[code.g1()], code.gstr());
-			} else if (op == Opcodes.LOCAL_VARIABLE) {
-				v.visitLocalVariable(code.gstr(), code.gstr(), code.gstr(), labels[code.g1()], labels[code.g1()],
-						code.g1());
-			} else if (op == Opcodes.LABEL) {
-				v.visitLabel(labels[code.g1()]);
+				break;
+			case Opcodes.MULTIANEWARRAY_INSN:
+				v.visitMultiANewArrayInsn(code.readString(), code.readByte());
+				break;
+			case Opcodes.TRY_CATCH_BLOCK:
+				v.visitTryCatchBlock(labels[code.readByte()], labels[code.readByte()], labels[code.readByte()], code.readString());
+				break;
+			case Opcodes.LOCAL_VARIABLE:
+				v.visitLocalVariable(code.readString(), code.readString(), code.readString(), labels[code.readByte()], labels[code.readByte()], code.readByte());
+				break;
+			case Opcodes.LABEL:
+				v.visitLabel(labels[code.readByte()]);
+				break;
 			}
 		}
 	}

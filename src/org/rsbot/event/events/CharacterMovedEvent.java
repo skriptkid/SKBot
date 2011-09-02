@@ -10,7 +10,6 @@ import java.util.EventListener;
  * A character moved event.
  */
 public class CharacterMovedEvent extends RSEvent {
-
 	private static final long serialVersionUID = 8883312847545757405L;
 
 	private final MethodContext ctx;
@@ -51,6 +50,8 @@ public class CharacterMovedEvent extends RSEvent {
 	 * 5 = SW
 	 * 6 = S
 	 * 7 = SE
+	 *
+	 * @return Returns the direction of the character movement event.
 	 */
 	public int getDirection() {
 		return direction;

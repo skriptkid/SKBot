@@ -13,7 +13,6 @@ import java.util.EventListener;
  * line of text.
  */
 public class TextPaintEvent extends RSEvent {
-
 	private static final long serialVersionUID = 6634362568916377937L;
 
 	public Graphics graphics;
@@ -21,6 +20,13 @@ public class TextPaintEvent extends RSEvent {
 
 	@Override
 	public void dispatch(final EventListener el) {
+		if (graphics == null) {
+			try {
+				idx = ((TextPaintListener) el).drawLine(null, 0);
+			} catch (NullPointerException ignored) {
+			}
+			return;
+		}
 		final Graphics2D g2d = (Graphics2D) graphics;
 
 		// Backup settings

@@ -11,10 +11,9 @@ import java.awt.*;
 import java.util.HashMap;
 
 public class DrawObjects implements PaintListener {
+	private final MethodContext ctx;
 
-	private MethodContext ctx;
-
-	public DrawObjects(Bot bot) {
+	public DrawObjects(final Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
@@ -42,15 +41,15 @@ public class DrawObjects implements PaintListener {
 		final int tHeight = metrics.getHeight();
 		for (int x = locX - 25; x < locX + 25; x++) {
 			for (int y = locY - 25; y < locY + 25; y++) {
-				RSTile tile = new RSTile(x, y);
+				final RSTile tile = new RSTile(x, y);
 				final Point screen = ctx.calc.tileToScreen(tile);
 				if (!ctx.calc.pointOnScreen(screen)) {
 					continue;
 				}
 				final RSObject[] objects = ctx.objects.getAllAt(tile);
 				int i = 0;
-				for (RSObject object : objects) {
-					Point real = ctx.calc.tileToScreen(object.getLocation());
+				for (final RSObject object : objects) {
+					final Point real = ctx.calc.tileToScreen(object.getLocation());
 					if (!ctx.calc.pointOnScreen(real)) {
 						continue;
 					}
@@ -61,7 +60,7 @@ public class DrawObjects implements PaintListener {
 						render.drawLine(screen.x, screen.y, real.x, real.y);
 					}
 					final String s = "" + object.getID();
-					final int ty = real.y - tHeight / 2 - (i++) * 15;
+					final int ty = real.y - tHeight / 2 - i++ * 15;
 					final int tx = real.x - metrics.stringWidth(s) / 2;
 					render.setColor(color_map.get(object.getType()));
 					render.drawString(s, tx, ty);
