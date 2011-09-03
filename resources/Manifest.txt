@@ -2,7 +2,7 @@ Main-Class: org.rsbot.Boot
 
 Name: org/rsbot
 Sealed: true
-Specification-Title: "RSBot"
+Specification-Title: "SKBot"
 Specification-Vendor:  "org.rsbot"
-Implementation-Title: "RSBot"
+Implementation-Title: "SKBot"
 Implementation-Vendor: "org.rsbot"
