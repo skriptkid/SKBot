@@ -13,7 +13,7 @@ IF NOT "%ERRORLEVEL%"=="0" GOTO :error
 CALL make.bat
 ECHO Compressing release
 
-SET name=RSBot
+SET name=SKBot
 SET dist=%name%.jar
 FOR /F %%G IN (resources\version.txt) DO SET version=%%G
 SET tmp=temp
