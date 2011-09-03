@@ -74,14 +74,14 @@ public class Configuration {
 public static class URLs {
 public static final String HOST = "http://skbot-client.googlecode.com/svn/updater/";
 private static final String BASE = "http://links." + HOST + "/";
-public static final String DOWNLOAD = BASE + "download";
-public static final String LICENSE = "license";
-public static final String CLIENTPATCH = "http://skbot-client.googlecode.com/svn/updater/modscript.gz";
-public static final String VERSION = "version.txt";
+public static final String DOWNLOAD = HOST + "SKBot.jar";
+public static final String LICENSE = HOST + "license.txt";
+public static final String CLIENTPATCH = HOST + "modscript.gz";
+public static final String VERSION = HOST + "version.txt";
 public static final String PROJECT = "http://skbot-client.googlecode.com/svn/trunk/";
 public static final String SITE = "http://skproductions.tk";
-public static final String SDN_MANIFEST = "sdn-manifest";
-public static final String AD_INFO = "botad-info";
+public static final String SDN_MANIFEST = HOST + "sdn-manifest.txt";
+public static final String AD_INFO = HOST + "botad-info.txt";
 }
 
 		public static final String ROOT = new File(".").getAbsolutePath();
