@@ -207,6 +207,9 @@ public class ImprovedLoginBot extends Random {
 
 	@Override
 	public int loop() {
+		if ((cachePassword.isEmpty() || cachePassword == null) && lobby.inLobby()) {
+			cachePassword = ctx.client.getCurrentPassword();
+		}
 		if (lobby.inLobby() && (stageFlags & Environment.LOGIN_GAME) != 0) {
 			if (lobby.getSelectedTab() != Lobby.TAB_PLAYERS) {
 				lobby.open(Lobby.TAB_PLAYERS);
@@ -280,6 +283,9 @@ public class ImprovedLoginBot extends Random {
 					return random(500, 600);
 				}
 				String passWord = AccountManager.getPassword(account.getName());
+				if (passWord.isEmpty()) {
+					passWord = cachePassword;
+				}
 				keyboard.sendText(passWord, false);
 				return random(500, 600);
 			}

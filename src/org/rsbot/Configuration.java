@@ -71,18 +71,18 @@ public class Configuration {
 			public static final String VERSION = ROOT + "/version.txt";
 		}
 
-		public static class URLs {
-			public static final String HOST = "powerbot.org";
-			private static final String BASE = "http://links." + HOST + "/";
-			public static final String DOWNLOAD = BASE + "download";
-			public static final String LICENSE = BASE + "license";
-			public static final String CLIENTPATCH = BASE + "modscript";
-			public static final String VERSION = BASE + "version.txt";
-			public static final String PROJECT = BASE + "git-project";
-			public static final String SITE = BASE + "site";
-			public static final String SDN_MANIFEST = BASE + "sdn-manifest";
-			public static final String AD_INFO = BASE + "botad-info";
-		}
+public static class URLs {
+public static final String HOST = "http://skbot-client.googlecode.com/svn/updater/";
+private static final String BASE = "http://links." + HOST + "/";
+public static final String DOWNLOAD = BASE + "download";
+public static final String LICENSE = "license";
+public static final String CLIENTPATCH = "http://skbot-client.googlecode.com/svn/updater/modscript.gz";
+public static final String VERSION = "version.txt";
+public static final String PROJECT = "http://skbot-client.googlecode.com/svn/trunk/";
+public static final String SITE = "http://skproductions.tk";
+public static final String SDN_MANIFEST = "sdn-manifest";
+public static final String AD_INFO = "botad-info";
+}
 
 		public static final String ROOT = new File(".").getAbsolutePath();
 
@@ -197,7 +197,7 @@ public class Configuration {
 		}
 	}
 
-	public static final String NAME = "RSBot";
+	public static final String NAME = "SKBot";
 	public static final String NAME_LOWERCASE = NAME.toLowerCase();
 	private static final OperatingSystem CURRENT_OS;
 	public static boolean RUNNING_FROM_JAR = false;

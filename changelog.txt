@@ -1,7 +1,7 @@
-﻿SKBot Changelog
+﻿RSBot Changelog
 
-GitHub project: https://github.com/powerbot/SKBot
-SVN: http://skbot-client.googlecode.com/svn/trunk/
+GitHub project: https://github.com/powerbot/RSBot
+SVN: https://svn.github.com/powerbot/RSBot
 Java JDK: http://www.oracle.com/technetwork/java/javase/downloads/
 
 
