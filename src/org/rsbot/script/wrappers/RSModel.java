@@ -105,17 +105,6 @@ public abstract class RSModel extends MethodProvider implements RSTarget {
 		}
 		return false;
 	}
-        
-        /**
-         * @return the height of this model normal to the ground
-         */
-        public int getHeight(){
-            if(yPoints.length == 0)
-            return 0;
-            int[] yPointsClone = yPoints.clone();
-            Arrays.sort(yPointsClone);
-            return yPointsClone[0];
-        }
 
 	/**
 	 * Clicks the RSModel.
@@ -443,7 +432,7 @@ public abstract class RSModel extends MethodProvider implements RSTarget {
 	 *         posY = result[vertexIndex][1]
 	 *         visibleOnScreen = (result[vertexIndex][2] == 1);
 	 */
-	protected int[][] projectVertices() {
+	private int[][] projectVertices() {
 		Calculations.RenderData renderData = methods.calc.renderData;
 		Calculations.Render render = methods.calc.render;
 
