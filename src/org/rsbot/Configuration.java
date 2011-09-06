@@ -196,14 +196,14 @@ public static final String AD_INFO = HOST + "botad-info.txt";
 		}
 	}
 
-	public static final String NAME = "RSBot";
+	public static final String NAME = "SKBot";
 	public static final String NAME_LOWERCASE = NAME.toLowerCase();
 	private static final OperatingSystem CURRENT_OS;
 	public static boolean RUNNING_FROM_JAR = false;
 
 	public static class Twitter {
 		public static final boolean ENABLED = true;
-		public static final String NAME = "rsbotorg";
+		public static final String NAME = "skbottk";
 		public static final String HASHTAG = "#" + NAME_LOWERCASE;
 		public static final int MESSAGES = 3;
 	}
