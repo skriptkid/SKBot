@@ -30,8 +30,8 @@ public class GrandExchange extends MethodProvider {
 	public static final int[] INTERFACE_GRAND_EXCHANGE_SELL_BUTTON = {32, 48, 64, 83, 102, 121};
 	public static final int[] INTERFACE_GRAND_EXCHANGE_OFFER_BOXES = {19, 35, 51, 67, 83, 99};
 
-	public static final int GRAND_EXCHANGE_COLLECT_BOX_ONE = 209;
-	public static final int GRAND_EXCHANGE_COLLECT_BOX_TWO = 211;
+	public static final int GRAND_EXCHANGE_COLLECT_BOX_ONE = 206;
+	public static final int GRAND_EXCHANGE_COLLECT_BOX_TWO = 208;
 
 	public static final int[] GRAND_EXCHANGE_CLERK = {6528, 6529, 
 		1419, 2240, 2241, 2593};
@@ -122,7 +122,7 @@ public class GrandExchange extends MethodProvider {
 	 */
 	public boolean closeGe() {
 		if (isOpen()) {
-			RSComponent exit = methods.interfaces.get(105).getComponent(18);
+			RSComponent exit = methods.interfaces.get(105).getComponent(14);
 			return exit.doClick();
 		}
 		return true;

@@ -205,7 +205,7 @@ public static final String AD_INFO = HOST + "botad-info.txt";
 
 	public static class Twitter {
 		public static final boolean ENABLED = true;
-		public static final String NAME = "rsbotorg";
+		public static final String NAME = "skbottk";
 		public static final String HASHTAG = "#" + NAME_LOWERCASE;
 		public static final int MESSAGES = 3;
 	}
