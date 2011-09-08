@@ -1,5 +1,6 @@
 package org.rsbot.gui.component;
 
+import org.rsbot.Configuration;
 import org.rsbot.log.LogFormatter;
 import org.rsbot.util.StringUtil;
 
@@ -77,9 +78,9 @@ public class LogTextArea extends JList {
 	private class LogAreaListModel extends AbstractListModel {
 		private static final long serialVersionUID = 0;
 
-		private List<WrappedLogRecord> records = new ArrayList<WrappedLogRecord>(LogTextArea.MAX_ENTRIES);
+		private List records = new ArrayList(LogTextArea.MAX_ENTRIES);
 
-		public void addAllElements(final List<WrappedLogRecord> obj) {
+		public void addAllElements(final List obj) {
 			records.addAll(obj);
 			if (getSize() > LogTextArea.MAX_ENTRIES) {
 				records.subList(0, (getSize() - LogTextArea.MAX_ENTRIES)).clear();
@@ -105,7 +106,7 @@ public class LogTextArea extends JList {
 	private class LogQueue implements Runnable {
 		public static final int FLUSH_RATE = 1000;
 		private final Object lock = new Object();
-		private List<WrappedLogRecord> queue = new ArrayList<WrappedLogRecord>(100);
+		private List queue = new ArrayList(100);
 
 		public void queue(final WrappedLogRecord record) {
 			synchronized (lock) {
@@ -115,11 +116,11 @@ public class LogTextArea extends JList {
 
 		public void run() {
 			while (true) {
-				List<WrappedLogRecord> toFlush = null;
+				List toFlush = null;
 
 				synchronized (lock) {
 					if (queue.size() != 0) {
-						toFlush = new ArrayList<WrappedLogRecord>(queue);
+						toFlush = new ArrayList(queue);
 						queue = queue.subList(0, 0);
 					}
 				}
@@ -155,7 +156,10 @@ public class LogTextArea extends JList {
 			result.setComponentOrientation(list.getComponentOrientation());
 			result.setFont(list.getFont());
 			result.setBorder(cellHasFocus || isSelected ? SELECTED_BORDER : EMPTY_BORDER);
-			result.setForeground(Color.DARK_GRAY);
+
+			if (!Configuration.isSkinAvailable()) {
+				result.setForeground(Color.DARK_GRAY);
+			}
 
 			if (wlr.record.getLevel() == Level.SEVERE) {
 				result.setBackground(DARK_RED);
