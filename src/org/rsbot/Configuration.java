@@ -83,8 +83,8 @@ public static final String SITE = "http://skproductions.tk";
 public static final String SDN_MANIFEST = HOST + "sdn-manifest.txt";
  public static final String SDN_USER = HOST  + "sdn-user";
 public static final String AD_INFO = HOST + "botad-info.txt";
- public static final String TRIDENT = BASE + "trident";
- public static final String SUBSTANCE = BASE + "substance";
+ public static final String TRIDENT = HOST + "trident.jar";
+ public static final String SUBSTANCE = HOST + "substance.jar";
 }
 
 		public static final String ROOT = new File(".").getAbsolutePath();
