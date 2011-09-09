@@ -8,7 +8,9 @@ import org.rsbot.script.internal.ScriptHandler;
 import org.rsbot.script.internal.event.ScriptListener;
 import org.rsbot.script.methods.Environment;
 import org.rsbot.script.methods.Web;
+import org.rsbot.script.provider.ScriptDeliveryNetwork;
 import org.rsbot.script.provider.ScriptDownloader;
+import org.rsbot.script.provider.ScriptUserList;
 import org.rsbot.script.task.LoopTask;
 import org.rsbot.script.util.WindowUtil;
 import org.rsbot.service.Preferences;
@@ -23,6 +25,9 @@ import java.awt.event.*;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -47,22 +52,36 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 		setLocationRelativeTo(getOwner());
 		setMinimumSize(new Dimension((int) (getSize().width * .8), (int) (getSize().height * .8)));
 		setResizable(true);
+		toolBar.runScriptButton.setEnabled(false);
+		menuBar.getMenuItem(Messages.RUNSCRIPT).setEnabled(false);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				LoadScreen.quit();
 				JFrame.setDefaultLookAndFeelDecorated(true);
 				JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 				ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 				SwingUtilities.updateComponentTreeUI(BotGUI.this);
-				setVisible(true);
 				addBot();
 				updateScriptControls();
+				ExecutorService pool = Executors.newCachedThreadPool();
 				if (Configuration.Twitter.ENABLED) {
-					new Thread(new TwitterUpdates()).start();
+					pool.execute(new TwitterUpdates());
 				}
 				if (!Preferences.getInstance().hideAds) {
-					new Thread(new SplashAd(BotGUI.this)).start();
+					pool.execute(new SplashAd(BotGUI.this));
 				}
+				pool.execute(ScriptDeliveryNetwork.getInstance());
+				pool.execute(ScriptUserList.getInstance());
+				pool.shutdown();
+				try {
+					pool.awaitTermination(15, TimeUnit.SECONDS);
+				} catch (final InterruptedException ignored) {
+					log.warning("Unable to complete startup tasks");
+				}
+				menuBar.getMenuItem(Messages.RUNSCRIPT).setEnabled(true);
+				toolBar.runScriptButton.setEnabled(true);
+				setVisible(true);
+				LoadScreen.quit();
+				System.gc();
 			}
 		});
 	}
@@ -204,7 +223,7 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 				JOptionPane.showMessageDialog(this, new String[]{
 						"An open source bot developed by the community.",
 						"",
-						"RuneScape® is a trademark of Jagex © 1999 - 2011 Jagex, Ltd.",
+						"RuneScapeÂ® is a trademark of Jagex Â© 1999 - 2011 Jagex, Ltd.",
 						"RuneScape content and materials are trademarks and copyrights of Jagex or its licensees.",
 						"This program is issued with no warranty and is not affiliated with Jagex Ltd., nor do they endorse usage of our software.",
 						"",

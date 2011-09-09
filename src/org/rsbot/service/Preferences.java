@@ -15,9 +15,7 @@ public class Preferences {
 	private final File store;
 
 	public boolean hideAds = false;
-	public boolean shutdown = false;
-	public int shutdownTime = 10;
-	public boolean sdnShow = true;
+	public String sdnUser = "";
 	public boolean likedScriptsOnly = false;
 
 	private Preferences(final File store) {
@@ -49,27 +47,19 @@ public class Preferences {
 		if (keys.containsKey("hideAds")) {
 			hideAds = IniParser.parseBool(keys.get("hideAds"));
 		}
-		if (keys.containsKey("shutdown")) {
-			shutdown = IniParser.parseBool(keys.get("shutdown"));
+		if (keys.containsKey("sdnUser")) {
+			sdnUser = keys.get("sdnUser");
 		}
-		if (keys.containsKey("shutdownTime")) {
-			shutdownTime = Integer.parseInt(keys.get("shutdownTime"));
-			shutdownTime = Math.max(Math.min(shutdownTime, 60), 3);
-		}
-		if (keys.containsKey("sdnShow")) {
-			sdnShow = IniParser.parseBool(keys.get("sdnShow"));
-		}
-		if (keys.containsKey("likedScriptsOnly")) {
-			likedScriptsOnly = IniParser.parseBool(keys.get("likedScriptsOnly"));
-		}
-	}
+	      if (keys.containsKey("likedScriptsOnly")) {
+    		  	likedScriptsOnly = IniParser.parseBool(keys.get("likedScriptsOnly"));
+    		}
+
+   	}
 
 	public void save() {
 		final Map<String, String> keys = new HashMap<String, String>(11);
 		keys.put("hideAds", Boolean.toString(hideAds));
-		keys.put("shutdown", Boolean.toString(shutdown));
-		keys.put("shutdownTime", Integer.toString(shutdownTime));
-		keys.put("sdnShow", Boolean.toString(sdnShow));
+		keys.put("sdnUser", sdnUser);
 		keys.put("likedScriptsOnly", Boolean.toString(likedScriptsOnly));
 		final Map<String, Map<String, String>> data = new HashMap<String, Map<String, String>>(1);
 		data.put(IniParser.EMPTYSECTION, keys);

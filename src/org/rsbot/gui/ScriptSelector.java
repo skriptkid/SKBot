@@ -2,6 +2,7 @@ package org.rsbot.gui;
 
 import org.rsbot.Configuration;
 import org.rsbot.bot.Bot;
+import org.rsbot.gui.component.Messages;
 import org.rsbot.script.Script;
 import org.rsbot.script.internal.ScriptHandler;
 import org.rsbot.script.internal.event.ScriptListener;
@@ -42,8 +43,8 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 	private JComboBox categories;
 	private final ScriptTableModel model;
 	private final List<ScriptDefinition> scripts;
-	private JButton submit;
-	private boolean connected = true;
+	private JButton submit, connect;
+	public static boolean connectPrompted = false;
 	private boolean likedOnly = false;
 
 	static {
@@ -57,18 +58,28 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 		this.frame = frame;
 		this.bot = bot;
 		scripts = new ArrayList<ScriptDefinition>();
-		connected = Preferences.getInstance().sdnShow;
 		likedOnly = Preferences.getInstance().likedScriptsOnly;
 		model = new ScriptTableModel(scripts);
-		ScriptLikes.load();
 	}
 
 	public void showGUI() {
 		init();
 		update();
 		load();
+		if (!connectPrompted && Preferences.getInstance().sdnUser.length() == 0) {
+			 log.info("Visit " + Configuration.Paths.URLs.HOST + "/scripts to create your custom script list!");
+			 connect.doClick();
+		}
+		if (!connectPrompted) {
+			connectPrompted = true;
+		}
 		setVisible(true);
 	}
+    
+		private void unload() {
+    		Preferences.getInstance().likedScriptsOnly = likedOnly;
+   		 ScriptLikes.save();
+	  } 
 
 	void update() {
 		final boolean available = bot.getScriptHandler().getRunningScripts().size() == 0 ||
@@ -82,24 +93,16 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 
 	private void load() {
 		scripts.clear();
-		if (connected) {
-			final List<ScriptDefinition> net = SRC_NETWORK.list();
-			if (net != null) {
-				scripts.addAll(net);
-			}
+		final List<ScriptDefinition> net = SRC_NETWORK.list();
+		if (net != null) {
+			scripts.addAll(net);
 		}
-		Preferences.getInstance().sdnShow = connected;
 		scripts.addAll(SRC_PRE_COMPILED.list());
 		scripts.addAll(SRC_SOURCES.list());
 		Collections.sort(scripts);
 
 		filter();
 		table.revalidate();
-	}
-
-	private void unload() {
-		Preferences.getInstance().likedScriptsOnly = likedOnly;
-		ScriptLikes.save();
 	}
 
 	private void init() {
@@ -116,23 +119,33 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				dispose();
 			}
 		});
+		connect = new JButton(new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_DISCONNECT)));
 		final JButton refresh = new JButton(new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_REFRESH)));
 		refresh.setToolTipText("Refresh");
 		refresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				refresh.setEnabled(false);
-				SwingUtilities.invokeLater(new Runnable() {
+				connect.setEnabled(false);
+				new Thread() {
+					@Override
 					public void run() {
-						new Thread() {
-							@Override
+						final Thread[] tasks = { new Thread(ScriptDeliveryNetwork.getInstance()), new Thread(ScriptUserList.getInstance()) };
+						tasks[0].start();
+						tasks[1].start();
+						try {
+							tasks[0].join();
+							tasks[1].join();
+						} catch (final InterruptedException ignored) {
+						}
+						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								ScriptDeliveryNetwork.getInstance().refresh(true);
 								load();
 								refresh.setEnabled(true);
+								connect.setEnabled(true);
 							}
-						}.start();
+						});
 					}
-				});
+				}.start();
 			}
 		});
 		table = new JTable(model) {
@@ -143,17 +156,20 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				int row = rowAtPoint(e.getPoint());
 				ScriptDefinition def = model.getDefinition(row);
 				return def.toString();
-			}
 
-			@Override
-			public Component prepareRenderer(final TableCellRenderer renderer, final int row, final int column) {
-				final Component comp = super.prepareRenderer(renderer, row, column);
-				final ScriptDefinition def = model.getDefinition(row);
-				comp.setFont(comp.getFont().deriveFont(ScriptLikes.isLiked(def) ? Font.BOLD : Font.PLAIN));
-				return comp;
-			}
-		};
-		table.addMouseListener(new MouseAdapter() {
+       }
+
+     @Override
+      public Component prepareRenderer(final TableCellRenderer renderer, final int row, final int column) {
+        final Component comp = super.prepareRenderer(renderer, row, column);
+       final ScriptDefinition def = model.getDefinition(row);
+        comp.setFont(comp.getFont().deriveFont(ScriptLikes.isLiked(def) ? Font.BOLD : Font.PLAIN));
+        return comp;
+      }
+
+     };
+
+     table.addMouseListener(new MouseAdapter() { 
 			@Override
 			public void mousePressed(final MouseEvent e) {
 				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
@@ -195,17 +211,17 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				});
 				start.setEnabled(submit.isEnabled());
 
-				final JMenuItem like = new JMenuItem();
-				like.setText(ScriptLikes.isLiked(def) ? "Unfavourite" : "Favourite");
-				like.setIcon(new ImageIcon(Configuration.getImage(
-						ScriptLikes.isLiked(def) ? Configuration.Paths.Resources.ICON_UNLIKE : Configuration.Paths.Resources.ICON_STAR)));
-				like.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ScriptLikes.flip(def);
-					}
-				});
+final JMenuItem like = new JMenuItem();
+        like.setText(ScriptLikes.isLiked(def) ? "Unfavourite" : "Favourite");
+        like.setIcon(new ImageIcon(Configuration.getImage(
+            ScriptLikes.isLiked(def) ? Configuration.Paths.Resources.ICON_UNLIKE : Configuration.Paths.Resources.ICON_STAR)));
+        like.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            ScriptLikes.flip(def);
+          }
+        });
 
-				final JMenuItem delete = new JMenuItem();
+         final JMenuItem delete = new JMenuItem(); 
 				delete.setText("Delete");
 				delete.setIcon(new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_CLOSE)));
 				delete.addActionListener(new ActionListener() {
@@ -217,9 +233,9 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 							log.warning("Could not remove " + def.getName());
 						}
 						scripts.remove(def);
-						if (ScriptLikes.isLiked(def)) {
-							ScriptLikes.flip(def);
-						}
+				            if (ScriptLikes.isLiked(def)) {
+           					ScriptLikes.flip(def);
+        					} 
 						load();
 					}
 				});
@@ -235,7 +251,7 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				contextMenu.show(table, e.getX(), e.getY());
 			}
 		});
-		//table.setAutoCreateRowSorter(true);
+		table.setFocusable(false);
 		table.setRowHeight(20);
 		table.setIntercellSpacing(new Dimension(1, 1));
 		table.setShowGrid(false);
@@ -283,17 +299,17 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 		submit = new JButton("Start", new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_PLAY)));
 		submit.setToolTipText(submit.getText());
 		submit.setText("");
-		final JButton connect = new JButton(new ImageIcon(Configuration.getImage(connected ? Configuration.Paths.Resources.ICON_CONNECT : Configuration.Paths.Resources.ICON_DISCONNECT)));
-		connect.setToolTipText("Show network scripts");
+		connect.setToolTipText(Messages.SDNALL);
+		connect.setEnabled(ScriptUserList.getInstance().isAvailable());
 		final JButton favourites = new JButton(new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_STAR)));
-		favourites.setToolTipText("Show favourite scripts only");
-		favourites.setSelected(likedOnly);
-		favourites.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				favourites.setSelected(likedOnly = !likedOnly);
-				filter();
-			}
-		});
+	      favourites.setToolTipText("Show favourite scripts only");
+	      favourites.setSelected(likedOnly);
+	      favourites.addActionListener(new ActionListener() {
+	      public void actionPerformed(ActionEvent arg0) {
+	      favourites.setSelected(likedOnly = !likedOnly);
+	      filter();
+	      }
+  	      }); 
 		submit.setEnabled(false);
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent evt) {
@@ -301,7 +317,7 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				setVisible(false);
 				final String account = (String) accounts.getSelectedItem();
 				bot.getScriptHandler().removeScriptListener(ScriptSelector.this);
-				unload();
+				unload();				
 				dispose();
 				Script script = null;
 				try {
@@ -316,15 +332,24 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				}
 			}
 		});
+		final Component parent = this;
 		connect.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent arg0) {
-				final String icon = connected ? Configuration.Paths.Resources.ICON_DISCONNECT : Configuration.Paths.Resources.ICON_CONNECT;
-				connect.setIcon(new ImageIcon(Configuration.getImage(icon)));
-				connect.repaint();
-				connected = !connected;
+				String user = null;
+				if (connect.getToolTipText().equals(Messages.SDNALL)) {
+					user = (String) JOptionPane.showInputDialog(parent,
+							"Load script list from " + Configuration.Paths.URLs.HOST + " account (leave blank to show all scripts):",
+							"Custom list", JOptionPane.QUESTION_MESSAGE, null, null, "");
+				}
+				if (user == null || user.length() == 0 || user.length() > 15 || user.length() < 3) {
+					user = "";
+				}
+				Preferences.getInstance().sdnUser = user;
+				connectUpdate();
 				load();
 			}
 		});
+		connectUpdate();
 		accounts = new JComboBox(AccountManager.getAccountNames());
 		categories = new JComboBox(new String[] { "All", "Agility", "Combat", "Construction", "Cooking", "Crafting", "Dungeoneering", "Farming",
 				"Firemaking", "Fishing", "Fletching", "Herblore", "Hunter", "Magic", "Minigame", "Mining", "Other", "Money Making", "Prayer",
@@ -347,7 +372,7 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 		toolBar.add(connect);
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(favourites);
-		toolBar.add(Box.createHorizontalStrut(5));
+	      toolBar.add(Box.createHorizontalStrut(5)); 
 		toolBar.add(submit);
 		final JPanel center = new JPanel();
 		center.setLayout(new BorderLayout());
@@ -394,6 +419,17 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 	public void inputChanged(final Bot bot, final int mask) {
 	}
 
+	private void connectUpdate() {
+		final String user = Preferences.getInstance().sdnUser;
+		ScriptUserList.getInstance().run();
+		final boolean connected = user != null && user.length() != 0 && ScriptUserList.getInstance().isReady();
+		ScriptUserList.getInstance().enabled = connected;
+		connect.setToolTipText(connected ? String.format(Messages.SDNUSER, user) : Messages.SDNALL);
+		final String icon = connected ? Configuration.Paths.Resources.ICON_CONNECT : Configuration.Paths.Resources.ICON_DISCONNECT;
+		connect.setIcon(new ImageIcon(Configuration.getImage(icon)));
+		connect.repaint();
+	}
+
 	private class TableSelectionListener implements ListSelectionListener {
 		public void valueChanged(final ListSelectionEvent evt) {
 			if (!evt.getValueIsAdjusting()) {
@@ -418,9 +454,12 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 		public void search(final String find, final String keys, final boolean likedOnly) {
 			matches.clear();
 			for (final ScriptDefinition def : scripts) {
-				if (likedOnly && !ScriptLikes.isLiked(def)) {
+				if (ScriptUserList.getInstance().isSelected() && !ScriptUserList.getInstance().isListed(def)) {
 					continue;
 				}
+				if (likedOnly && !ScriptLikes.isLiked(def)) {
+ 		            continue;
+ 		            } 
 				if (find.length() != 0 && !def.name.toLowerCase().contains(find.toLowerCase())) {
 					continue;
 				}

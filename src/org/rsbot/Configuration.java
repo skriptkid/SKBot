@@ -62,30 +62,29 @@ public class Configuration {
 			public static final String ICON_SCRIPT_LIVE = ROOT_IMG + "/script_lightning.png";
 			public static final String ICON_SCRIPT_GEAR = ROOT_IMG + "/script_gear.png";
 			public static final String ICON_SCRIPT_CODE = ROOT_IMG + "/script_code.png";
-			public static final String ICON_STAR = ROOT_IMG + "/star.png";
 			public static final String ICON_WEBLINK = ROOT_IMG + "/world_link.png";
-			public static final String ICON_WRENCH = ROOT_IMG + "/wrench.png";
 			public static final String ICON_LICENSE = ROOT_IMG + "/page_white_text.png";
+			public static final String ICON_STAR = ROOT_IMG + "/star.png";
 			public static final String ICON_UNLIKE = ROOT_IMG + "/unlike.png";
 
 			public static final String VERSION = ROOT + "/version.txt";
 		}
 
-public static class URLs {
-public static final String HOST = "http://skbot-client.googlecode.com/svn/updater/";
-private static final String BASE = "http://links." + HOST + "/";
-public static final String DOWNLOAD = HOST + "SKBot.jar";
-public static final String LICENSE = HOST + "license.txt";
-public static final String CLIENTPATCH = HOST + "modscript.gz";
-public static final String VERSION = HOST + "version.txt";
-public static final String PROJECT = "http://code.google.com/p/skbot-client/";
-public static final String SITE = "http://skproductions.tk";
-public static final String SDN_MANIFEST = HOST + "sdn-manifest.txt";
- public static final String SDN_USER = HOST  + "sdn-user";
-public static final String AD_INFO = HOST + "botad-info.txt";
- public static final String TRIDENT = HOST + "trident.jar";
- public static final String SUBSTANCE = HOST + "substance.jar";
-}
+				public static class URLs {
+			public static final String HOST = "http://skbot-client.googlecode.com/svn/updater/";
+			private static final String BASE = "http://links." + HOST + "/";
+			public static final String DOWNLOAD = HOST + "SKBot.jar";
+			public static final String LICENSE = HOST + "license.txt";
+			public static final String CLIENTPATCH = HOST + "modscript.gz";
+			public static final String VERSION = HOST + "version.txt";
+			public static final String PROJECT = "http://code.google.com/p/skbot-client/";
+			public static final String SITE = "http://skproductions.tk";
+			public static final String SDN_MANIFEST = HOST + "sdn-manifest.txt";
+			public static final String SDN_USER = HOST  + "sdn-user";
+			public static final String AD_INFO = HOST + "botad-info.txt";
+			public static final String TRIDENT = HOST + "trident.jar";
+			public static final String SUBSTANCE = HOST + "substance.jar";
+		}
 
 		public static final String ROOT = new File(".").getAbsolutePath();
 
@@ -204,25 +203,27 @@ public static final String AD_INFO = HOST + "botad-info.txt";
 	public static final String NAME_LOWERCASE = NAME.toLowerCase();
 	private static final OperatingSystem CURRENT_OS;
 	public static boolean RUNNING_FROM_JAR = false;
- public final static boolean SKINNED = true;
- public static final String SKIN = "org.pushingpixels.substance.api.skin.SubstanceGraphiteGlassLookAndFeel";
+	public final static boolean SKINNED = true;
+	public static final String SKIN = "org.pushingpixels.substance.api.skin.SubstanceGraphiteGlassLookAndFeel";
+
 	public static class Twitter {
 		public static final boolean ENABLED = true;
 		public static final String NAME = "skbottk";
 		public static final String HASHTAG = "#" + NAME_LOWERCASE;
 		public static final int MESSAGES = 3;
 	}
- public static boolean isSkinAvailable() {
- if (!SKINNED) {
- return false;
- }
- Class<?> substance = null;
- try {
- substance = Class.forName(SKIN);
- } catch (final ClassNotFoundException ignored) {
- }
- return substance != null;
- }
+
+	public static boolean isSkinAvailable() {
+		if (!SKINNED) {
+			return false;
+		}
+		Class<?> substance = null;
+		try {
+			substance = Class.forName(SKIN);
+		} catch (final ClassNotFoundException ignored) {
+		}
+		return substance != null;
+	}
 
 	static final URL resource;
 
