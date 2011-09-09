@@ -78,7 +78,7 @@ public class Configuration {
 			public static final String CLIENTPATCH = HOST + "modscript.gz";
 			public static final String VERSION = HOST + "version.txt";
 			public static final String PROJECT = "http://code.google.com/p/skbot-client/";
-			public static final String SITE = "http://skproductions.tk";
+			public static final String SITE = "http://SKBot.tk";
 			public static final String SDN_MANIFEST = HOST + "sdn-manifest.txt";
 			public static final String SDN_USER = HOST  + "sdn-user";
 			public static final String AD_INFO = HOST + "botad-info.txt";
