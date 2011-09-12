@@ -16,7 +16,6 @@ public class Preferences {
 
 	public boolean hideAds = false;
 	public String sdnUser = "";
-	public boolean likedScriptsOnly = false;
 
 	private Preferences(final File store) {
 		this.store = store;
@@ -50,17 +49,12 @@ public class Preferences {
 		if (keys.containsKey("sdnUser")) {
 			sdnUser = keys.get("sdnUser");
 		}
-	      if (keys.containsKey("likedScriptsOnly")) {
-    		  	likedScriptsOnly = IniParser.parseBool(keys.get("likedScriptsOnly"));
-    		}
-
-   	}
+	}
 
 	public void save() {
 		final Map<String, String> keys = new HashMap<String, String>(11);
 		keys.put("hideAds", Boolean.toString(hideAds));
 		keys.put("sdnUser", sdnUser);
-		keys.put("likedScriptsOnly", Boolean.toString(likedScriptsOnly));
 		final Map<String, Map<String, String>> data = new HashMap<String, Map<String, String>>(1);
 		data.put(IniParser.EMPTYSECTION, keys);
 		try {

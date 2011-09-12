@@ -6,7 +6,6 @@ import org.rsbot.gui.component.Messages;
 import org.rsbot.script.Script;
 import org.rsbot.script.internal.ScriptHandler;
 import org.rsbot.script.internal.event.ScriptListener;
-import org.rsbot.script.methods.Web;
 import org.rsbot.script.provider.*;
 import org.rsbot.service.Preferences;
 
@@ -14,12 +13,12 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -45,7 +44,6 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 	private final List<ScriptDefinition> scripts;
 	private JButton submit, connect;
 	public static boolean connectPrompted = false;
-	private boolean likedOnly = false;
 
 	static {
 		SRC_SOURCES = new FileScriptSource(new File(Configuration.Paths.getScriptsSourcesDirectory()));
@@ -58,7 +56,6 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 		this.frame = frame;
 		this.bot = bot;
 		scripts = new ArrayList<ScriptDefinition>();
-		likedOnly = Preferences.getInstance().likedScriptsOnly;
 		model = new ScriptTableModel(scripts);
 	}
 
@@ -67,23 +64,17 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 		update();
 		load();
 		if (!connectPrompted && Preferences.getInstance().sdnUser.length() == 0) {
-			 log.info("Visit " + Configuration.Paths.URLs.HOST + "/scripts to create your custom script list!");
-			 connect.doClick();
+			log.info("Visit " + Configuration.Paths.URLs.HOST + "/scripts to create your custom script list!");
+			connect.doClick();
 		}
 		if (!connectPrompted) {
 			connectPrompted = true;
 		}
 		setVisible(true);
 	}
-    
-		private void unload() {
-    		Preferences.getInstance().likedScriptsOnly = likedOnly;
-   		 ScriptLikes.save();
-	  } 
 
 	void update() {
-		final boolean available = bot.getScriptHandler().getRunningScripts().size() == 0 ||
-				(bot.getMethodContext() != null && bot.getMethodContext().web.areScriptsLoaded() && bot.getScriptHandler().getRunningScripts().size() == Web.WEB_SCRIPT_COUNT);
+		final boolean available = bot.getScriptHandler().getRunningScripts().size() == 0;
 		submit.setEnabled(available && table.getSelectedRow() != -1);
 		table.setEnabled(available);
 		search.setEnabled(available);
@@ -115,7 +106,6 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 			public void windowClosing(final WindowEvent e) {
 				bot.getScriptHandler().removeScriptListener(ScriptSelector.this);
 				setVisible(false);
-				unload();
 				dispose();
 			}
 		});
@@ -129,7 +119,7 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				new Thread() {
 					@Override
 					public void run() {
-						final Thread[] tasks = { new Thread(ScriptDeliveryNetwork.getInstance()), new Thread(ScriptUserList.getInstance()) };
+						final Thread[] tasks = {new Thread(ScriptDeliveryNetwork.getInstance()), new Thread(ScriptUserList.getInstance())};
 						tasks[0].start();
 						tasks[1].start();
 						try {
@@ -156,20 +146,9 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				int row = rowAtPoint(e.getPoint());
 				ScriptDefinition def = model.getDefinition(row);
 				return def.toString();
-
-       }
-
-     @Override
-      public Component prepareRenderer(final TableCellRenderer renderer, final int row, final int column) {
-        final Component comp = super.prepareRenderer(renderer, row, column);
-       final ScriptDefinition def = model.getDefinition(row);
-        comp.setFont(comp.getFont().deriveFont(ScriptLikes.isLiked(def) ? Font.BOLD : Font.PLAIN));
-        return comp;
-      }
-
-     };
-
-     table.addMouseListener(new MouseAdapter() { 
+			}
+		};
+		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(final MouseEvent e) {
 				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
@@ -211,17 +190,7 @@ public class ScriptSelector extends JDialog implements ScriptListener {
 				});
 				start.setEnabled(submit.isEnabled());
 
-final JMenuItem like = new JMenuItem();
-        like.setText(ScriptLikes.isLiked(def) ? "Unfavourite" : "Favourite");
-        like.setIcon(new ImageIcon(Configuration.getImage(
-            ScriptLikes.isLiked(def) ? Configuration.Paths.Resources.ICON_UNLIKE : Configuration.Paths.Resources.ICON_STAR)));
-        like.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            ScriptLikes.flip(def);
-          }
-        });
-
-         final JMenuItem delete = new JMenuItem(); 
+				final JMenuItem delete = new JMenuItem();
 				delete.setText("Delete");
 				delete.setIcon(new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_CLOSE)));
 				delete.addActionListener(new ActionListener() {
@@ -233,9 +202,6 @@ final JMenuItem like = new JMenuItem();
 							log.warning("Could not remove " + def.getName());
 						}
 						scripts.remove(def);
-				            if (ScriptLikes.isLiked(def)) {
-           					ScriptLikes.flip(def);
-        					} 
 						load();
 					}
 				});
@@ -245,7 +211,6 @@ final JMenuItem like = new JMenuItem();
 				}
 
 				contextMenu.add(start);
-				contextMenu.add(like);
 				contextMenu.add(visit);
 				contextMenu.add(delete);
 				contextMenu.show(table, e.getX(), e.getY());
@@ -301,15 +266,6 @@ final JMenuItem like = new JMenuItem();
 		submit.setText("");
 		connect.setToolTipText(Messages.SDNALL);
 		connect.setEnabled(ScriptUserList.getInstance().isAvailable());
-		final JButton favourites = new JButton(new ImageIcon(Configuration.getImage(Configuration.Paths.Resources.ICON_STAR)));
-	      favourites.setToolTipText("Show favourite scripts only");
-	      favourites.setSelected(likedOnly);
-	      favourites.addActionListener(new ActionListener() {
-	      public void actionPerformed(ActionEvent arg0) {
-	      favourites.setSelected(likedOnly = !likedOnly);
-	      filter();
-	      }
-  	      }); 
 		submit.setEnabled(false);
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent evt) {
@@ -317,7 +273,6 @@ final JMenuItem like = new JMenuItem();
 				setVisible(false);
 				final String account = (String) accounts.getSelectedItem();
 				bot.getScriptHandler().removeScriptListener(ScriptSelector.this);
-				unload();				
 				dispose();
 				Script script = null;
 				try {
@@ -351,9 +306,9 @@ final JMenuItem like = new JMenuItem();
 		});
 		connectUpdate();
 		accounts = new JComboBox(AccountManager.getAccountNames());
-		categories = new JComboBox(new String[] { "All", "Agility", "Combat", "Construction", "Cooking", "Crafting", "Dungeoneering", "Farming",
+		categories = new JComboBox(new String[]{"All", "Agility", "Combat", "Construction", "Cooking", "Crafting", "Dungeoneering", "Farming",
 				"Firemaking", "Fishing", "Fletching", "Herblore", "Hunter", "Magic", "Minigame", "Mining", "Other", "Money Making", "Prayer",
-				"Ranged", "Runecrafting", "Slayer", "Smithing", "Summoning", "Thieving", "Woodcutting" });
+				"Ranged", "Runecrafting", "Slayer", "Smithing", "Summoning", "Thieving", "Woodcutting"});
 		accounts.setPreferredSize(new Dimension(125, 20));
 		categories.setPreferredSize(new Dimension(150, 20));
 		categories.addActionListener(new ActionListener() {
@@ -371,8 +326,6 @@ final JMenuItem like = new JMenuItem();
 		toolBar.add(Box.createHorizontalStrut(5));
 		toolBar.add(connect);
 		toolBar.add(Box.createHorizontalStrut(5));
-		toolBar.add(favourites);
-	      toolBar.add(Box.createHorizontalStrut(5)); 
 		toolBar.add(submit);
 		final JPanel center = new JPanel();
 		center.setLayout(new BorderLayout());
@@ -390,7 +343,7 @@ final JMenuItem like = new JMenuItem();
 
 	private void filter() {
 		final String keys = ((String) categories.getSelectedItem()).toLowerCase();
-		model.search((search == null || search.getForeground() == searchAltColor) ? "" : search.getText(), keys.equals("all") ? null : keys, likedOnly);
+		model.search((search == null || search.getForeground() == searchAltColor) ? "" : search.getText(), keys.equals("all") ? null : keys);
 	}
 
 	private void setColumnWidths(final JTable table, final int... widths) {
@@ -451,15 +404,12 @@ final JMenuItem like = new JMenuItem();
 			matches = new ArrayList<ScriptDefinition>();
 		}
 
-		public void search(final String find, final String keys, final boolean likedOnly) {
+		public void search(final String find, final String keys) {
 			matches.clear();
 			for (final ScriptDefinition def : scripts) {
 				if (ScriptUserList.getInstance().isSelected() && !ScriptUserList.getInstance().isListed(def)) {
 					continue;
 				}
-				if (likedOnly && !ScriptLikes.isLiked(def)) {
- 		            continue;
- 		            } 
 				if (find.length() != 0 && !def.name.toLowerCase().contains(find.toLowerCase())) {
 					continue;
 				}

@@ -9,6 +9,9 @@ import org.rsbot.script.wrappers.RSTile;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Game state and GUI operations.
@@ -203,6 +206,21 @@ public class Game extends MethodProvider {
 	public static final int[] INTERFACE_TALKS = {211, 241, 251, 101, 242,
 			102, 161, 249, 243, 64, 65, 244, 255, 249, 230, 372, 421};
 	public static final int[] INTERFACE_OPTIONS = {230, 228};
+
+	public static final int[] GERMAN_WORLDS = { 122, 139, 140, 146, 147 };
+	public static final int[] FRENCH_WORLDS = { 128, 150 };
+	public static final int[] PORTUGUESE_WORLDS = { 94, 101, 125, 126, 127, 133 };
+	public static final int[] MEMBER_WORLDS = { 2, 6, 9, 12, 15, 18, 21, 22, 23, 24, 26, 27, 28, 31, 32, 36, 39,
+	40, 42, 44, 45, 46, 48, 51, 52, 53, 54, 56, 58, 59, 60, 64, 65, 66, 67, 68, 69, 70, 71, 72, 76, 77, 78,
+	79, 82, 83, 84, 85, 86, 88, 89, 91, 92, 96, 97, 98, 99, 100, 103, 104, 112, 114, 115, 116, 119, 121, 124,
+	129, 130, 131, 132, 137, 138, 142, 143, 144, 145, 148, 151, 156, 157, 158, 159, 160, 164, 166, 172 };
+	public static final int[] FREE_WORLDS = { 1, 3, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 25, 29, 30, 33, 34,
+	35, 37, 38, 41, 43, 47, 49, 50, 55, 56, 57, 61, 62, 73, 74, 75, 80, 81, 87, 90, 93, 102, 105, 106, 108,
+	113, 118, 120, 123, 134, 135, 136, 141, 149, 152, 153, 154, 155, 161, 165, 167, 169 };	
+
+	public enum Language {
+		ENGLISH, GERMAN, FRENCH, PORTUGESE
+	};
 
 	@Deprecated
 	public static final String[] TAB_NAMES = new String[]{"Combat Styles", "Task System", "Stats",
@@ -766,5 +784,41 @@ public class Game extends MethodProvider {
 			}
 		}
 		return Tab.NONE;
+	}
+
+	/**
+	 * Get the current world language.
+	 *
+	 * @return The language of the current world, currently only English, German, French or Portugese.
+	 */
+	public Language getWorldLanguage() {
+		final Map<Language, int[]> map = new HashMap<Language, int[]>(3);
+		map.put(Language.GERMAN, GERMAN_WORLDS);
+		map.put(Language.FRENCH, FRENCH_WORLDS);
+		map.put(Language.PORTUGESE, PORTUGUESE_WORLDS);
+		final int w = getCurrentWorld();
+		for (final Entry<Language, int[]> entry : map.entrySet()) {
+			for (int i = 0; i < entry.getValue().length; i++) {
+				if (w == entry.getValue()[i]) {
+					return entry.getKey();
+				}
+			}
+		}
+		return Language.ENGLISH;
+	}
+
+	/**
+	 * Determines whether the current world is members or free to play.
+	 *
+	 * @return true if the current world is a members world, false otherwise.
+	 */
+	public boolean isWorldMembers() {
+		final int w = getCurrentWorld();
+		for (final int n : MEMBER_WORLDS) {
+			if (w == n) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

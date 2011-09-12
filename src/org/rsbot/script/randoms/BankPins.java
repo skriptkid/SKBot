@@ -1,9 +1,7 @@
 package org.rsbot.script.randoms;
 
-import org.rsbot.gui.AccountManager;
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
-import org.rsbot.script.wrappers.RSComponent;
 
 @ScriptManifest(authors = {"Holo", "Gnarly", "Salty_Fish", "Pervy Shuya", "Doout"}, name = "BankPin", version = 3.0)
 public class BankPins extends Random {
@@ -13,28 +11,15 @@ public class BankPins extends Random {
 		return interfaces.get(13).isValid() || interfaces.get(14).isValid();
 	}
 
-	void enterCode(final String pin) {
-		if (!interfaces.get(13).isValid()) {
+	void enterPin(String pin) {
+		final int[] pinComponents = {6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+		int state = settings.getSetting(563);
+		if (!interfaces.get(13).isValid() || !interfaces.get(759).isValid() || state == 4) {
 			return;
 		}
-		final RSComponent[] children = interfaces.get(13).getComponents();
-		int state = 0;
-		for (int i = 1; i < 5; i++) {
-			if (children[i].containsText("?")) {
-				state++;
-			}
-		}
-		state = 4 - state;
-		if (!interfaces.get(759).isValid()) {
-			return;
-		}
-		final RSComponent[] bankPin = interfaces.get(759).getComponents();
-		for (final RSComponent aBankPin : bankPin) {
-			if (aBankPin.containsText(pin.substring(state, state + 1))) {
-				aBankPin.doClick(true);
-				sleep(random(500, 1000));
-				break;
-			}
+		String pinNumber = String.valueOf(pin.charAt(state));
+		if (interfaces.getComponent(13, pinComponents[Integer.valueOf(pinNumber)]).doClick()) {
+			sleep(800, 1200);
 		}
 	}
 
@@ -42,9 +27,9 @@ public class BankPins extends Random {
 	public int loop() {
 		if (interfaces.get(14).isValid()) {
 			interfaces.getComponent(14, 33).doClick();
-			sleep(300);
+			return 500;
 		} else {
-			final String pin = AccountManager.getPin(account.getName());
+			final String pin = account.getPin();
 			if (pin == null || pin.length() != 4) {
 				log.severe("You must add a bank pin to your account.");
 				stopScript(false);
@@ -53,7 +38,7 @@ public class BankPins extends Random {
 				interfaces.get(14).getComponent(3).doClick();
 				return -1;
 			}
-			enterCode(pin);
+			enterPin(pin);
 			if (interfaces.get(211).isValid()) {
 				interfaces.get(211).getComponent(3).doClick();
 			} else if (interfaces.get(217).isValid()) {
