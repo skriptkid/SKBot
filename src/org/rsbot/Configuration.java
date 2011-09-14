@@ -69,7 +69,7 @@ public class Configuration {
 		}
 
 		public static class URLs {
-			public static final String HOST = "powerbot.org";
+			public static final String HOST = "skbot.tk";
 			private static final String BASE = "http://skbot-client.googlecode.com/svn/updater/";
 			public static final String DOWNLOAD = BASE + "SKBot.jar";
 			public static final String LICENSE = BASE + "license.txt";
@@ -80,8 +80,8 @@ public class Configuration {
 			public static final String SDN_MANIFEST = BASE + "sdn-manifest.txt";
 			public static final String SDN_USER = BASE + "sdn-user.txt";
 			public static final String AD_INFO = BASE + "botad-info.txt";
-			public static final String TRIDENT = BASE + "trident.jar";
-			public static final String SUBSTANCE = BASE + "substance.jar";
+			public static final String TRIDENT = BASE + "trident";
+			public static final String SUBSTANCE = BASE + "substance";
 		}
 
 		public static final String ROOT = new File(".").getAbsolutePath();
