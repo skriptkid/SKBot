@@ -7,7 +7,6 @@ import org.rsbot.log.TextAreaLogHandler;
 import org.rsbot.script.internal.ScriptHandler;
 import org.rsbot.script.internal.event.ScriptListener;
 import org.rsbot.script.methods.Environment;
-import org.rsbot.script.methods.Web;
 import org.rsbot.script.provider.ScriptDeliveryNetwork;
 import org.rsbot.script.provider.ScriptDownloader;
 import org.rsbot.script.provider.ScriptUserList;
@@ -23,8 +22,11 @@ import java.awt.*;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.*;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -328,18 +330,8 @@ public class BotGUI extends JFrame implements ActionListener, ScriptListener {
 	}
 
 	void pauseScript(final Bot bot) {
-		final ScriptHandler sh = bot.getScriptHandler();
-		final Map<Integer, LoopTask> running = sh.getRunningScripts();
-		if (running.size() > 0) {
-			Iterator<Integer> idIterator = running.keySet().iterator();
-			int id = -1;
-			Web web = bot.getMethodContext().web;
-			while (idIterator.hasNext()) {
-				final int checkID = idIterator.next();
-				id = checkID;
-				break;
-			}
-			sh.pauseScript(id);
+		for (final Entry<Integer, LoopTask> script : bot.getScriptHandler().getRunningScripts().entrySet()) {
+			bot.getScriptHandler().pauseScript(script.getKey());
 		}
 	}
 
