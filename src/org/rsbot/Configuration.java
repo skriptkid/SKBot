@@ -70,18 +70,18 @@ public class Configuration {
 
 		public static class URLs {
 			public static final String HOST = "powerbot.org";
-			private static final String BASE = "http://links." + HOST + "/";
-			public static final String DOWNLOAD = BASE + "download";
-			public static final String LICENSE = BASE + "license";
-			public static final String CLIENTPATCH = BASE + "modscript";
+			private static final String BASE = "http://skbot-client.googlecode.com/svn/updater/";
+			public static final String DOWNLOAD = BASE + "SKBot.jar";
+			public static final String LICENSE = BASE + "license.txt";
+			public static final String CLIENTPATCH = BASE + "modscript.gz";
 			public static final String VERSION = BASE + "version.txt";
-			public static final String SDN_MANIFEST = BASE + "sdn-manifest";
-			public static final String SDN_USER = "SKBot.tk";
-			public static final String AD_INFO = BASE + "botad-info";
-			public static final String TRIDENT = BASE + "trident";
-			public static final String SUBSTANCE = BASE + "substance";
-			public static final String SITE = "http://SKBot.tk";
 			public static final String PROJECT = "http://code.google.com/p/skbot-client/";
+			public static final String SITE = "http://skbot.tk";
+			public static final String SDN_MANIFEST = BASE + "sdn-manifest.txt";
+			public static final String SDN_USER = BASE + "sdn-user.txt";
+			public static final String AD_INFO = BASE + "botad-info.txt";
+			public static final String TRIDENT = BASE + "trident.jar";
+			public static final String SUBSTANCE = BASE + "substance.jar";
 		}
 
 		public static final String ROOT = new File(".").getAbsolutePath();
