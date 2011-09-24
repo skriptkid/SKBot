@@ -22,11 +22,14 @@ import java.util.logging.Logger;
  */
 public class ScriptDeliveryNetwork implements ScriptSource, Runnable {
 	private static final Logger log = Logger.getLogger("ScriptDelivery");
+	private final static String DELIMITER = ",";
 	private static ScriptDeliveryNetwork instance;
 	private URL base;
 	private final File manifest = new File(Configuration.Paths.getCacheDirectory(), "sdn-manifests.txt");
+	private final FileScriptSource fileSource;
 
 	private ScriptDeliveryNetwork() {
+		fileSource = new FileScriptSource(new File(Configuration.Paths.getScriptsNetworkDirectory()));
 	}
 
 	public static ScriptDeliveryNetwork getInstance() {
@@ -38,17 +41,32 @@ public class ScriptDeliveryNetwork implements ScriptSource, Runnable {
 
 	private static void parseManifests(final Map<String, Map<String, String>> entries, final List<ScriptDefinition> defs) {
 		for (final Entry<String, Map<String, String>> entry : entries.entrySet()) {
+			final Map<String, String> values = entry.getValue();
+			if (!values.containsKey("name") || !values.containsKey("authors")) {
+				continue;
+			}
 			final ScriptDefinition def = new ScriptDefinition();
 			def.path = entry.getKey();
-			final Map<String, String> values = entry.getValue();
-			def.id = Integer.parseInt(values.get("id"));
-			def.crc32 = values.containsKey("crc32") ? Long.parseLong(values.get("crc32")) : 0;
 			def.name = values.get("name");
-			def.version = Double.parseDouble(values.get("version"));
-			def.description = values.get("description");
-			def.authors = values.get("authors").split(ScriptList.DELIMITER);
-			def.keywords = values.get("keywords").split(ScriptList.DELIMITER);
-			def.website = values.get("website");
+			def.authors = values.get("authors").split(DELIMITER);
+			if (values.containsKey("id")) {
+				def.id = Integer.parseInt(values.get("id"));
+			}
+			if (values.containsKey("crc32")) {
+				def.crc32 = Long.parseLong(values.get("crc32"));
+			}
+			if (values.containsKey("version")) {
+				def.version = Double.parseDouble(values.get("version"));
+			}
+			if (values.containsKey("description")) {
+				def.description = values.get("description");
+			}
+			if (values.containsKey("keywords")) {
+				def.keywords = values.get("keywords").split(DELIMITER);
+			}
+			if (values.containsKey("website")) {
+				def.website = values.get("website");
+			}
 			defs.add(def);
 		}
 	}
@@ -61,9 +79,15 @@ public class ScriptDeliveryNetwork implements ScriptSource, Runnable {
 				log.warning("Unable to load scripts from the network");
 			}
 		}
+		if (base == null) {
+			log.warning("Attempting to use cached network scripts");
+		}
 	}
 
 	public List<ScriptDefinition> list() {
+		if (base == null) {
+			return fileSource.list();
+		}
 		final ArrayList<ScriptDefinition> defs = new ArrayList<ScriptDefinition>();
 		refresh(false);
 		try {
@@ -78,6 +102,13 @@ public class ScriptDeliveryNetwork implements ScriptSource, Runnable {
 	}
 
 	public Script load(final ScriptDefinition def) {
+		if (base == null) {
+			try {
+				return fileSource.load(def);
+			} catch (final Exception ignored) {
+				log.severe("Unable to load cached script");
+			}
+		}
 		final File cache = new File(Configuration.Paths.getScriptsNetworkDirectory(), def.path);
 		final LinkedList<ScriptDefinition> defs = new LinkedList<ScriptDefinition>();
 		try {
@@ -96,5 +127,9 @@ public class ScriptDeliveryNetwork implements ScriptSource, Runnable {
 	@Override
 	public void run() {
 		refresh(true);
+	}
+
+	public boolean isAvailable() {
+		return base != null;
 	}
 }

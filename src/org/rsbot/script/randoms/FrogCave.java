@@ -17,13 +17,7 @@ public class FrogCave extends Random {
 
 	@Override
 	public boolean activateCondition() {
-		if (!game.isLoggedIn()) {
-			return false;
-		} else if (npcs.getNearest("Frog Herald") != null && objects.getNearest(5917) != null) {
-			sleep(random(2000, 3000));
-			return npcs.getNearest("Frog Herald") != null && objects.getNearest(5917) != null;
-		}
-		return false;
+		return npcs.getNearest("Frog Herald") != null && objects.getNearest(5917) != null && game.isLoggedIn();
 	}
 
 	private RSNPC findFrog() {
@@ -47,12 +41,11 @@ public class FrogCave extends Random {
 
 	@Override
 	public int loop() {
+		if (!activateCondition()) {
+			return -1;
+		}
 		try {
-			if (!activateCondition()) {
-				return -1;
-			}
 			if (canContinue()) {
-				// log("can continue...");
 				if (!talkedToHerald) {
 					final RSComponent heraldTalkComp = interfaces.getComponent(242, 4);
 					talkedToHerald = heraldTalkComp.isValid() && (heraldTalkComp.containsText("crown") || heraldTalkComp.containsText("is still waiting"));
@@ -62,7 +55,7 @@ public class FrogCave extends Random {
 				}
 				return random(600, 800);
 			}
-			if (getMyPlayer().isMoving()) {
+			if (getMyPlayer().isMoving() || getMyPlayer().getAnimation() != -1) {
 				return random(600, 800);
 			}
 			if (!talkedToHerald) {

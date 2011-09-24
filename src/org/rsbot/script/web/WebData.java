@@ -1,47 +1,41 @@
 package org.rsbot.script.web;
 
-import java.util.HashMap;
+import org.rsbot.script.Script;
+import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.methods.MethodContext;
+import org.rsbot.script.methods.MethodProvider;
+import org.rsbot.script.methods.Web;
 import org.rsbot.script.wrappers.RSTile;
 
-public class WebData {
+@ScriptManifest(name = "Web Data Collector", authors = {"Timer"})
+public class WebData extends MethodProvider implements Runnable {
 	private RSTile lastMapBase = null;
 	private int lastLevel = -1;
-        MethodContext ctx;
 	private static final Object botCollectionLock = new Object();
-        private final HashMap<RSTile, Integer> tileflags = new HashMap<RSTile, Integer>();
+	public volatile boolean running = false;
 
-        public WebData(final MethodContext ctx){
-            this.ctx = ctx;
-        }
-        
-        public HashMap<RSTile, Integer> getTileFlags(){
-            return tileflags;
-        }
-        
-        private boolean isGameLoading(){
-            return ctx.client.getLoginIndex() == 12;
-        }
-        
-	public boolean updateAvailable() {
-		final RSTile curr_base = ctx.game.getMapBase();
-		final int curr_plane = ctx.game.getPlane();
-		return ctx.game.isLoggedIn() && !isGameLoading() && ((lastMapBase == null || !lastMapBase.equals(curr_base)) || (lastLevel == -1 || lastLevel != curr_plane));
+	public WebData(final MethodContext ctx) {
+		super(ctx);
 	}
-        
-        public void update(){
-            update(false);
-        }
 
-	public void update(boolean forced) {
-            if(forced || updateAvailable())
+	public boolean activateCondition() {
+		final RSTile curr_base = methods.game.getMapBase();
+		final int curr_plane = methods.game.getPlane();
+		return methods.game.isLoggedIn() && ((lastMapBase == null || !lastMapBase.equals(curr_base)) || (lastLevel == -1 || lastLevel != curr_plane));
+	}
+
+	public int loop() {
 		try {
-			final RSTile currentMapBase = ctx.game.getMapBase();
-			final int currentLevel = ctx.game.getPlane();
+			sleep(5000);
+			final RSTile currentMapBase = methods.game.getMapBase();
+			final int currentLevel = methods.game.getPlane();
+			if (!currentMapBase.equals(methods.game.getMapBase())) {
+				return -1;
+			}
 			lastMapBase = currentMapBase;
 			lastLevel = currentLevel;
-			final int tileKeys[][] = ctx.walking.getCollisionFlags(currentLevel).clone();
-			final RSTile collisionOffset = ctx.walking.getCollisionOffset(currentLevel);
+			final int tileKeys[][] = methods.walking.getCollisionFlags(currentLevel).clone();
+			final RSTile collisionOffset = methods.walking.getCollisionOffset(currentLevel);
 			final int xOffset = collisionOffset.getX();
 			final int yOffset = collisionOffset.getY();
 			final int xBase = currentMapBase.getX(), yBase = currentMapBase.getY();
@@ -52,11 +46,11 @@ public class WebData {
 					final int keyIndex_x = localX - xOffset, keyIndex_y = localY - yOffset;
 					final int key = tileKeys[keyIndex_x][keyIndex_y];
 					synchronized (botCollectionLock) {
-						if (!tileflags.containsKey(analysisTile) && (!RSTile.Walkable(key) || RSTile.Questionable(key))) {
-							tileflags.put(analysisTile, key);
+						if (!Web.rs_map.containsKey(analysisTile) && (!RSTile.Walkable(key) || RSTile.Questionable(key))) {
+							Web.rs_map.put(analysisTile, key);
 						} else {
-							if (tileflags.containsKey(analysisTile) && tileflags.get(analysisTile) != key) {
-								tileflags.remove(analysisTile);
+							if (Web.rs_map.containsKey(analysisTile) && Web.rs_map.get(analysisTile) != key) {
+								Web.rs_map.remove(analysisTile);
 								lastMapBase = null;
 								lastLevel = -1;
 							}
@@ -64,7 +58,22 @@ public class WebData {
 					}
 				}
 			}
+			return -1;
 		} catch (final Exception ignored) {
+		}
+		return -1;
+	}
+
+	public void run() {
+		while (running) {
+			if (activateCondition()) {
+				int w;
+				while ((w = loop()) != -1) {
+					Script.sleep(w);
+				}
+			} else {
+				Script.sleep(2000);
+			}
 		}
 	}
 }

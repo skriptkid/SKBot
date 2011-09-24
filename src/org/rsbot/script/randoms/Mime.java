@@ -113,7 +113,7 @@ public class Mime extends Random {
 							return random(1200, 1800);
 						}
 					}
-					log.info("Unknown Animation: " + animation + " Please inform a developer at powerbot.org!");
+					log.info("Unknown Animation: " + animation + " Please inform a developer at SKBot.tk!");
 					return random(4000, 4500);
 				}
 			case wait:
